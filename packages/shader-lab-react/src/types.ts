@@ -9,9 +9,12 @@ export type ShaderLabLayerKind = "effect" | "source"
 
 export type ShaderLabSourceLayerType =
   | "custom-shader"
+  | "fluid"
   | "gradient"
   | "image"
   | "live"
+  | "magnify-lens"
+  | "pixel-trail"
   | "text"
   | "video"
 
