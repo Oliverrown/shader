@@ -19,6 +19,14 @@ export function ShaderLabPage() {
       <LayerSidebar />
       <PropertiesSidebar />
       <MobileEditorDock />
+      <a
+        href="https://eng.basement.studio/tools/shader-lab"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-3 left-3 z-50 text-xs text-white/50 hover:text-white/80 transition-colors"
+      >
+        此为 basement 开源项目翻译版
+      </a>
     </main>
   )
 }

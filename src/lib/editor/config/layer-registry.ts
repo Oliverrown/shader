@@ -165,7 +165,7 @@ const customShaderParams = [
 
 const textParams = [
   {
-    defaultValue: "SuperMaker.Club",
+    defaultValue: "SuperOPC",
     key: "text",
     label: "文本",
     maxLength: 32,
@@ -1099,7 +1099,7 @@ const asciiParams = [
     defaultValue: 1,
     group: "信号",
     key: "signalWhitePoint",
-    label: "白场",
+    label: "���场",
     max: 1,
     min: 0,
     step: 0.01,
