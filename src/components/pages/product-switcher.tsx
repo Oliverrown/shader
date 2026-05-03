@@ -37,8 +37,7 @@ function ShaderLogo() {
       aria-hidden="true"
       className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-white/14 bg-[radial-gradient(circle_at_32%_24%,rgb(255_255_255_/_0.36),transparent_34%),linear-gradient(135deg,#d7f45e_0%,#6d7b25_48%,#11150a_100%)] shadow-[inset_0_1px_0_rgb(255_255_255_/_0.22),0_8px_20px_rgb(0_0_0_/_0.35)]"
     >
-      <span className="absolute inset-[7px] rounded-[5px] border border-black/18 bg-black/16" />
-      <span className="relative font-[var(--ds-font-mono)] font-bold text-[15px] text-black/76 leading-none">
+      <span className="relative font-[var(--ds-font-mono)] font-bold text-[17px] text-black/76 leading-none">
         S
       </span>
     </span>
@@ -121,7 +120,7 @@ export function ProductSwitcher() {
         <>
           <span aria-hidden="true" className="h-2 w-full" />
           <div
-            className="z-[2147483647] w-[224px] rounded-[12px] border border-white/12 bg-[rgb(18_18_22_/_0.96)] p-2 shadow-[0_20px_50px_rgb(0_0_0_/_0.45),inset_0_1px_0_rgb(255_255_255_/_0.08)] backdrop-blur-[24px]"
+            className="z-[2147483647] w-[224px] rounded-[12px] border border-white/12 bg-[rgb(18_18_22_/_0.96)] p-2 shadow-[0_20px_50px_rgb(0_0_0_/_0.45)] backdrop-blur-[24px]"
             onBlur={scheduleCloseWhenFocusLeaves}
             onFocus={openMenu}
             role="menu"
