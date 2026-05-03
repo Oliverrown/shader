@@ -121,7 +121,7 @@ export function ProductSwitcher() {
         <>
           <span aria-hidden="true" className="h-2 w-full" />
           <div
-            className="z-[2147483647] w-[304px] rounded-[12px] border border-white/12 bg-[rgb(18_18_22_/_0.96)] p-2 shadow-[0_20px_50px_rgb(0_0_0_/_0.45),inset_0_1px_0_rgb(255_255_255_/_0.08)] backdrop-blur-[24px]"
+            className="z-[2147483647] w-[224px] rounded-[12px] border border-white/12 bg-[rgb(18_18_22_/_0.96)] p-2 shadow-[0_20px_50px_rgb(0_0_0_/_0.45),inset_0_1px_0_rgb(255_255_255_/_0.08)] backdrop-blur-[24px]"
             onBlur={scheduleCloseWhenFocusLeaves}
             onFocus={openMenu}
             role="menu"
