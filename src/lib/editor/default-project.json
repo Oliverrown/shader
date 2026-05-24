@@ -21,7 +21,7 @@
         "mode": "multiply",
         "source": "luminance"
       },
-      "name": "CRT",
+      "name": "CRT 显示器",
       "opacity": 1,
       "params": {
         "crtMode": "slot-mask",
@@ -68,7 +68,7 @@
         "mode": "multiply",
         "source": "luminance"
       },
-      "name": "Dithering",
+      "name": "抖动",
       "opacity": 1,
       "params": {
         "preset": "custom",
@@ -104,7 +104,7 @@
         "mode": "stencil",
         "source": "luminance"
       },
-      "name": "Text",
+      "name": "文字",
       "opacity": 1,
       "params": {
         "text": "SuperOPC",
@@ -134,7 +134,7 @@
         "mode": "multiply",
         "source": "luminance"
       },
-      "name": "Pattern",
+      "name": "图案",
       "opacity": 1,
       "params": {
         "cellSize": 8,
@@ -175,7 +175,7 @@
         "mode": "multiply",
         "source": "luminance"
       },
-      "name": "Gradient",
+      "name": "渐变",
       "opacity": 1,
       "params": {
         "preset": "custom",
