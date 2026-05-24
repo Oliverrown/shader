@@ -6,7 +6,6 @@ import { EditorTimelineOverlay } from "@/components/editor/editor-timeline-overl
 import { EditorTopBar } from "@/components/editor/editor-topbar"
 import { LayerSidebar } from "@/components/editor/layer-sidebar"
 import { PropertiesSidebar } from "@/components/editor/properties-sidebar"
-import { ProductSwitcher } from "@/components/pages/product-switcher"
 
 export function ShaderLabPage() {
   return (
@@ -17,7 +16,6 @@ export function ShaderLabPage() {
       <EditorShortcuts />
       <EditorCanvasViewport />
       <EditorTimelineOverlay />
-      <ProductSwitcher />
       <EditorTopBar />
       <LayerSidebar />
       <PropertiesSidebar />
