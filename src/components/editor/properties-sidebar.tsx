@@ -36,6 +36,20 @@ import {
 import { SceneConfigContent } from "./scene-config-content"
 
 export function PropertiesSidebar() {
+  if (typeof window !== "undefined") {
+    const w = window as unknown as Record<string, number>
+    const now = performance.now()
+    const last = (w.__v0_psb_t as number) ?? 0
+    if (now - last < 4) {
+      w.__v0_psb_burst = ((w.__v0_psb_burst as number) ?? 0) + 1
+      if ((w.__v0_psb_burst as number) % 20 === 0) {
+        console.log("[v0] properties-sidebar render burst", w.__v0_psb_burst)
+      }
+    } else {
+      w.__v0_psb_burst = 0
+    }
+    w.__v0_psb_t = now
+  }
   const reduceMotion = useReducedMotion() ?? false
   const [expandedParamGroups, setExpandedParamGroups] = useState<
     Record<string, boolean>
