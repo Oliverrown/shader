@@ -381,7 +381,7 @@ function TimelineTransport({
             <CircleIcon height={10} width={10} />
           )}
           <Typography as="span" tone="secondary" variant="caption">
-            Auto-Key
+            自动关键帧
           </Typography>
         </IconButton>
       </div>
@@ -424,7 +424,7 @@ function TimelineTransport({
           tone="secondary"
           variant="caption"
         >
-          sec
+          秒
         </Typography>
       </div>
 
@@ -1412,7 +1412,7 @@ export function EditorTimelineOverlay() {
                         })
                       ) : (
                         <Typography tone="muted" variant="caption">
-                          Select a layer to inspect its timeline properties.
+                          选择一个图层以查看其时间轴属性。
                         </Typography>
                       )}
                     </div>
@@ -1622,7 +1622,7 @@ export function EditorTimelineOverlay() {
                             variant="caption"
                             className="text-balance"
                           >
-                            Add your first keyframe from the properties panel.
+                            从属性面板添加你的第一个关键帧。
                           </Typography>
                         </div>
                       </div>

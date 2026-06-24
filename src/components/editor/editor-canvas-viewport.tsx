@@ -296,7 +296,7 @@ export function EditorCanvasViewport() {
         ref={viewportRef}
         className="absolute inset-0 overflow-hidden"
         role="application"
-        aria-label="Canvas viewport"
+        aria-label="画布视口"
         style={{
           cursor: viewportCursor,
         }}
@@ -357,7 +357,7 @@ export function EditorCanvasViewport() {
         {isDragOver ? (
           <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center border-2 border-dashed border-white/30 bg-black/30 backdrop-blur-[2px]">
             <span className="font-[var(--ds-font-sans)] text-xs text-white/70">
-              Drop to add layer
+              拖放以添加图层
             </span>
           </div>
         ) : null}

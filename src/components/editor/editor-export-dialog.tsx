@@ -536,7 +536,7 @@ export function EditorExportDialog({
 
       downloadBlob(blob, buildDownloadName("png"))
       setStatusMessage(
-        `PNG exported at ${imageSize.width}×${imageSize.height}.`
+        `已导出 PNG，尺寸 ${imageSize.width}×${imageSize.height}。`
       )
     } catch (error) {
       setErrorMessage(
@@ -580,12 +580,12 @@ export function EditorExportDialog({
         value: 1,
       })
       setStatusMessage(
-        `${videoFormat.toUpperCase()} exported at ${exportSize.width}×${exportSize.height}.`
+        `已导出 ${videoFormat.toUpperCase()}，尺寸 ${exportSize.width}×${exportSize.height}。`
       )
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         setVideoProgress(null)
-        setStatusMessage("Video export cancelled.")
+        setStatusMessage("视频导出已取消。")
       } else {
         setErrorMessage(
           error instanceof Error ? error.message : "视频导出失败。"
@@ -601,7 +601,7 @@ export function EditorExportDialog({
     clearFeedback()
 
     if (!liveCanvas) {
-      setErrorMessage("Live recording requires the visible canvas to be ready.")
+      setErrorMessage("实时录制需要可见画布准备就绪。")
       return
     }
 
@@ -611,7 +611,7 @@ export function EditorExportDialog({
         : (liveVideoSupport.webm ?? liveVideoSupport.mp4)
 
     if (!mimeType) {
-      setErrorMessage("Live recording is not supported in this browser.")
+      setErrorMessage("此浏览器不支持实时录制。")
       return
     }
 
@@ -647,7 +647,7 @@ export function EditorExportDialog({
       useTimelineStore.getState().setPlaying(false)
       const extension = mimeType.includes("mp4") ? "mp4" : "webm"
       downloadBlob(blob, buildDownloadName(extension))
-      setStatusMessage(`Live ${extension.toUpperCase()} recording exported.`)
+      setStatusMessage(`已导出实时 ${extension.toUpperCase()} 录制。`)
     } catch (error) {
       useTimelineStore.getState().setPlaying(false)
       if (!(error instanceof DOMException && error.name === "AbortError")) {
@@ -682,7 +682,7 @@ export function EditorExportDialog({
       })
 
       downloadBlob(blob, buildDownloadName("lab"))
-      setStatusMessage("Shader Lab project exported.")
+      setStatusMessage("Shader Lab 项目已导出。")
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "项目导出失败。"
@@ -704,7 +704,7 @@ export function EditorExportDialog({
 
       setStatusMessage(
         result.missingAssetCount > 0
-          ? `Project imported. ${result.missingAssetCount} media layer(s) need relinking.`
+          ? `项目已导入。${result.missingAssetCount} 个媒体图层需要重新链接。`
           : "项目已导入。"
       )
       onOpenChange(false)
@@ -733,7 +733,7 @@ export function EditorExportDialog({
 
     try {
       await copyToClipboard(shaderSnippet)
-      setStatusMessage("Shader snippet copied to clipboard.")
+      setStatusMessage("着色器代码片段已复制到剪贴板。")
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -1185,7 +1185,7 @@ function ImageTabContent({
       />
 
       <Typography className="leading-[14px]" tone="muted" variant="caption">
-        Uses the current playhead frame.
+        使用当前播放头所在帧。
       </Typography>
 
       <Button
@@ -1194,7 +1194,7 @@ function ImageTabContent({
         uiSound="action.export"
       >
         <DownloadIcon height={16} width={16} />
-        Export PNG
+        导出 PNG
       </Button>
     </section>
   )
@@ -1424,7 +1424,7 @@ function ProjectTabContent({
         uiSound="action.export"
       >
         <DownloadIcon height={16} width={16} />
-        Export .lab file
+        导出 .lab 文件
       </Button>
 
       <label
@@ -1455,7 +1455,7 @@ function ProjectTabContent({
         <UploadIcon height={20} width={20} />
         <div>
           <Typography className="leading-4" variant="label">
-            Import .lab configuration
+            导入 .lab 配置
           </Typography>
           <Typography className="mt-1" tone="tertiary" variant="caption">
             Drag and drop here. This will replace your current setup.
@@ -1781,7 +1781,7 @@ function downloadBlob(blob: Blob, fileName: string) {
 
 async function copyToClipboard(value: string) {
   if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
-    throw new Error("Clipboard access is not available in this browser.")
+    throw new Error("此浏览器不支持访问剪贴板。")
   }
 
   await navigator.clipboard.writeText(value)
