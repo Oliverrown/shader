@@ -50,7 +50,7 @@ const imageParams = [
   {
     defaultValue: "2048",
     key: "svgRasterResolution",
-    label: "Rasterization Resolution",
+    label: "栅格化分辨率",
     options: [
       { label: "1024", value: "1024" },
       { label: "2048", value: "2048" },
@@ -126,7 +126,7 @@ const customShaderParams = [
     animatable: false,
     defaultValue: false,
     key: "effectMode",
-    label: "Effect Mode",
+    label: "特效模式",
     type: "boolean",
     visibleWhen: CUSTOM_SHADER_INTERNAL_VISIBILITY,
   },
@@ -134,10 +134,10 @@ const customShaderParams = [
     animatable: false,
     defaultValue: "paste",
     key: "sourceMode",
-    label: "Source Mode",
+    label: "源模式",
     options: [
-      { label: "Paste", value: "paste" },
-      { label: "File", value: "file" },
+      { label: "粘贴", value: "paste" },
+      { label: "文件", value: "file" },
     ],
     type: "select",
     visibleWhen: CUSTOM_SHADER_INTERNAL_VISIBILITY,
@@ -146,7 +146,7 @@ const customShaderParams = [
     animatable: false,
     defaultValue: CUSTOM_SHADER_STARTER,
     key: "sourceCode",
-    label: "Source Code",
+    label: "源代码",
     type: "text",
     visibleWhen: CUSTOM_SHADER_INTERNAL_VISIBILITY,
   },
@@ -154,7 +154,7 @@ const customShaderParams = [
     animatable: false,
     defaultValue: "",
     key: "sourceFileName",
-    label: "Source File",
+    label: "源文件",
     type: "text",
     visibleWhen: CUSTOM_SHADER_INTERNAL_VISIBILITY,
   },
@@ -162,7 +162,7 @@ const customShaderParams = [
     animatable: false,
     defaultValue: CUSTOM_SHADER_ENTRY_EXPORT,
     key: "entryExport",
-    label: "Entry Export",
+    label: "入口导出",
     maxLength: 64,
     type: "text",
     visibleWhen: CUSTOM_SHADER_INTERNAL_VISIBILITY,
@@ -171,7 +171,7 @@ const customShaderParams = [
     animatable: false,
     defaultValue: 0,
     key: "sourceRevision",
-    label: "Source Revision",
+    label: "源版本",
     max: Number.MAX_SAFE_INTEGER,
     min: 0,
     step: 1,
@@ -191,28 +191,28 @@ const textParams = [
   {
     animatable: false,
     defaultValue: "center",
-    group: "Placement",
+    group: "位置",
     key: "anchor",
-    label: "Anchor",
+    label: "锚点",
     options: [
-      { label: "Top Left", value: "top-left" },
-      { label: "Top Center", value: "top-center" },
-      { label: "Top Right", value: "top-right" },
-      { label: "Center Left", value: "center-left" },
-      { label: "Center", value: "center" },
-      { label: "Center Right", value: "center-right" },
-      { label: "Bottom Left", value: "bottom-left" },
-      { label: "Bottom Center", value: "bottom-center" },
-      { label: "Bottom Right", value: "bottom-right" },
+      { label: "左上", value: "top-left" },
+      { label: "上中", value: "top-center" },
+      { label: "右上", value: "top-right" },
+      { label: "左中", value: "center-left" },
+      { label: "居中", value: "center" },
+      { label: "右中", value: "center-right" },
+      { label: "左下", value: "bottom-left" },
+      { label: "下中", value: "bottom-center" },
+      { label: "右下", value: "bottom-right" },
     ],
     type: "select",
     ui: "anchor-grid",
   },
   {
     defaultValue: [0, 0] as [number, number],
-    group: "Placement",
+    group: "位置",
     key: "offset",
-    label: "Offset",
+    label: "偏移",
     max: 1,
     min: -1,
     step: 0.01,
@@ -233,13 +233,13 @@ const textParams = [
 <<<<<<< HEAD
     label: "字体",
     options: [
-      { label: "Display Serif", value: "display-serif" },
-      { label: "Mono", value: "mono" },
-      { label: "Sans", value: "sans" },
+      { label: "衬线展示体", value: "display-serif" },
+      { label: "等宽", value: "mono" },
+      { label: "无衬线", value: "sans" },
       { label: "Impact", value: "impact" },
     ],
 =======
-    label: "Font",
+    label: "字体",
     options: TEXT_FONT_OPTIONS,
 >>>>>>> upstream/main
     type: "select",
@@ -277,7 +277,7 @@ const textParams = [
   {
     defaultValue: 1,
     key: "backgroundAlpha",
-    label: "Background Alpha",
+    label: "背景透明度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -313,7 +313,7 @@ const inkParams = [
 <<<<<<< HEAD
     label: "文字清晰度",
 =======
-    label: "Detail Blend",
+    label: "细节混合",
 >>>>>>> upstream/main
     max: 1,
     min: 0,
@@ -412,12 +412,12 @@ const inkParams = [
   },
   {
     defaultValue: "gradient",
-    group: "Colors",
+    group: "颜色",
     key: "colorMode",
-    label: "Color Mode",
+    label: "颜色模式",
     options: [
-      { label: "Gradient", value: "gradient" },
-      { label: "Source", value: "source" },
+      { label: "渐变", value: "gradient" },
+      { label: "源", value: "source" },
     ],
     type: "select",
   },
@@ -556,9 +556,9 @@ const inkParams = [
 const bloomParams = [
   {
     defaultValue: 1.25,
-    group: "Bloom",
+    group: "辉光",
     key: "bloomIntensity",
-    label: "Intensity",
+    label: "强度",
     max: 8,
     min: 0,
     step: 0.01,
@@ -566,9 +566,9 @@ const bloomParams = [
   },
   {
     defaultValue: 0.6,
-    group: "Bloom",
+    group: "辉光",
     key: "bloomThreshold",
-    label: "Threshold",
+    label: "阈值",
     max: 1,
     min: 0,
     step: 0.01,
@@ -576,9 +576,9 @@ const bloomParams = [
   },
   {
     defaultValue: 6,
-    group: "Bloom",
+    group: "辉光",
     key: "bloomRadius",
-    label: "Radius",
+    label: "半径",
     max: 24,
     min: 0,
     step: 0.25,
@@ -586,9 +586,9 @@ const bloomParams = [
   },
   {
     defaultValue: 0.35,
-    group: "Bloom",
+    group: "辉光",
     key: "bloomSoftness",
-    label: "Softness",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -596,9 +596,9 @@ const bloomParams = [
   },
   {
     defaultValue: 0.2,
-    group: "Highlight",
+    group: "高光",
     key: "bloomKnee",
-    label: "Knee",
+    label: "拐点",
     max: 0.5,
     min: 0,
     step: 0.01,
@@ -606,9 +606,9 @@ const bloomParams = [
   },
   {
     defaultValue: 1.5,
-    group: "Highlight",
+    group: "高光",
     key: "highlightDrive",
-    label: "Highlight Drive",
+    label: "高光驱动",
     max: 4,
     min: 1,
     step: 0.01,
@@ -624,10 +624,10 @@ const gradientParams = [
     label: "预设",
     options: [
       { label: "自定义", value: "custom" },
-      { label: "Forest", value: "aurora" },
-      { label: "Ember", value: "sunset" },
-      { label: "Abyss", value: "deep-ocean" },
-      { label: "Violet", value: "neon-glow" },
+      { label: "森林", value: "aurora" },
+      { label: "余烬", value: "sunset" },
+      { label: "深渊", value: "deep-ocean" },
+      { label: "紫罗兰", value: "neon-glow" },
     ],
     type: "select",
   },
@@ -818,7 +818,7 @@ const gradientParams = [
     group: "扭曲",
 =======
     defaultValue: "ridge",
-    group: "Distortion",
+    group: "扭曲",
 >>>>>>> upstream/main
     key: "noiseType",
     label: "噪点类型",
@@ -838,7 +838,7 @@ const gradientParams = [
     group: "扭曲",
 =======
     defaultValue: 70.3,
-    group: "Distortion",
+    group: "扭曲",
 >>>>>>> upstream/main
     key: "noiseSeed",
     label: "随机种子",
@@ -853,7 +853,7 @@ const gradientParams = [
     group: "扭曲",
 =======
     defaultValue: 0.18,
-    group: "Distortion",
+    group: "扭曲",
 >>>>>>> upstream/main
     key: "warpAmount",
     label: "扭曲量",
@@ -868,7 +868,7 @@ const gradientParams = [
     group: "扭曲",
 =======
     defaultValue: 2.35,
-    group: "Distortion",
+    group: "扭曲",
 >>>>>>> upstream/main
     key: "warpScale",
     label: "扭曲缩放",
@@ -930,7 +930,7 @@ const gradientParams = [
     group: "动画",
 =======
     defaultValue: 1,
-    group: "Animation",
+    group: "动画",
 >>>>>>> upstream/main
     key: "motionAmount",
     label: "运动量",
@@ -945,7 +945,7 @@ const gradientParams = [
     group: "动画",
 =======
     defaultValue: 0.4,
-    group: "Animation",
+    group: "动画",
 >>>>>>> upstream/main
     key: "motionSpeed",
     label: "运动速度",
@@ -974,7 +974,7 @@ const gradientParams = [
     group: "收尾",
 =======
     defaultValue: "cinematic",
-    group: "Finish",
+    group: "后期处理",
 >>>>>>> upstream/main
     key: "tonemapMode",
     label: "色调映射",
@@ -1053,7 +1053,7 @@ const fluidParams = [
   {
     defaultValue: 192,
     key: "simRes",
-    label: "Sim Resolution",
+    label: "模拟分辨率",
     max: 512,
     min: 32,
     step: 32,
@@ -1062,7 +1062,7 @@ const fluidParams = [
   {
     defaultValue: 1024,
     key: "dyeRes",
-    label: "Dye Resolution",
+    label: "染料分辨率",
     max: 2048,
     min: 128,
     step: 64,
@@ -1076,7 +1076,7 @@ const fluidParams = [
     max: 128,
     min: 4,
 =======
-    label: "Iterations",
+    label: "迭代次数",
     max: 32,
     min: 1,
 >>>>>>> upstream/main
@@ -1100,7 +1100,7 @@ const fluidParams = [
 =======
     defaultValue: 4,
     key: "densityDissipation",
-    label: "Density Dissipation",
+    label: "密度耗散",
     max: 8,
     min: 0,
     step: 0.01,
@@ -1109,7 +1109,7 @@ const fluidParams = [
   {
     defaultValue: 0.2,
     key: "velocityDissipation",
-    label: "Velocity Dissipation",
+    label: "速度耗散",
     max: 4,
     min: 0,
     step: 0.01,
@@ -1118,7 +1118,7 @@ const fluidParams = [
   {
     defaultValue: 0,
     key: "pressureDissipation",
-    label: "Pressure Dissipation",
+    label: "压力耗散",
 >>>>>>> upstream/main
     max: 1,
     min: 0,
@@ -1133,7 +1133,7 @@ const fluidParams = [
 =======
     defaultValue: 30,
     key: "curlStrength",
-    label: "Curl",
+    label: "旋度",
     max: 80,
     min: 0,
     step: 1,
@@ -1142,7 +1142,7 @@ const fluidParams = [
   {
     defaultValue: 1,
     key: "radius",
-    label: "Radius",
+    label: "半径",
     max: 2,
     min: 0.05,
     step: 0.01,
@@ -1151,7 +1151,7 @@ const fluidParams = [
   {
     defaultValue: 6000,
     key: "splatForce",
-    label: "Splat Force",
+    label: "喷溅力度",
     max: 15000,
     min: 500,
     step: 100,
@@ -1160,13 +1160,13 @@ const fluidParams = [
   {
     defaultValue: true,
     key: "autoSplats",
-    label: "Auto Splats",
+    label: "自动喷溅",
     type: "boolean",
   },
   {
     defaultValue: 1.6,
     key: "brightness",
-    label: "Brightness",
+    label: "亮度",
     max: 4,
     min: 0.1,
     step: 0.01,
@@ -1175,18 +1175,18 @@ const fluidParams = [
   {
     defaultValue: "monochrome",
     key: "colorMode",
-    label: "Color Mode",
+    label: "颜色模式",
     options: [
-      { label: "Monochrome", value: "monochrome" },
-      { label: "Duotone", value: "duotone" },
-      { label: "Source", value: "source" },
+      { label: "单色", value: "monochrome" },
+      { label: "双色调", value: "duotone" },
+      { label: "源", value: "source" },
     ],
     type: "select",
   },
   {
     defaultValue: "#000000",
     key: "monoDark",
-    label: "Mono Dark",
+    label: "单色暗部",
 >>>>>>> upstream/main
     type: "color",
     visibleWhen: { equals: "monochrome", key: "colorMode" },
@@ -1194,21 +1194,21 @@ const fluidParams = [
   {
     defaultValue: "#ffffff",
     key: "monoLight",
-    label: "Mono Light",
+    label: "单色亮部",
     type: "color",
     visibleWhen: { equals: "monochrome", key: "colorMode" },
   },
   {
     defaultValue: "#101010",
     key: "duotoneDark",
-    label: "Duotone Dark",
+    label: "双色暗部",
     type: "color",
     visibleWhen: { equals: "duotone", key: "colorMode" },
   },
   {
     defaultValue: "#f3f3ef",
     key: "duotoneLight",
-    label: "Duotone Light",
+    label: "双色亮部",
     type: "color",
     visibleWhen: { equals: "duotone", key: "colorMode" },
   },
@@ -1572,7 +1572,7 @@ const circuitBentParams = [
     defaultValue: 0,
     group: "信号",
     key: "signalBlackPoint",
-    label: "黑场",
+    label: "黑���",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2401,7 +2401,7 @@ const particleGridParams = [
     step: 4,
     type: "number",
 =======
-    label: "Resolution",
+    label: "分辨率",
     options: [
       { label: "32", value: "32" },
       { label: "64", value: "64" },
@@ -2559,7 +2559,7 @@ const pixelTrailParams = [
   {
     defaultValue: 24,
     key: "cellSize",
-    label: "Cell Size",
+    label: "单元格大小",
     max: 128,
     min: 4,
     step: 1,
@@ -2569,7 +2569,7 @@ const pixelTrailParams = [
   {
     defaultValue: 0.04,
     key: "radius",
-    label: "Radius",
+    label: "半径",
     max: 0.3,
     min: 0.005,
     step: 0.005,
@@ -2578,7 +2578,7 @@ const pixelTrailParams = [
   {
     defaultValue: 0.9,
     key: "decay",
-    label: "Decay",
+    label: "衰减",
     max: 0.999,
     min: 0.5,
     step: 0.001,
@@ -2587,7 +2587,7 @@ const pixelTrailParams = [
   {
     defaultValue: 0.02,
     key: "displaceAmount",
-    label: "Displace",
+    label: "位移",
     max: 0.2,
     min: 0,
     step: 0.001,
@@ -2596,7 +2596,7 @@ const pixelTrailParams = [
   {
     defaultValue: 1,
     key: "intensity",
-    label: "Intensity",
+    label: "强度",
     max: 2,
     min: 0,
     step: 0.05,
@@ -2608,7 +2608,7 @@ const magnifyLensParams = [
   {
     defaultValue: 0.18,
     key: "radius",
-    label: "Radius",
+    label: "半径",
     max: 0.5,
     min: 0.02,
     step: 0.005,
@@ -2617,7 +2617,7 @@ const magnifyLensParams = [
   {
     defaultValue: 0.4,
     key: "softness",
-    label: "Softness",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2626,7 +2626,7 @@ const magnifyLensParams = [
   {
     defaultValue: 1.8,
     key: "zoom",
-    label: "Zoom",
+    label: "缩放",
     max: 4,
     min: 1,
     step: 0.05,
@@ -2635,7 +2635,7 @@ const magnifyLensParams = [
   {
     defaultValue: 0.012,
     key: "chromaStrength",
-    label: "Chromatic Edge",
+    label: "色散边缘",
     max: 0.05,
     min: 0,
     step: 0.001,
@@ -2644,7 +2644,7 @@ const magnifyLensParams = [
   {
     defaultValue: 0.2,
     key: "followLag",
-    label: "Follow Lag",
+    label: "跟随延迟",
     max: 0.95,
     min: 0,
     step: 0.01,
@@ -2766,7 +2766,7 @@ const voxelParams = [
   {
     defaultValue: 24,
     key: "cellSize",
-    label: "Cell Size",
+    label: "单元格大小",
     max: 96,
     min: 4,
     step: 1,
@@ -2776,7 +2776,7 @@ const voxelParams = [
   {
     defaultValue: 0,
     key: "depth",
-    label: "Depth",
+    label: "深度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2785,7 +2785,7 @@ const voxelParams = [
   {
     defaultValue: 6,
     key: "maxHeight",
-    label: "Max Height",
+    label: "最大高度",
     max: 8,
     min: 1,
     step: 1,
@@ -2795,7 +2795,7 @@ const voxelParams = [
   {
     defaultValue: 1,
     key: "topShade",
-    label: "Top Shade",
+    label: "顶部明暗",
     max: 1.5,
     min: 0,
     step: 0.01,
@@ -2804,7 +2804,7 @@ const voxelParams = [
   {
     defaultValue: 0.78,
     key: "lightShade",
-    label: "Light Side",
+    label: "亮面",
     max: 1.5,
     min: 0,
     step: 0.01,
@@ -2813,7 +2813,7 @@ const voxelParams = [
   {
     defaultValue: 0.55,
     key: "darkShade",
-    label: "Dark Side",
+    label: "暗面",
     max: 1.5,
     min: 0,
     step: 0.01,
@@ -2822,7 +2822,7 @@ const voxelParams = [
   {
     defaultValue: false,
     key: "flipLight",
-    label: "Flip Light",
+    label: "翻转光照",
     type: "boolean",
   },
   {
@@ -2834,7 +2834,7 @@ const voxelParams = [
   {
     defaultValue: 1.0,
     key: "outlineWidth",
-    label: "Outline",
+    label: "描边",
     max: 4,
     min: 0,
     step: 0.1,
@@ -2844,7 +2844,7 @@ const voxelParams = [
   {
     defaultValue: "#0a0a0a",
     key: "outlineColor",
-    label: "Outline Color",
+    label: "描边颜色",
     type: "color",
   },
 ] as const satisfies ParameterDefinitions
