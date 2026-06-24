@@ -3,14 +3,25 @@
 import { Slider as BaseSlider } from "@base-ui/react/slider"
 import {
   type CSSProperties,
+  type KeyboardEvent,
   type ReactNode,
   type PointerEvent as ReactPointerEvent,
   useEffect,
   useEffectEvent,
+  useId,
   useRef,
   useState,
 } from "react"
 import { cn } from "@/lib/cn"
+import type { UISoundId } from "@/lib/audio/shader-lab-sounds"
+import {
+  playOptionalUISound,
+  playSliderStepSound,
+} from "@/lib/audio/shader-lab-sounds"
+import {
+  formatNumberForDisplay,
+  formatNumberForLocale,
+} from "@/lib/format-number"
 
 type SliderProps = Omit<
   BaseSlider.Root.Props<number>,
@@ -19,6 +30,8 @@ type SliderProps = Omit<
   className?: string
   label?: ReactNode
   onInteractionStart?: (() => void) | undefined
+  uiSoundEnd?: UISoundId | "none"
+  uiSoundStart?: UISoundId | "none"
   valueFormatOptions?: Intl.NumberFormatOptions
   valuePrefix?: string
   valueSuffix?: string
@@ -26,8 +39,59 @@ type SliderProps = Omit<
 
 const MAX_PULL = 8
 const PULL_DAMPING = 0.22
+const CONTINUOUS_STEP_BUCKETS = 24
+
 function clampPullOffset(value: number) {
   return Math.max(-MAX_PULL, Math.min(MAX_PULL, value * PULL_DAMPING))
+}
+
+function clampNormalizedValue(value: number) {
+  return Math.max(0, Math.min(1, value))
+}
+
+function getSliderStepIndex(
+  value: number,
+  min: number,
+  max: number,
+  step: number | undefined
+) {
+  if (typeof step === "number" && Number.isFinite(step) && step > 0) {
+    return Math.round((value - min) / step)
+  }
+
+  const range = max - min
+
+  if (!(Number.isFinite(range) && range > 0)) {
+    return 0
+  }
+
+  const normalized = clampNormalizedValue((value - min) / range)
+
+  return Math.min(
+    CONTINUOUS_STEP_BUCKETS - 1,
+    Math.floor(normalized * CONTINUOUS_STEP_BUCKETS)
+  )
+}
+
+function getSliderNormalizedProgress(value: number, min: number, max: number) {
+  const range = max - min
+
+  if (!(Number.isFinite(range) && range > 0)) {
+    return 0
+  }
+
+  return clampNormalizedValue((value - min) / range)
+}
+
+function parseDraftValue(value: string) {
+  const normalized = value.trim().replaceAll(",", ".")
+
+  if (normalized.length === 0) {
+    return null
+  }
+
+  const nextValue = Number.parseFloat(normalized)
+  return Number.isFinite(nextValue) ? nextValue : null
 }
 
 export function Slider({
@@ -41,6 +105,8 @@ export function Slider({
   onValueCommitted,
   onValueChange,
   style,
+  uiSoundEnd = "generic.dragEnd",
+  uiSoundStart = "generic.dragStart",
   value,
   valueFormatOptions,
   valuePrefix,
@@ -49,8 +115,23 @@ export function Slider({
 }: SliderProps) {
   const controlRef = useRef<HTMLDivElement | null>(null)
   const gestureActiveRef = useRef(false)
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  const lastStepIndexRef = useRef(0)
+  const lastValueRef = useRef(0)
+  const inputId = useId()
   const [isVisualDragging, setIsVisualDragging] = useState(false)
+  const [isEditingValue, setIsEditingValue] = useState(false)
+  const [draftValue, setDraftValue] = useState("")
   const [pullOffset, setPullOffset] = useState(0)
+  const currentValue =
+    value ??
+    (Array.isArray(defaultValue) ? defaultValue[0] : defaultValue) ??
+    min
+
+  const formattedValue = valueFormatOptions
+    ? formatNumberForLocale(currentValue, locale, valueFormatOptions)
+    : formatNumberForDisplay(currentValue)
+  const displayValue = `${valuePrefix ?? ""}${formattedValue}${valueSuffix ?? ""}`
 
   const updatePullOffset = useEffectEvent((clientX: number) => {
     const control = controlRef.current
@@ -100,6 +181,32 @@ export function Slider({
     }
   }, [isVisualDragging])
 
+  useEffect(() => {
+    if (isEditingValue) {
+      return
+    }
+
+    setDraftValue(formattedValue)
+  }, [formattedValue, isEditingValue])
+
+  useEffect(() => {
+    if (!isEditingValue) {
+      return
+    }
+
+    inputRef.current?.focus()
+    inputRef.current?.select()
+  }, [isEditingValue])
+
+  useEffect(() => {
+    if (gestureActiveRef.current || isEditingValue) {
+      return
+    }
+
+    lastValueRef.current = currentValue
+    lastStepIndexRef.current = getSliderStepIndex(currentValue, min, max, props.step)
+  }, [currentValue, isEditingValue, max, min, props.step])
+
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     setIsVisualDragging((current) => (current ? current : true))
     updatePullOffset(event.clientX)
@@ -119,10 +226,33 @@ export function Slider({
     nextValue: number,
     eventDetails: BaseSlider.Root.ChangeEventDetails
   ) => {
+    const previousValue = lastValueRef.current
+    const previousStepIndex = lastStepIndexRef.current
+    const nextStepIndex = getSliderStepIndex(nextValue, min, max, props.step)
+
     if (!gestureActiveRef.current) {
       gestureActiveRef.current = true
       onInteractionStart?.()
+      playOptionalUISound(uiSoundStart)
     }
+
+    if (nextValue > previousValue && nextStepIndex !== previousStepIndex) {
+      playSliderStepSound(
+        "up",
+        getSliderNormalizedProgress(nextValue, min, max)
+      )
+    } else if (
+      nextValue < previousValue &&
+      nextStepIndex !== previousStepIndex
+    ) {
+      playSliderStepSound(
+        "down",
+        getSliderNormalizedProgress(nextValue, min, max)
+      )
+    }
+
+    lastValueRef.current = nextValue
+    lastStepIndexRef.current = nextStepIndex
 
     onValueChange?.(nextValue, eventDetails)
   }
@@ -134,12 +264,66 @@ export function Slider({
     >[1]
   ) => {
     onValueCommitted?.(nextValue, eventDetails)
+    lastValueRef.current = nextValue
+    lastStepIndexRef.current = getSliderStepIndex(nextValue, min, max, props.step)
+    if (gestureActiveRef.current) {
+      playOptionalUISound(uiSoundEnd)
+    }
     resetPull()
+  }
+
+  const commitInputValue = useEffectEvent(() => {
+    const parsedValue = parseDraftValue(draftValue)
+
+    if (parsedValue === null) {
+      setDraftValue(formattedValue)
+      setIsEditingValue(false)
+      return
+    }
+
+    const clampedValue = Math.min(max, Math.max(min, parsedValue))
+    const changeDetails =
+      undefined as unknown as BaseSlider.Root.ChangeEventDetails
+    const commitDetails = undefined as unknown as Parameters<
+      NonNullable<BaseSlider.Root.Props<number>["onValueCommitted"]>
+    >[1]
+
+    onInteractionStart?.()
+    onValueChange?.(clampedValue, changeDetails)
+    onValueCommitted?.(clampedValue, commitDetails)
+    resetPull()
+    setDraftValue(
+      valueFormatOptions
+        ? formatNumberForLocale(clampedValue, locale, valueFormatOptions)
+        : formatNumberForDisplay(clampedValue)
+    )
+    setIsEditingValue(false)
+  })
+
+  const cancelValueEditing = useEffectEvent(() => {
+    setDraftValue(formattedValue)
+    setIsEditingValue(false)
+  })
+
+  const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      commitInputValue()
+      event.currentTarget.blur()
+      return
+    }
+
+    if (event.key === "Escape") {
+      cancelValueEditing()
+      event.currentTarget.blur()
+    }
   }
 
   return (
     <BaseSlider.Root
-      className={cn("flex w-full flex-col gap-[var(--ds-space-2)]", className)}
+      className={cn(
+        "flex min-w-0 w-full flex-col gap-[var(--ds-space-2)]",
+        className
+      )}
       data-visual-dragging={isVisualDragging ? "" : undefined}
       defaultValue={defaultValue}
       locale={locale}
@@ -159,18 +343,57 @@ export function Slider({
         ) : (
           <span />
         )}
-        <BaseSlider.Value className="shrink-0 text-right font-[var(--ds-font-mono)] text-[11px] leading-[14px] text-[var(--ds-color-text-secondary)]">
-          {(formattedValues, values) => {
-            const rawValue = values[0] ?? 0
-            const formattedValue = valueFormatOptions
-              ? new Intl.NumberFormat(locale, valueFormatOptions).format(
-                  rawValue
-                )
-              : (formattedValues[0] ?? rawValue.toString())
-
-            return `${valuePrefix ?? ""}${formattedValue}${valueSuffix ?? ""}`
-          }}
-        </BaseSlider.Value>
+        <span
+          className="inline-flex w-16 shrink-0 justify-end"
+          data-ds-value=""
+        >
+          <span className="relative inline-flex pb-px">
+            {isEditingValue ? (
+              <input
+                aria-label={
+                  typeof label === "string" ? `${label} value` : "Slider value"
+                }
+                className="h-[14px] border-none bg-transparent p-0 text-right text-[11px] leading-[14px] text-[var(--ds-color-text-primary)] outline-none transition-[color] duration-160 ease-[var(--ease-out-cubic)]"
+                id={inputId}
+                inputMode="decimal"
+                onBlur={commitInputValue}
+                onChange={(event) => setDraftValue(event.currentTarget.value)}
+                onKeyDown={handleInputKeyDown}
+                ref={inputRef}
+                spellCheck={false}
+                style={{ width: `${Math.max(draftValue.length, 1)}ch` }}
+                type="text"
+                value={draftValue}
+              />
+            ) : (
+              <button
+                aria-controls={inputId}
+                aria-label={
+                  typeof label === "string"
+                    ? `Edit ${label} value`
+                    : "Edit slider value"
+                }
+                className="cursor-pointer border-none bg-transparent p-0 text-right text-[11px] leading-[14px] text-[var(--ds-color-text-secondary)] transition-[color] duration-160 ease-[var(--ease-out-cubic)] hover:text-[var(--ds-color-text-primary)]"
+                onClick={() => {
+                  setDraftValue(formattedValue)
+                  setIsEditingValue(true)
+                }}
+                type="button"
+              >
+                {displayValue}
+              </button>
+            )}
+            <span
+              aria-hidden="true"
+              className={cn(
+                "pointer-events-none absolute inset-x-0 bottom-0 h-px origin-center bg-[var(--ds-border-active)] transition-[opacity,transform] duration-160 ease-[var(--ease-out-cubic)]",
+                isEditingValue
+                  ? "scale-x-100 opacity-100"
+                  : "scale-x-50 opacity-0"
+              )}
+            />
+          </span>
+        </span>
       </div>
 
       <BaseSlider.Control

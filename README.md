@@ -67,10 +67,6 @@ import {
 } from "@basementstudio/shader-lab"
 
 const config: ShaderLabConfig = {
-  composition: {
-    width: 1512,
-    height: 909,
-  },
   layers: [],
   timeline: {
     duration: 6,
@@ -313,6 +309,7 @@ export function PostProcessingExample({
 - Pass your scene texture from the same `WebGPURenderer` you gave to `useShaderLab`
 - WebGL host renderers are not supported for postprocessing
 - Effect-only Shader Lab configs are the most natural fit here
+- Keep the postprocessing `width`/`height` and `postprocessing.resize(...)` in sync with the input render target size, especially for screen-space effects like dithering, pixelation, and ASCII
 - `postprocessing.texture` always points to the latest output texture
 
 ## `useShaderLab`
@@ -417,6 +414,8 @@ useFrame((state, delta) => {
   // present(output)
 })
 ```
+
+Make sure the Shader Lab postprocessing source is resized whenever your scene render target size changes. Screen-space effects use that size to determine their sampling grid.
 
 This is useful when:
 
@@ -644,7 +643,7 @@ export const sketch = Fn(() => {
 
 ## Notes
 
-- `ShaderLabComposition` preserves the exported aspect ratio and fills its container width
+- `ShaderLabComposition` preserves aspect ratio only when `config.composition` is provided, and otherwise fills the size defined by your layout
 - `useShaderLab` is the recommended entry point for most app integrations
 - If you only need direct composition rendering in the DOM, use `ShaderLabComposition`
 - If you need full manual control, use the lower-level source APIs

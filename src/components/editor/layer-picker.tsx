@@ -3,16 +3,17 @@
 import {
   CameraIcon,
   CodeIcon,
-  GradientIcon,
+  CursorArrowIcon,
   ImageIcon,
+  MagicWandIcon,
   PlusIcon,
-  TextTIcon,
-  VideoCameraIcon,
-} from "@phosphor-icons/react"
+  TextIcon,
+  VideoIcon,
+} from "@radix-ui/react-icons"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import Image from "next/image"
 import {
-  type ComponentType,
+  type ElementType,
   useCallback,
   useEffect,
   useId,
@@ -27,6 +28,7 @@ import { cn } from "@/lib/cn"
 
 export type AddLayerAction =
   | "ascii"
+  | "bloom"
   | "circuit-bent"
   | "directional-blur"
   | "chromatic-aberration"
@@ -36,13 +38,16 @@ export type AddLayerAction =
   | "dithering"
   | "edge-detect"
   | "fluted-glass"
+  | "fluid"
   | "gradient"
   | "halftone"
   | "image"
   | "ink"
   | "live"
+  | "magnify-lens"
   | "particle-grid"
   | "pixelation"
+  | "pixel-trail"
   | "pattern"
   | "pixel-sorting"
   | "plotter"
@@ -52,11 +57,12 @@ export type AddLayerAction =
   | "threshold"
   | "text"
   | "video"
+  | "voxel"
 
 type LayerPickerCategory = "all" | "core" | "distort"
 
 type SourceItem = {
-  icon: ComponentType<{ size: number; weight: "regular" | "bold" }>
+  icon: ElementType
   label: string
   value: AddLayerAction
 }
@@ -79,156 +85,190 @@ const CATEGORY_OPTIONS: readonly {
   value: LayerPickerCategory
 }[] = [
   { label: "全部", value: "all" },
-  { label: "基础", value: "core" },
+  { label: "核心", value: "core" },
   { label: "扭曲", value: "distort" },
 ] as const
 
 const SOURCE_ITEMS: readonly SourceItem[] = [
   { icon: ImageIcon, label: "图像", value: "image" },
-  { icon: VideoCameraIcon, label: "视频", value: "video" },
-  { icon: CameraIcon, label: "摄像头", value: "live" },
-  { icon: TextTIcon, label: "文字", value: "text" },
-  { icon: GradientIcon, label: "网格渐变", value: "gradient" },
+  { icon: VideoIcon, label: "视频", value: "video" },
+  { icon: CameraIcon, label: "相机", value: "live" },
+  { icon: TextIcon, label: "文字", value: "text" },
+  { icon: CursorArrowIcon, label: "流体", value: "fluid" },
+  { icon: CursorArrowIcon, label: "像素拖尾", value: "pixel-trail" },
+  { icon: CursorArrowIcon, label: "放大镜", value: "magnify-lens" },
+  { icon: MagicWandIcon, label: "网格渐变", value: "gradient" },
   { icon: CodeIcon, label: "自定义着色器", value: "custom-shader" },
 ] as const
 
 const EFFECT_ITEMS: readonly EffectItem[] = [
   {
     category: "core",
-    description: "将图像转换为字符字形，呈现经典终端风格。",
+    description:
+      "将图像转换为文本字符，呈现经典终端风格。",
     label: "ASCII",
     previewSrc: "/examples/ascii.webp",
     value: "ascii",
   },
   {
     category: "core",
-    description: "添加涂抹发光与流体渗色，模拟霓虹墨水边缘效果。",
-    label: "油墨",
+    description: "添加涂抹辉光与流体渗色，营造霓虹墨水般的边缘。",
+    label: "墨水",
     previewSrc: "/examples/ink.webp",
     value: "ink",
   },
   {
     category: "core",
-    description: "将源图像映射为可重复的编织纹理与图形肌理。",
+    description: "将源映射为可重复的编织与图形纹理。",
     label: "图案",
     previewSrc: "/examples/pattern.webp",
     value: "pattern",
   },
   {
     category: "core",
-    description: "添加扫描线、荧光晕染与老式显示器噪点。",
+    description: "添加扫描线、荧光辉光与显示器时代的噪点。",
     label: "CRT",
     previewSrc: "/examples/crt.webp",
     value: "crt",
   },
   {
     category: "core",
-    description: "将色彩精度降低为有序或纹理抖动效果。",
+    description: "将颜色分辨率降为有序或纹理化的抖动。",
     label: "抖动",
     previewSrc: "/examples/dithering.webp",
     value: "dithering",
   },
   {
     category: "core",
-    description: "将帧转换为图形网点屏幕与印刷纹理。",
-    label: "半色调",
+    description:
+      "将画面转换为图形网点屏与印刷纹理。",
+    label: "半调",
     previewSrc: "/examples/halftone.webp",
     value: "halftone",
   },
   {
     category: "core",
-    description: "将图像分解为发光粒子矩阵。",
+    description: "将图像分解为发光的粒子矩阵。",
     label: "粒子网格",
     previewSrc: "/examples/particle-grid.webp",
     value: "particle-grid",
   },
   {
     category: "core",
-    description: "将相邻像素归并为更大色块，呈现低分辨率风格。",
+    description:
+      "将相邻像素归并为更大的色块，营造低分辨率观感。",
     label: "像素化",
     previewSrc: "/examples/pixelation.webp",
     value: "pixelation",
   },
   {
     category: "core",
-    description: "将色调压缩为更少层级，保留图形化外观。",
+    description:
+      "将画面量化为等距立方体，按亮度抬升立柱高度。",
+    label: "体素",
+    previewSrc: "/examples/voxel.webp",
+    value: "voxel",
+  },
+  {
+    category: "core",
+    description:
+      "将色调压缩为更少的层级，同时保持图像的图形感。",
     label: "色调分离",
     previewSrc: "/examples/posterize.webp",
     value: "posterize",
   },
   {
     category: "core",
-    description: "将帧转为高对比黑白，可控截止值与颗粒感。",
+    description:
+      "将画面转为强烈的黑白，并可控制阈值与颗粒。",
     label: "阈值",
     previewSrc: "/examples/threshold.webp",
     value: "threshold",
   },
   {
     category: "core",
-    description: "绘图机美学，支持排线、交叉排线与墨水模拟。",
-    label: "绘图机",
+    description:
+      "为输入画面添加独立的高光辉光处理。",
+    label: "辉光",
+    value: "bloom",
+    // previewSrc: "/examples/bloom.webp",
+  },
+  {
+    category: "core",
+    description:
+      "笔式绘图仪美学，包含排线、交叉排线与墨水模拟。",
+    label: "绘图仪",
     previewSrc: "/examples/plotter.webp",
     value: "plotter",
   },
   {
     category: "distort",
-    description: "渲染亮度门控扫描线，并围绕吸引子弯曲变形。",
-    label: "电路弯折",
+    description:
+      "渲染受亮度控制的扫描线，并围绕吸引子进行拉伸或推挤弯曲。",
+    label: "电路弯曲",
     previewSrc: "/examples/circuit-bent.webp",
     value: "circuit-bent",
   },
   {
     category: "distort",
-    description: "沿线性或径向方向涂抹像素，模拟运动、焦外或景深。",
+    description:
+      "沿线性或径向涂抹像素，营造运动、聚焦或景深。",
     label: "方向模糊",
     previewSrc: "/examples/directional-blur.webp",
     value: "directional-blur",
   },
   {
     category: "distort",
-    description: "按亮度或色彩将相邻像素排序成拉丝条纹。",
+    description:
+      "依据亮度或颜色将相邻像素排序成条纹。",
     label: "像素排序",
     previewSrc: "/examples/pixel-sorting.webp",
     value: "pixel-sorting",
   },
   {
     category: "distort",
-    description: "将水平切片偏移为块状故障条纹。",
+    description:
+      "将水平切片偏移成块状故障条带与拖影。",
     label: "切片",
     previewSrc: "/examples/slice.webp",
     value: "slice",
   },
   {
     category: "distort",
-    description: "提取对比度边缘，转化为图形轮廓线。",
+    description:
+      "提取对比边缘并将其转化为图形轮廓。",
     label: "边缘检测",
     previewSrc: "/examples/edge-detect.webp",
     value: "edge-detect",
   },
   {
     category: "distort",
-    description: "沿亮度方向推动像素，生成扭曲置换场。",
+    description:
+      "沿亮度推移像素，生成扭曲的置换场。",
     label: "置换贴图",
     previewSrc: "/examples/displacement-map.webp",
     value: "displacement-map",
   },
   {
     category: "distort",
-    description: "偏移色彩通道，产生色边与镜头分离效果。",
+    description:
+      "偏移颜色通道，制造边缘色散与镜头分离效果。",
     label: "色差",
     previewSrc: "/examples/chromatic-aberration.webp",
     value: "chromatic-aberration",
   },
   {
     category: "distort",
-    description: "从锐利到柔和的渐进模糊，可控范围。",
+    description:
+      "在可控范围内从清晰渐变到柔和的模糊。",
     label: "渐进模糊",
     previewSrc: "/examples/progressive-blur.webp",
     value: "smear",
   },
   {
     category: "distort",
-    description: "竖纹透镜玻璃扭曲，带有细微色差分离。",
+    description:
+      "带细微色散分离的竖纹柱镜玻璃扭曲。",
     label: "竖纹玻璃",
     previewSrc: "/examples/fluted-glass.webp",
     value: "fluted-glass",
@@ -323,7 +363,7 @@ function EffectCard({
         <div
           className={cn("min-w-0 px-2 pt-1 pb-2", item.description && "pr-6")}
         >
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-[var(--ds-font-mono)] text-[11px] text-[var(--ds-color-text-primary)] leading-[14px]">
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-[var(--ds-font-sans)] text-[11px] text-[var(--ds-color-text-primary)] leading-[14px]">
             {item.label}
           </div>
         </div>
@@ -343,11 +383,11 @@ function SourceButton({
 
   return (
     <button
-      className="inline-flex h-7 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-white/8 bg-[rgb(255_255_255_/_0.03)] px-3 font-[var(--ds-font-mono)] text-[10px] text-[var(--ds-color-text-secondary)] leading-none transition-[transform,border-color,background-color,color] duration-[180ms] ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/14 hover:bg-[rgb(255_255_255_/_0.07)] hover:text-[var(--ds-color-text-primary)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--ds-border-active)] focus-visible:outline-offset-2 active:scale-[0.97]"
+      className="inline-flex h-7 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-white/8 bg-[rgb(255_255_255_/_0.03)] px-3 font-[var(--ds-font-sans)] text-[10px] text-[var(--ds-color-text-secondary)] leading-none transition-[transform,border-color,background-color,color] duration-[180ms] ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/14 hover:bg-[rgb(255_255_255_/_0.07)] hover:text-[var(--ds-color-text-primary)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--ds-border-active)] focus-visible:outline-offset-2 active:scale-[0.97]"
       onClick={() => onSelect(item.value)}
       type="button"
     >
-      <Icon size={12} weight="regular" />
+      <Icon height={12} width={12} />
       {item.label}
     </button>
   )
@@ -382,21 +422,36 @@ export function LayerPicker({ className, onSelect }: LayerPickerProps) {
     }
 
     const rect = triggerRef.current.getBoundingClientRect()
+    const sidebarPanel = triggerRef.current.closest<HTMLElement>(
+      "[data-layer-sidebar-panel='true']"
+    )
+    const sidebarRect = sidebarPanel?.getBoundingClientRect() ?? null
+    const viewportPadding = 16
+    const panelGap = 8
 
     if (window.innerWidth < 900) {
       setPanelPosition({
-        left: 16,
-        top: 16,
+        left: viewportPadding,
+        top: viewportPadding,
       })
       return
     }
 
-    const sidebarRight = 16 + 284 + 8
-    const left = Math.min(sidebarRight, window.innerWidth - 560 - 16)
+    const panelWidth = Math.min(560, window.innerWidth - viewportPadding * 2)
+    const panelHeight =
+      panelRef.current?.getBoundingClientRect().height ??
+      Math.min(window.innerHeight * 0.52, 520)
+    const anchorRight = sidebarRect?.right ?? rect.right
+    const preferredLeft = anchorRight + panelGap
+    const maxLeft = window.innerWidth - panelWidth - viewportPadding
+    const left = Math.max(viewportPadding, Math.min(preferredLeft, maxLeft))
+    const preferredTop = sidebarRect?.top ?? rect.top
+    const maxTop = window.innerHeight - panelHeight - viewportPadding
+    const top = Math.max(viewportPadding, Math.min(preferredTop, maxTop))
 
     setPanelPosition({
       left,
-      top: rect.top,
+      top,
     })
   }, [])
 
@@ -504,9 +559,10 @@ export function LayerPicker({ className, onSelect }: LayerPickerProps) {
           })
         }}
         ref={triggerRef}
+        tooltip="添加图层"
         variant="emphasis"
       >
-        <PlusIcon size={14} weight="bold" />
+        <PlusIcon height={14} width={14} />
       </IconButton>
 
       {typeof document !== "undefined"
@@ -548,8 +604,8 @@ export function LayerPicker({ className, onSelect }: LayerPickerProps) {
                     variant="panel"
                   >
                     <div className="border-[var(--ds-border-divider)] border-b px-3 pt-3 pb-2.5">
-                      <div className="mb-2 font-[var(--ds-font-mono)] text-[10px] text-[var(--ds-color-text-muted)] uppercase tracking-[0.14em]">
-                        素材源
+                      <div className="mb-2 font-[var(--ds-font-sans)] text-[10px] text-[var(--ds-color-text-muted)] uppercase tracking-[0.14em]">
+                        源
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {SOURCE_ITEMS.map((item) => (
@@ -571,7 +627,7 @@ export function LayerPicker({ className, onSelect }: LayerPickerProps) {
                             return (
                               <button
                                 className={cn(
-                                  "relative inline-flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-transparent px-2.5 py-1 font-[var(--ds-font-mono)] text-[10px] text-[var(--ds-color-text-secondary)] leading-none transition-[transform,color] duration-[180ms] ease-[cubic-bezier(0.32,0.72,0,1)] hover:text-[var(--ds-color-text-primary)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--ds-border-active)] focus-visible:outline-offset-2 active:scale-[0.97]",
+                                  "relative inline-flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-transparent px-2.5 py-1 font-[var(--ds-font-sans)] text-[10px] text-[var(--ds-color-text-secondary)] leading-none transition-[transform,color] duration-[180ms] ease-[cubic-bezier(0.32,0.72,0,1)] hover:text-[var(--ds-color-text-primary)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--ds-border-active)] focus-visible:outline-offset-2 active:scale-[0.97]",
                                   active &&
                                     "text-[var(--ds-color-text-primary)]"
                                 )}

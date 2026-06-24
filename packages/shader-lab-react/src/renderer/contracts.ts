@@ -17,7 +17,7 @@ export interface ProjectClock {
 export interface RendererFrame {
   clock: ProjectClock
   layers: ShaderLabLayerConfig[]
-  logicalSize: ShaderLabConfig["composition"]
+  logicalSize: RendererSize
   outputSize: RendererSize
   pixelRatio: number
   viewportSize: RendererSize
@@ -30,12 +30,20 @@ export interface RuntimeRenderer {
   resize(size: RendererSize, pixelRatio: number): void
 }
 
+export const DEFAULT_RENDERER_SIZE: RendererSize = {
+  height: 1,
+  width: 1,
+}
+
 export function buildRendererFrame(
   config: ShaderLabConfig,
   time: number,
   delta: number,
   pixelRatio: number,
-  viewportSize: RendererSize
+  viewportSize: RendererSize,
+  options?: {
+    logicalSize?: RendererSize
+  }
 ): RendererFrame {
   const layers = resolveEvaluatedLayers(
     config.layers,
@@ -46,7 +54,7 @@ export function buildRendererFrame(
   return {
     clock: createRuntimeClock(config.timeline, time, delta),
     layers,
-    logicalSize: viewportSize,
+    logicalSize: options?.logicalSize ?? config.composition ?? viewportSize,
     outputSize: viewportSize,
     pixelRatio,
     viewportSize,

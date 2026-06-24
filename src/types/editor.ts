@@ -1,3 +1,22 @@
+import type {
+  ColorCurve as _ColorCurve,
+  ColorCurveChannelId as _ColorCurveChannelId,
+  ColorCurvePoint as _ColorCurvePoint,
+  SceneColorCurves as _SceneColorCurves,
+} from "@/lib/color-curves"
+import { createDefaultColorCurves } from "@/lib/color-curves"
+import type {
+  CubicBezierPoints as _CubicBezierPoints,
+  KeyframeEasing as _KeyframeEasing,
+} from "@/lib/easing-curve"
+
+export type CubicBezierPoints = _CubicBezierPoints
+export type KeyframeEasing = _KeyframeEasing
+export type ColorCurvePoint = _ColorCurvePoint
+export type ColorCurve = _ColorCurve
+export type ColorCurveChannelId = _ColorCurveChannelId
+export type SceneColorCurves = _SceneColorCurves
+
 export const LAYER_KINDS = ["source", "effect", "model"] as const
 export type LayerKind = (typeof LAYER_KINDS)[number]
 
@@ -7,6 +26,8 @@ export const SOURCE_LAYER_TYPES = [
   "gradient",
   "text",
   "fluid",
+  "pixel-trail",
+  "magnify-lens",
   "live",
   "custom-shader",
 ] as const
@@ -14,6 +35,7 @@ export type SourceLayerType = (typeof SOURCE_LAYER_TYPES)[number]
 
 export const EFFECT_LAYER_TYPES = [
   "ascii",
+  "bloom",
   "circuit-bent",
   "directional-blur",
   "fluted-glass",
@@ -34,6 +56,7 @@ export const EFFECT_LAYER_TYPES = [
   "edge-detect",
   "displacement-map",
   "chromatic-aberration",
+  "voxel",
 ] as const
 export type EffectLayerType = (typeof EFFECT_LAYER_TYPES)[number]
 
@@ -76,6 +99,19 @@ export type MaskSource = (typeof MASK_SOURCES)[number]
 
 export const MASK_MODES = ["multiply", "stencil"] as const
 export type MaskMode = (typeof MASK_MODES)[number]
+
+export const TEXT_ANCHORS = [
+  "top-left",
+  "top-center",
+  "top-right",
+  "center-left",
+  "center",
+  "center-right",
+  "bottom-left",
+  "bottom-center",
+  "bottom-right",
+] as const
+export type TextAnchor = (typeof TEXT_ANCHORS)[number]
 
 export interface MaskConfig {
   invert: boolean
@@ -154,6 +190,7 @@ export type SelectParameterDefinition = ParameterDefinitionBase<
     label: string
     value: string
   }[]
+  ui?: "anchor-grid"
 }
 
 export type ColorParameterDefinition = ParameterDefinitionBase<"color", string>
@@ -201,6 +238,14 @@ export type LayerFrameAdjustment = {
   saturation: number
 }
 
+export type FluidInteractionEvent = {
+  dx: number
+  dy: number
+  time: number
+  x: number
+  y: number
+}
+
 export const DEFAULT_MASK_CONFIG: MaskConfig = {
   invert: false,
   mode: "multiply",
@@ -214,6 +259,7 @@ export interface BaseLayer {
   expanded: boolean
   hue: number
   id: string
+  fluidInteractionEvents?: FluidInteractionEvent[]
   kind: LayerKind
   locked: boolean
   maskConfig: MaskConfig
@@ -288,13 +334,16 @@ export interface TimelineKeyframe {
   id: string
   time: number
   value: ParameterValue
+  easing: KeyframeEasing
 }
 
 export interface TimelineTrack {
   binding: AnimatedPropertyBinding
+  easing?: KeyframeEasing
   enabled: boolean
   id: string
-  interpolation: TimelineInterpolation
+  /** @deprecated Use `easing` instead. Kept for backward compat with old project files. */
+  interpolation?: TimelineInterpolation
   keyframes: TimelineKeyframe[]
   layerId: string
 }
@@ -305,6 +354,7 @@ export interface TimelineStateSnapshot {
   isPlaying: boolean
   loop: boolean
   selectedKeyframeId: string | null
+  selectedKeyframeIds: string[]
   selectedTrackId: string | null
   tracks: TimelineTrack[]
 }
@@ -333,8 +383,14 @@ export interface SceneConfig {
   compositionAspect: CompositionAspect
   compositionWidth: number
   compositionHeight: number
+  exposure: number
   brightness: number
   contrast: number
+  saturation: number
+  vibrance: number
+  hue: number
+  temperature: number
+  tint: number
   invert: boolean
   channelMixer: {
     rr: number
@@ -347,8 +403,11 @@ export interface SceneConfig {
     bg: number
     bb: number
   }
+  colorCurves: SceneColorCurves
   clampMin: number
+  clampGamma: number
   clampMax: number
+  quantizeEnabled: boolean
   quantizeLevels: number
   colorMap: { stops: { position: number; color: string }[] } | null
 }
@@ -358,8 +417,14 @@ export const DEFAULT_SCENE_CONFIG: SceneConfig = {
   compositionAspect: "screen",
   compositionWidth: 1920,
   compositionHeight: 1080,
+  exposure: 0,
   brightness: 0,
   contrast: 0,
+  saturation: 1,
+  vibrance: 0,
+  hue: 0,
+  temperature: 0,
+  tint: 0,
   invert: false,
   channelMixer: {
     rr: 1,
@@ -372,8 +437,11 @@ export const DEFAULT_SCENE_CONFIG: SceneConfig = {
     bg: 0,
     bb: 1,
   },
+  colorCurves: createDefaultColorCurves(),
   clampMin: 0,
+  clampGamma: 1,
   clampMax: 1,
+  quantizeEnabled: false,
   quantizeLevels: 256,
   colorMap: null,
 }
@@ -417,6 +485,7 @@ export interface EditorHistorySnapshot {
     | "duration"
     | "loop"
     | "selectedKeyframeId"
+    | "selectedKeyframeIds"
     | "selectedTrackId"
     | "tracks"
   >

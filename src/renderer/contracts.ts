@@ -15,6 +15,7 @@ export interface ProjectClock {
   duration: number
   isPlaying: boolean
   loop: boolean
+  timelineTime: number
   time: number
 }
 
@@ -26,6 +27,7 @@ export interface RenderableLayerPass {
 
 export interface RendererFrame {
   clock: ProjectClock
+  cropAspectRatio: number | null
   layers: RenderableLayerPass[]
   logicalSize: Size
   outputSize: Size
@@ -49,6 +51,7 @@ export interface EditorRenderer {
 type BuildRendererFrameInput = {
   assets: EditorAsset[]
   clockTime?: number
+  cropAspectRatio?: number | null
   delta: number
   layers: EditorLayer[]
   logicalSize?: Size
@@ -122,6 +125,7 @@ export function buildRendererFrame(
 
   return {
     clock: createProjectClock(input.timeline, input.delta, input.clockTime),
+    cropAspectRatio: input.cropAspectRatio ?? null,
     layers,
     logicalSize: input.logicalSize ?? input.viewportSize,
     outputSize: input.outputSize,

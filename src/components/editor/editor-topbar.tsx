@@ -1,16 +1,26 @@
 "use client"
 
 import {
-  ArrowClockwiseIcon,
-  ArrowCounterClockwiseIcon,
-  DownloadSimpleIcon,
-  MinusIcon,
-  PlusIcon,
-} from "@phosphor-icons/react"
+  DownloadIcon,
+  DragHandleDots2Icon,
+  GearIcon,
+  GitHubLogoIcon,
+  ResetIcon,
+  SpeakerLoudIcon,
+  SpeakerOffIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "@radix-ui/react-icons"
+import { AnimatePresence, motion } from "motion/react"
+import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { FloatingDesktopPanel } from "@/components/editor/floating-desktop-panel"
 import { GlassPanel } from "@/components/ui/glass-panel"
 import { IconButton } from "@/components/ui/icon-button"
+import { HoverTooltip } from "@/components/ui/tooltip"
 import { Typography } from "@/components/ui/typography"
+import { playUISound } from "@/lib/audio/shader-lab-sounds"
+import { cn } from "@/lib/cn"
 import {
   applyEditorHistorySnapshot,
   buildEditorHistorySnapshot,
@@ -23,17 +33,52 @@ import {
   useEditorStore,
   useHistoryStore,
   useLayerStore,
+  useSoundStore,
   useTimelineStore,
 } from "@/store"
 import { EditorExportDialog } from "./editor-export-dialog"
 
 const HISTORY_COMMIT_DEBOUNCE_MS = 220
+const GITHUB_REPO_URL = "https://github.com/basementstudio/shader-lab"
+
+function GitHubStarLink({ mobile = false }: { mobile?: boolean }) {
+  return (
+    <HoverTooltip content="GitHub" side={mobile ? "top" : "bottom"}>
+      <Link
+        aria-label="在 GitHub 上打开 Shader Lab"
+        className={
+          mobile
+            ? "inline-flex size-8 items-center justify-center rounded-[var(--ds-radius-control)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] text-[var(--ds-color-text-secondary)] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:border-[var(--ds-border-hover)] hover:bg-white/8 hover:text-[var(--ds-color-text-primary)] active:scale-[0.98]"
+            : "inline-flex h-7 w-7 items-center justify-center rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] text-[var(--ds-color-text-secondary)] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:border-[var(--ds-border-hover)] hover:bg-white/8 hover:text-[var(--ds-color-text-primary)] active:scale-[0.98]"
+        }
+        href={GITHUB_REPO_URL}
+        rel="noreferrer"
+        target="_blank"
+      >
+        <GitHubLogoIcon height={14} width={14} />
+      </Link>
+    </HoverTooltip>
+  )
+}
 
 export function EditorTopBar() {
   const immersiveCanvas = useEditorStore((state) => state.immersiveCanvas)
   const mobilePanel = useEditorStore((state) => state.mobilePanel)
+  const rightSidebarVisible = useEditorStore((state) => state.sidebars.right)
+  const sidebarView = useEditorStore((state) => state.sidebarView)
+  const setSidebarView = useEditorStore((state) => state.setSidebarView)
   const zoom = useEditorStore((state) => state.zoom)
   const panOffset = useEditorStore((state) => state.panOffset)
+  const hasMovedFloatingPanels = useEditorStore(
+    (state) =>
+      state.floatingPanelsResetting ||
+      Object.values(state.floatingPanels).some(
+        (panel) => panel.x !== 0 || panel.y !== 0
+      )
+  )
+  const resetFloatingPanels = useEditorStore(
+    (state) => state.resetFloatingPanels
+  )
   const setPan = useEditorStore((state) => state.setPan)
   const setZoom = useEditorStore((state) => state.setZoom)
   const resetView = useEditorStore((state) => state.resetView)
@@ -45,6 +90,8 @@ export function EditorTopBar() {
   const pushSnapshot = useHistoryStore((state) => state.pushSnapshot)
   const redo = useHistoryStore((state) => state.redo)
   const undo = useHistoryStore((state) => state.undo)
+  const soundEnabled = useSoundStore((state) => state.enabled)
+  const toggleSoundEnabled = useSoundStore((state) => state.toggleEnabled)
 
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
   const applyingHistoryRef = useRef(false)
@@ -58,6 +105,7 @@ export function EditorTopBar() {
   const canUndo = historyPastLength > 0
   const canRedo = historyFutureLength > 0
   const mobileActionsOpen = mobilePanel === "actions"
+  const hasResettableView = zoom !== 1 || panOffset.x !== 0 || panOffset.y !== 0
 
   const syncHistorySnapshotRefs = useCallback(() => {
     const snapshot = buildEditorHistorySnapshot()
@@ -134,6 +182,7 @@ export function EditorTopBar() {
     syncHistorySnapshotRefs()
     pendingBaseSnapshotRef.current = null
     applyingHistoryRef.current = false
+    playUISound("action.undo")
   }, [flushPendingHistory, syncHistorySnapshotRefs, undo])
 
   const handleRedo = useCallback(() => {
@@ -150,6 +199,7 @@ export function EditorTopBar() {
     syncHistorySnapshotRefs()
     pendingBaseSnapshotRef.current = null
     applyingHistoryRef.current = false
+    playUISound("action.redo")
   }, [flushPendingHistory, redo, syncHistorySnapshotRefs])
 
   useEffect(() => {
@@ -221,6 +271,11 @@ export function EditorTopBar() {
 
   function applyZoomStep(direction: "in" | "out") {
     const nextZoom = getNextZoomStep(zoom, direction)
+
+    if (nextZoom === zoom) {
+      return
+    }
+
     const nextState = applyZoomAtPoint(
       zoom,
       panOffset,
@@ -229,6 +284,11 @@ export function EditorTopBar() {
     )
     setZoom(nextState.zoom)
     setPan(nextState.panOffset.x, nextState.panOffset.y)
+    playUISound(direction === "in" ? "action.zoomIn" : "action.zoomOut")
+  }
+
+  const toggleSidebarView = () => {
+    setSidebarView(sidebarView === "scene" ? "properties" : "scene")
   }
 
   if (immersiveCanvas) {
@@ -237,75 +297,182 @@ export function EditorTopBar() {
 
   return (
     <>
-      <div
-        className="pointer-events-none fixed top-4 right-0 left-0 z-45 hidden justify-center max-[899px]:hidden min-[900px]:flex"
+      <FloatingDesktopPanel
+        id="topbar"
+        resolvePosition={({ panelWidth, viewportWidth }) => ({
+          left: Math.max(16, (viewportWidth - panelWidth) / 2),
+          top: 16,
+        })}
       >
-        <GlassPanel
-          className="pointer-events-auto flex min-h-11 w-auto items-center justify-between gap-[var(--ds-space-4)] px-[10px] py-2"
-          variant="panel"
-        >
-          <div className="inline-flex items-center gap-1.5">
-            <IconButton
-              aria-label="撤销"
-              className="h-7 w-7 disabled:opacity-45"
-              disabled={!canUndo}
-              onClick={handleUndo}
-              variant="default"
-            >
-              <ArrowCounterClockwiseIcon size={18} weight="bold" />
-            </IconButton>
-            <IconButton
-              aria-label="重做"
-              className="h-7 w-7 disabled:opacity-45"
-              disabled={!canRedo}
-              onClick={handleRedo}
-              variant="default"
-            >
-              <ArrowClockwiseIcon size={18} weight="bold" />
-            </IconButton>
-          </div>
+        {({ dragHandleProps }) => (
+          <GlassPanel
+            className="flex min-h-11 w-auto items-center justify-between gap-[var(--ds-space-4)] px-[10px] py-2"
+            variant="panel"
+          >
+            <div className="inline-flex items-center gap-1.5">
+              <IconButton
+                aria-label="拖动"
+                className="h-7 w-7 cursor-grab text-[var(--ds-color-text-muted)] active:cursor-grabbing"
+                tooltipSide="bottom"
+                variant="ghost"
+                {...dragHandleProps}
+              >
+                <DragHandleDots2Icon height={14} width={14} />
+              </IconButton>
+              <IconButton
+                aria-label="撤销"
+                className="h-7 w-7 disabled:opacity-45"
+                disabled={!canUndo}
+                onClick={handleUndo}
+                tooltip="还原"
+                tooltipSide="bottom"
+                uiSound="none"
+                variant="default"
+              >
+                <ResetIcon height={18} width={18} />
+              </IconButton>
+              <IconButton
+                aria-label="重做"
+                className="h-7 w-7 disabled:opacity-45"
+                disabled={!canRedo}
+                onClick={handleRedo}
+                tooltipSide="bottom"
+                uiSound="none"
+                variant="default"
+              >
+                <ResetIcon className="scale-x-[-1]" height={18} width={18} />
+              </IconButton>
+            </div>
 
-          <div className="inline-flex items-center gap-1.5">
-            <IconButton
-              aria-label="缩小"
-              className="h-7 w-7 disabled:opacity-45"
-              onClick={() => applyZoomStep("out")}
-              variant="default"
-            >
-              <MinusIcon size={18} weight="bold" />
-            </IconButton>
-            <button
-              className="inline-flex h-7 min-w-16 cursor-pointer items-center justify-center rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:bg-white/8 hover:border-[var(--ds-border-hover)] active:scale-[0.98] max-[899px]:min-w-14"
-              onClick={resetView}
-              type="button"
-            >
-              <Typography as="span" tone="secondary" variant="monoSm">
-                {Math.round(zoom * 100)}%
-              </Typography>
-            </button>
-            <IconButton
-              aria-label="放大"
-              className="h-7 w-7 disabled:opacity-45"
-              onClick={() => applyZoomStep("in")}
-              variant="default"
-            >
-              <PlusIcon size={18} weight="bold" />
-            </IconButton>
-            <span
-              aria-hidden="true"
-              className="block h-5 w-px rounded-full bg-[var(--ds-border-divider)]"
-            />
-            <IconButton
-              aria-label="导出"
-              className="h-7 w-7 disabled:opacity-45"
-              onClick={() => setIsExportDialogOpen(true)}
-              variant="default"
-            >
-              <DownloadSimpleIcon size={16} weight="bold" />
-            </IconButton>
-          </div>
-        </GlassPanel>
-      </div>
+            <div className="inline-flex items-center gap-1.5">
+              <IconButton
+                aria-label="缩小"
+                className="h-7 w-7 disabled:opacity-45"
+                onClick={() => applyZoomStep("out")}
+                tooltipSide="bottom"
+                uiSound="none"
+                variant="default"
+              >
+                <ZoomOutIcon height={18} width={18} />
+              </IconButton>
+              <HoverTooltip
+                content="Reset view"
+                disabled={!hasResettableView}
+                side="bottom"
+              >
+                <button
+                  className="inline-flex h-7 min-w-16 cursor-pointer items-center justify-center rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:bg-white/8 hover:border-[var(--ds-border-hover)] active:scale-[0.98] max-[899px]:min-w-14"
+                  onClick={() => {
+                    resetView()
+                    playUISound("action.reset")
+                  }}
+                  type="button"
+                >
+                  <Typography as="span" tone="secondary" variant="monoSm">
+                    {Math.round(zoom * 100)}%
+                  </Typography>
+                </button>
+              </HoverTooltip>
+              <IconButton
+                aria-label="放大"
+                className="h-7 w-7 disabled:opacity-45"
+                onClick={() => applyZoomStep("in")}
+                tooltipSide="bottom"
+                uiSound="none"
+                variant="default"
+              >
+                <ZoomInIcon height={18} width={18} />
+              </IconButton>
+              <span
+                aria-hidden="true"
+                className="block h-5 w-px rounded-full bg-[var(--ds-border-divider)]"
+              />
+              <AnimatePresence initial={false}>
+                {hasMovedFloatingPanels ? (
+                  <motion.div
+                    animate={{ opacity: 1, width: "auto" }}
+                    className="overflow-hidden"
+                    exit={{ opacity: 0, width: 0 }}
+                    initial={{ opacity: 0, width: 0 }}
+                    transition={{
+                      duration: 0.2,
+                      ease: [0.32, 0.72, 0, 1],
+                    }}
+                  >
+                    <HoverTooltip content="Reset layout" side="bottom">
+                      <button
+                        className="inline-flex h-7 cursor-pointer items-center justify-center whitespace-nowrap rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:bg-white/8 hover:border-[var(--ds-border-hover)] active:scale-[0.98]"
+                        onClick={() => {
+                          resetFloatingPanels()
+                          playUISound("action.reset")
+                        }}
+                        type="button"
+                      >
+                        <Typography
+                          as="span"
+                          tone="secondary"
+                          variant="caption"
+                        >
+                          重置布局
+                        </Typography>
+                      </button>
+                    </HoverTooltip>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+              {rightSidebarVisible ? (
+                <IconButton
+                  aria-label={
+                    sidebarView === "scene"
+                      ? "图层属性"
+                      : "场景设置"
+                  }
+                  className={cn(
+                    "h-7 w-7",
+                    sidebarView === "scene" && "bg-white/10"
+                  )}
+                  onClick={() => {
+                    toggleSidebarView()
+                    playUISound("action.panelSwitch")
+                  }}
+                  uiSound="none"
+                  variant="default"
+                >
+                  <GearIcon height={16} width={16} />
+                </IconButton>
+              ) : null}
+              <IconButton
+                aria-label={soundEnabled ? "静音界面音效" : "取消静音界面音效"}
+                aria-pressed={!soundEnabled}
+                className={cn("h-7 w-7", !soundEnabled && "bg-white/10")}
+                onClick={() => toggleSoundEnabled()}
+                tooltip={soundEnabled ? "静音" : "取消静音"}
+                tooltipSide="bottom"
+                uiSound="none"
+                variant={!soundEnabled ? "active" : "default"}
+              >
+                {soundEnabled ? (
+                  <SpeakerLoudIcon height={16} width={16} />
+                ) : (
+                  <SpeakerOffIcon height={16} width={16} />
+                )}
+              </IconButton>
+              <IconButton
+                aria-label="导出"
+                className="h-7 w-7 disabled:opacity-45"
+                onClick={() => setIsExportDialogOpen(true)}
+                tooltip="导出"
+                tooltipSide="bottom"
+                uiSound="action.export"
+                variant="default"
+              >
+                <DownloadIcon height={16} width={16} />
+              </IconButton>
+              <GitHubStarLink />
+            </div>
+          </GlassPanel>
+        )}
+      </FloatingDesktopPanel>
 
       {mobileActionsOpen ? (
         <div className="pointer-events-none fixed right-0 bottom-[88px] left-0 z-45 flex justify-center px-3 min-[900px]:hidden">
@@ -319,18 +486,21 @@ export function EditorTopBar() {
                 className="h-7 w-7 disabled:opacity-45"
                 disabled={!canUndo}
                 onClick={handleUndo}
+                tooltip="还原"
+                uiSound="none"
                 variant="default"
               >
-                <ArrowCounterClockwiseIcon size={18} weight="bold" />
+                <ResetIcon height={18} width={18} />
               </IconButton>
               <IconButton
                 aria-label="重做"
                 className="h-7 w-7 disabled:opacity-45"
                 disabled={!canRedo}
                 onClick={handleRedo}
+                uiSound="none"
                 variant="default"
               >
-                <ArrowClockwiseIcon size={18} weight="bold" />
+                <ResetIcon className="scale-x-[-1]" height={18} width={18} />
               </IconButton>
             </div>
 
@@ -341,24 +511,29 @@ export function EditorTopBar() {
                 onClick={() => applyZoomStep("out")}
                 variant="default"
               >
-                <MinusIcon size={18} weight="bold" />
+                <ZoomOutIcon height={18} width={18} />
               </IconButton>
-              <button
-                className="inline-flex h-7 min-w-16 cursor-pointer items-center justify-center rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:bg-white/8 hover:border-[var(--ds-border-hover)] active:scale-[0.98]"
-                onClick={resetView}
-                type="button"
-              >
-                <Typography as="span" tone="secondary" variant="monoSm">
-                  {Math.round(zoom * 100)}%
-                </Typography>
-              </button>
+              <HoverTooltip content="Reset view" disabled={!hasResettableView}>
+                <button
+                  className="inline-flex h-7 min-w-16 cursor-pointer items-center justify-center rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:bg-white/8 hover:border-[var(--ds-border-hover)] active:scale-[0.98]"
+                  onClick={() => {
+                    resetView()
+                    playUISound("action.reset")
+                  }}
+                  type="button"
+                >
+                  <Typography as="span" tone="secondary" variant="monoSm">
+                    {Math.round(zoom * 100)}%
+                  </Typography>
+                </button>
+              </HoverTooltip>
               <IconButton
                 aria-label="放大"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => applyZoomStep("in")}
                 variant="default"
               >
-                <PlusIcon size={18} weight="bold" />
+                <ZoomInIcon height={18} width={18} />
               </IconButton>
               <span
                 aria-hidden="true"
@@ -368,10 +543,28 @@ export function EditorTopBar() {
                 aria-label="导出"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => setIsExportDialogOpen(true)}
+                tooltip="下载"
+                uiSound="action.export"
                 variant="default"
               >
-                <DownloadSimpleIcon size={16} weight="bold" />
+                <DownloadIcon height={16} width={16} />
               </IconButton>
+              <IconButton
+                aria-label={soundEnabled ? "静音界面音效" : "取消静音界面音效"}
+                aria-pressed={!soundEnabled}
+                className={cn("h-7 w-7", !soundEnabled && "bg-white/10")}
+                onClick={() => toggleSoundEnabled()}
+                tooltip={soundEnabled ? "静音" : "取消静音"}
+                uiSound="none"
+                variant={!soundEnabled ? "active" : "default"}
+              >
+                {soundEnabled ? (
+                  <SpeakerLoudIcon height={16} width={16} />
+                ) : (
+                  <SpeakerOffIcon height={16} width={16} />
+                )}
+              </IconButton>
+              <GitHubStarLink mobile />
             </div>
           </GlassPanel>
         </div>

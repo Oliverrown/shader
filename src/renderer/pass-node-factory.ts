@@ -1,4 +1,5 @@
 import { AsciiPass } from "@/renderer/ascii-pass"
+import { BloomPass } from "@/renderer/bloom-pass"
 import { CircuitBentPass } from "@/renderer/circuit-bent-pass"
 import { ChromaticAberrationPass } from "@/renderer/chromatic-aberration-pass"
 import { CrtPass } from "@/renderer/crt-pass"
@@ -19,6 +20,7 @@ import { PosterizePass } from "@/renderer/posterize-pass"
 import { SlicePass } from "@/renderer/slice-pass"
 import { SmearPass } from "@/renderer/smear-pass"
 import { ThresholdPass } from "@/renderer/threshold-pass"
+import { VoxelPass } from "@/renderer/voxel-pass"
 import type { EffectLayerType } from "@/types/editor"
 
 export function createPassNode(
@@ -28,6 +30,8 @@ export function createPassNode(
   switch (type) {
     case "ascii":
       return new AsciiPass(layerId)
+    case "bloom":
+      return new BloomPass(layerId)
     case "circuit-bent":
       return new CircuitBentPass(layerId)
     case "directional-blur":
@@ -66,6 +70,8 @@ export function createPassNode(
       return new SlicePass(layerId)
     case "smear":
       return new SmearPass(layerId)
+    case "voxel":
+      return new VoxelPass(layerId)
     default:
       return new PassNode(layerId)
   }

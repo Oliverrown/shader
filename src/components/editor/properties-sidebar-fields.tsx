@@ -9,6 +9,11 @@ import type {
   TextParameterDefinition,
 } from "@/types/editor"
 import { cn } from "@/lib/cn"
+import {
+  getTextFontWeightControl,
+  normalizeTextFontWeight,
+} from "@/lib/editor/text-fonts"
+import { AnchorPicker } from "@/components/ui/anchor-picker"
 import { ColorPicker } from "@/components/ui/color-picker"
 import { IconButton } from "@/components/ui/icon-button"
 import { Select } from "@/components/ui/select"
@@ -154,9 +159,9 @@ function getCustomPaletteFieldLabel(
     case "customColor1":
       return "Shadows"
     case "customColor2":
-      return colorCount <= 2 ? "Highlights" : "Midtones"
+      return colorCount <= 2 ? "高光" : "中间调"
     case "customColor3":
-      return colorCount === 3 ? "Highlights" : "High Mids"
+      return colorCount === 3 ? "高光" : "中高调"
     case "customColor4":
       return "Highlights"
     default:
@@ -262,6 +267,18 @@ export function ParameterField({
   }
 
   const fieldLabel = getCustomPaletteFieldLabel(definition, layerParams)
+  const textFontFamily =
+    typeof layerParams?.fontFamily === "string"
+      ? layerParams.fontFamily
+      : "display-serif"
+  const fontWeightControl =
+    definition.key === "fontWeight"
+      ? getTextFontWeightControl(textFontFamily)
+      : null
+
+  if (fontWeightControl?.hidden) {
+    return null
+  }
 
   switch (definition.type) {
     case "number":
@@ -272,15 +289,40 @@ export function ParameterField({
             definition.description,
             timelineControl
           )}
-          max={definition.max ?? 100}
-          min={definition.min ?? 0}
+          max={
+            fontWeightControl?.hidden === false
+              ? fontWeightControl.max
+              : (definition.max ?? 100)
+          }
+          min={
+            fontWeightControl?.hidden === false
+              ? fontWeightControl.min
+              : (definition.min ?? 0)
+          }
           onInteractionStart={onInteractionStart}
           onValueChange={(nextValue) =>
-            onChange(layerId, definition.key, nextValue)
+            onChange(
+              layerId,
+              definition.key,
+              definition.key === "fontWeight"
+                ? normalizeTextFontWeight(textFontFamily, nextValue)
+                : nextValue
+            )
           }
           onValueCommitted={() => onInteractionEnd?.()}
-          step={definition.step ?? 0.01}
-          value={toNumberValue(value, definition.defaultValue)}
+          step={
+            fontWeightControl?.hidden === false
+              ? fontWeightControl.step
+              : (definition.step ?? 0.01)
+          }
+          value={
+            definition.key === "fontWeight"
+              ? normalizeTextFontWeight(
+                  textFontFamily,
+                  toNumberValue(value, definition.defaultValue)
+                )
+              : toNumberValue(value, definition.defaultValue)
+          }
           valueFormatOptions={{
             maximumFractionDigits: 2,
             minimumFractionDigits: 0,
@@ -289,28 +331,69 @@ export function ParameterField({
       )
 
     case "select":
-      return (
-        <div
-          className="grid items-center gap-[10px] [grid-template-columns:minmax(0,1fr)_132px]"
-          style={definition.description ? { alignItems: "start" } : undefined}
-        >
-          {renderFieldLabelStack(
-            fieldLabel,
-            definition.description,
-            timelineControl
-          )}
-          <Select
-            className="w-[132px]"
-            onValueChange={(nextValue) => {
-              if (nextValue) {
+      if ((definition as SelectParameterDefinition).ui === "anchor-grid") {
+        const currentValue =
+          typeof value === "string" ? value : definition.defaultValue
+
+        return (
+          <div className="flex flex-col gap-2">
+            {renderFieldLabelStack(
+              fieldLabel,
+              definition.description,
+              timelineControl
+            )}
+            <AnchorPicker
+              onValueChange={(nextValue) => {
+                if (nextValue === currentValue) {
+                  return
+                }
+
                 onChange(layerId, definition.key, nextValue)
+                onChange(layerId, "offset", [0, 0])
+              }}
+              options={(definition as SelectParameterDefinition).options}
+              value={currentValue}
+            />
+          </div>
+        )
+      }
+
+      return (
+        (() => {
+          let selectValue = definition.defaultValue
+
+          if (typeof value === "string") {
+            selectValue = value
+          } else if (typeof value === "number") {
+            selectValue = String(value)
+          }
+
+          return (
+            <div
+              className="grid items-center gap-[10px] [grid-template-columns:minmax(0,1fr)_132px]"
+              style={
+                definition.description ? { alignItems: "start" } : undefined
               }
-            }}
-            options={(definition as SelectParameterDefinition).options}
-            triggerClassName="w-[132px]"
-            value={typeof value === "string" ? value : definition.defaultValue}
-          />
-        </div>
+            >
+              {renderFieldLabelStack(
+                fieldLabel,
+                definition.description,
+                timelineControl
+              )}
+              <Select
+                className="w-[132px]"
+                onValueChange={(nextValue) => {
+                  if (nextValue) {
+                    onChange(layerId, definition.key, nextValue)
+                  }
+                }}
+                options={(definition as SelectParameterDefinition).options}
+                triggerClassName="w-[132px]"
+                value={selectValue}
+              />
+            </div>
+          )
+        })()
       )
 
     case "boolean":

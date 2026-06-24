@@ -1,9 +1,11 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import { cn } from "@/lib/cn"
 import { GlassPanel } from "@/components/ui/glass-panel"
+import { cn } from "@/lib/cn"
+import type { UISoundId } from "@/lib/audio/shader-lab-sounds"
+import { playOptionalUISound } from "@/lib/audio/shader-lab-sounds"
 
 type HsvColor = {
   h: number
@@ -21,6 +23,8 @@ type ColorPickerProps = {
   onInteractionEnd?: (() => void) | undefined
   onInteractionStart?: (() => void) | undefined
   onValueChange: (value: string) => void
+  uiSoundEnd?: UISoundId | "none"
+  uiSoundStart?: UISoundId | "none"
   value: string
 }
 
@@ -58,7 +62,9 @@ function hexToRgb(value: string): { b: number; g: number; r: number } {
 
 function rgbToHex(red: number, green: number, blue: number): string {
   return `#${[red, green, blue]
-    .map((value) => clamp(Math.round(value), 0, 255).toString(16).padStart(2, "0"))
+    .map((value) =>
+      clamp(Math.round(value), 0, 255).toString(16).padStart(2, "0")
+    )
     .join("")
     .toUpperCase()}`
 }
@@ -83,7 +89,7 @@ function rgbToHsv(red: number, green: number, blue: number): HsvColor {
   }
 
   return {
-    h: ((h * 60) + 360) % 360,
+    h: (h * 60 + 360) % 360,
     s: max === 0 ? 0 : delta / max,
     v: max,
   }
@@ -141,6 +147,8 @@ export function ColorPicker({
   onInteractionEnd,
   onInteractionStart,
   onValueChange,
+  uiSoundEnd = "generic.dragEnd",
+  uiSoundStart = "generic.dragStart",
   value,
 }: ColorPickerProps) {
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -151,7 +159,10 @@ export function ColorPicker({
   const gestureActiveRef = useRef(false)
   const [isOpen, setIsOpen] = useState(false)
   const [inputValue, setInputValue] = useState(normalizeHex(value) ?? "#FFFFFF")
-  const [popupPosition, setPopupPosition] = useState<PopupPosition>({ left: 0, top: 0 })
+  const [popupPosition, setPopupPosition] = useState<PopupPosition>({
+    left: 0,
+    top: 0,
+  })
   const [color, setColor] = useState(() => {
     const rgb = hexToRgb(value)
     return rgbToHsv(rgb.r, rgb.g, rgb.b)
@@ -197,7 +208,8 @@ export function ColorPicker({
         trigger?.contains(target) ||
         surface?.contains(target) ||
         hue?.contains(target) ||
-        (target instanceof HTMLElement && target.closest("[data-color-picker-popup]"))
+        (target instanceof HTMLElement &&
+          target.closest("[data-color-picker-popup]"))
       ) {
         return
       }
@@ -245,6 +257,7 @@ export function ColorPicker({
 
     gestureActiveRef.current = true
     onInteractionStart?.()
+    playOptionalUISound(uiSoundStart)
   }
 
   const endInteraction = () => {
@@ -254,6 +267,7 @@ export function ColorPicker({
 
     gestureActiveRef.current = false
     onInteractionEnd?.()
+    playOptionalUISound(uiSoundEnd)
   }
 
   const updateSurface = (clientX: number, clientY: number) => {
@@ -279,13 +293,17 @@ export function ColorPicker({
     commitColor({ h: hue, s: color.s, v: color.v })
   }
 
-  const handleSurfacePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+  const handleSurfacePointerDown = (
+    event: React.PointerEvent<HTMLDivElement>
+  ) => {
     beginInteraction()
     event.currentTarget.setPointerCapture(event.pointerId)
     updateSurface(event.clientX, event.clientY)
   }
 
-  const handleSurfacePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+  const handleSurfacePointerMove = (
+    event: React.PointerEvent<HTMLDivElement>
+  ) => {
     if (event.buttons !== 1) {
       return
     }
@@ -335,7 +353,10 @@ export function ColorPicker({
       {isOpen
         ? createPortal(
             <div data-color-picker-popup="" ref={popupRef} style={popupStyle}>
-              <GlassPanel className="flex w-[208px] flex-col gap-3 p-3" variant="panel">
+              <GlassPanel
+                className="flex w-[208px] flex-col gap-3 p-3"
+                variant="panel"
+              >
                 <div
                   className="relative h-[132px] w-full cursor-crosshair overflow-hidden rounded-[10px] select-none"
                   onPointerCancel={endInteraction}
@@ -374,30 +395,27 @@ export function ColorPicker({
                   <input
                     className="min-h-[30px] w-full rounded-[var(--ds-radius-control)] border border-[var(--ds-border-divider)] bg-white/4 px-[10px] font-[var(--ds-font-mono)] text-[11px] leading-[14px] text-[var(--ds-color-text-secondary)] uppercase outline-none focus:border-[var(--ds-border-active)]"
                     onChange={(event) => {
-                      beginInteraction()
                       const nextValue = event.target.value.toUpperCase()
                       setInputValue(nextValue)
                       const nextHex = normalizeHex(nextValue)
                       if (!nextHex) {
-                        endInteraction()
                         return
                       }
                       const rgb = hexToRgb(nextHex)
                       setColor(rgbToHsv(rgb.r, rgb.g, rgb.b))
                       onValueChange(nextHex)
-                      endInteraction()
                     }}
                     spellCheck={false}
                     type="text"
                     value={inputValue}
                   />
-                  <span className="text-right font-[var(--ds-font-mono)] text-[10px] leading-3 text-[var(--ds-color-text-muted)] uppercase">
+                  <span className="text-right font-[var(--ds-font-sans)] text-[10px] leading-3 text-[var(--ds-color-text-muted)] uppercase">
                     HEX
                   </span>
                 </div>
               </GlassPanel>
             </div>,
-            document.body,
+            document.body
           )
         : null}
     </div>

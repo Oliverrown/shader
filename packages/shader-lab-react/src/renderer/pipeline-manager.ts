@@ -3,6 +3,7 @@ import * as THREE from "three/webgpu"
 import type { ShaderLabCompositeMode, ShaderLabLayerConfig } from "../types"
 import { DEFAULT_MASK_CONFIG } from "../types/editor"
 import { AsciiPass } from "./ascii-pass"
+import { BloomPass } from "./bloom-pass"
 import { CircuitBentPass } from "./circuit-bent-pass"
 import { ChromaticAberrationPass } from "./chromatic-aberration-pass"
 import { CrtPass } from "./crt-pass"
@@ -12,15 +13,18 @@ import { DisplacementMapPass } from "./displacement-map-pass"
 import { DitheringPass } from "./dithering-pass"
 import { EdgeDetectPass } from "./edge-detect-pass"
 import { FlutedGlassPass } from "./fluted-glass-pass"
+import { FluidPass } from "./fluid-pass"
 import { GradientPass } from "./gradient-pass"
 import { HalftonePass } from "./halftone-pass"
 import { InkPass } from "./ink-pass"
 import { LivePass } from "./live-pass"
+import { MagnifyLensPass } from "./magnify-lens-pass"
 import { MediaPass } from "./media-pass"
 import { ParticleGridPass } from "./particle-grid-pass"
 import { createPipelinePlaceholder, type PassNode } from "./pass-node"
 import { PatternPass } from "./pattern-pass"
 import { PixelSortingPass } from "./pixel-sorting-pass"
+import { PixelTrailPass } from "./pixel-trail-pass"
 import { PixelationPass } from "./pixelation-pass"
 import { PlotterPass } from "./plotter-pass"
 import { PosterizePass } from "./posterize-pass"
@@ -28,9 +32,11 @@ import { SlicePass } from "./slice-pass"
 import { SmearPass } from "./smear-pass"
 import { TextPass } from "./text-pass"
 import { ThresholdPass } from "./threshold-pass"
+import { VoxelPass } from "./voxel-pass"
 
 type LayerPassNode =
   | AsciiPass
+  | BloomPass
   | CircuitBentPass
   | ChromaticAberrationPass
   | CrtPass
@@ -40,22 +46,26 @@ type LayerPassNode =
   | DitheringPass
   | EdgeDetectPass
   | FlutedGlassPass
+  | FluidPass
   | GradientPass
   | HalftonePass
   | InkPass
   | LivePass
+  | MagnifyLensPass
   | MediaPass
   | ParticleGridPass
   | PassNode
   | PatternPass
   | PixelationPass
   | PixelSortingPass
+  | PixelTrailPass
   | PlotterPass
   | PosterizePass
   | SlicePass
   | SmearPass
   | ThresholdPass
   | TextPass
+  | VoxelPass
 
 const RENDER_TARGET_OPTIONS = {
   depthBuffer: false,
@@ -486,6 +496,8 @@ export class PipelineManager {
       switch (layer.type) {
         case "ascii":
           return new AsciiPass(layer.id)
+        case "bloom":
+          return new BloomPass(layer.id)
         case "circuit-bent":
           return new CircuitBentPass(layer.id)
         case "directional-blur":
@@ -524,6 +536,8 @@ export class PipelineManager {
           return new SlicePass(layer.id)
         case "smear":
           return new SmearPass(layer.id)
+        case "voxel":
+          return new VoxelPass(layer.id)
       }
     }
 
@@ -536,6 +550,18 @@ export class PipelineManager {
 
     if (layer.kind === "source" && layer.type === "gradient") {
       return new GradientPass(layer.id)
+    }
+
+    if (layer.kind === "source" && layer.type === "fluid") {
+      return new FluidPass(layer.id, this.renderer)
+    }
+
+    if (layer.kind === "source" && layer.type === "pixel-trail") {
+      return new PixelTrailPass(layer.id, this.renderer)
+    }
+
+    if (layer.kind === "source" && layer.type === "magnify-lens") {
+      return new MagnifyLensPass(layer.id, this.renderer)
     }
 
     if (layer.kind === "source" && layer.type === "text") {

@@ -22,10 +22,12 @@ const SUPPORTED_SHADER_EXPORT_LAYER_TYPES = new Set<LayerType>([
   "image",
   "video",
   "gradient",
+  "fluid",
   "text",
   "live",
   "custom-shader",
   "ascii",
+  "bloom",
   "circuit-bent",
   "directional-blur",
   "ink",
@@ -45,10 +47,10 @@ const SUPPORTED_SHADER_EXPORT_LAYER_TYPES = new Set<LayerType>([
   "plotter",
   "slice",
   "smear",
+  "voxel",
 ] as const)
 
 const UNSUPPORTED_SHADER_EXPORT_LAYER_TYPES = new Set<LayerType>([
-  "fluid",
   "model",
   "blur",
 ] as const)
@@ -56,6 +58,7 @@ const UNSUPPORTED_SHADER_EXPORT_LAYER_TYPES = new Set<LayerType>([
 type SupportedShaderExportLayerType = Extract<
   LayerType,
   | "ascii"
+  | "bloom"
   | "circuit-bent"
   | "directional-blur"
   | "crt"
@@ -65,6 +68,7 @@ type SupportedShaderExportLayerType = Extract<
   | "dithering"
   | "edge-detect"
   | "fluted-glass"
+  | "fluid"
   | "gradient"
   | "halftone"
   | "image"
@@ -81,6 +85,7 @@ type SupportedShaderExportLayerType = Extract<
   | "text"
   | "threshold"
   | "video"
+  | "voxel"
 >
 
 type SupportedShaderExportLayer = EditorLayer & {
