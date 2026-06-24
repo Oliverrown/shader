@@ -54,7 +54,7 @@ import {
 export function EmptyPropertiesContent() {
   return (
     <div className="flex flex-col gap-1.5 p-4">
-      <Typography variant="body">Select a layer to edit it.</Typography>
+      <Typography variant="body">选择一个图层进行编辑。</Typography>
       <Typography tone="muted" variant="caption">
         Nothing to edit yet. Create a new layer in the left panel.
       </Typography>
@@ -145,7 +145,7 @@ function CustomShaderSection({
       <div className="flex flex-col gap-[10px]">
         <div className="grid items-center gap-[10px] [grid-template-columns:minmax(0,1fr)_132px]">
           <Typography className="min-w-0" tone="secondary" variant="label">
-            Effect Mode
+            特效模式
           </Typography>
           <Toggle
             checked={effectMode}
@@ -156,7 +156,7 @@ function CustomShaderSection({
 
         <label className="flex flex-col gap-2">
           <Typography className="min-w-0" tone="secondary" variant="label">
-            Entry Export
+            入口导出
           </Typography>
           <input
             className="min-h-9 appearance-none rounded-[var(--ds-radius-control)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] py-2 font-[var(--ds-font-mono)] text-[12px] leading-4 text-[var(--ds-color-text-primary)] outline-none transition-[border-color,background-color] duration-120 ease-[ease] focus:border-[var(--ds-color-text-secondary)] placeholder:text-[var(--ds-color-text-muted)]"
@@ -172,7 +172,7 @@ function CustomShaderSection({
 
         <label className="flex flex-col gap-2">
           <Typography className="min-w-0" tone="secondary" variant="label">
-            Sketch Source
+            Sketch 源代码
           </Typography>
           <textarea
             className="min-h-[280px] w-full resize-y appearance-none rounded-[var(--ds-radius-control)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-3 py-[10px] font-[var(--ds-font-mono)] text-[12px] leading-[18px] text-[var(--ds-color-text-primary)] outline-none transition-[border-color,background-color] duration-120 ease-[ease] focus:border-[var(--ds-color-text-secondary)]"
@@ -193,12 +193,12 @@ function CustomShaderSection({
               size="compact"
               variant="primary"
             >
-              Apply
+              应用
             </Button>
           </div>
 
           <IconButton
-            aria-label="Format sketch source"
+            aria-label="格式化 sketch 源代码"
             className="shrink-0"
             onClick={() => {
               void formatCustomShaderSource({
@@ -213,11 +213,11 @@ function CustomShaderSection({
                   setFormatError(
                     error instanceof Error
                       ? error.message
-                      : "Could not format sketch source."
+                      : "无法格式化 sketch 源代码。"
                   )
                 })
             }}
-            title="Format sketch source"
+            title="格式化 sketch 源代码"
             variant="ghost"
           >
             <TextAlignRightIcon height={14} width={14} />
@@ -437,7 +437,7 @@ export function SelectedLayerPropertiesContent({
   const opacityBinding = useMemo(
     () => ({
       kind: "layer" as const,
-      label: "Opacity",
+      label: "不透明度",
       property: "opacity" as const,
       valueType: "number" as const,
     }),
@@ -446,7 +446,7 @@ export function SelectedLayerPropertiesContent({
   const hueBinding = useMemo(
     () => ({
       kind: "layer" as const,
-      label: "Hue",
+      label: "色相",
       property: "hue" as const,
       valueType: "number" as const,
     }),
@@ -455,7 +455,7 @@ export function SelectedLayerPropertiesContent({
   const saturationBinding = useMemo(
     () => ({
       kind: "layer" as const,
-      label: "Saturation",
+      label: "饱和度",
       property: "saturation" as const,
       valueType: "number" as const,
     }),
@@ -517,13 +517,13 @@ export function SelectedLayerPropertiesContent({
       <div className="flex min-h-0 max-h-[min(62vh,620px)] flex-col gap-0 overflow-x-hidden overflow-y-auto">
         <section className="flex flex-col gap-3 border-t border-[var(--ds-border-divider)] px-4 pt-[14px] pb-4 first:border-t-0">
           <Typography className="uppercase" tone="secondary" variant="overline">
-            General
+            常规
           </Typography>
 
           <div className="flex flex-col gap-[10px]">
             <Slider
               label={renderFieldLabel(
-                "Opacity",
+                "不透明度",
                 buildTimelineControl(opacityBinding, opacity)
               )}
               max={100}
@@ -537,7 +537,7 @@ export function SelectedLayerPropertiesContent({
 
             <div className="grid items-center gap-[10px] [grid-template-columns:minmax(0,1fr)_132px]">
               <Typography className="min-w-0" tone="secondary" variant="label">
-                Blend
+                混合
               </Typography>
               <Select
                 className="w-[132px]"
@@ -554,7 +554,7 @@ export function SelectedLayerPropertiesContent({
 
             <div className="grid items-center gap-[10px] [grid-template-columns:minmax(0,1fr)_132px]">
               <Typography className="min-w-0" tone="secondary" variant="label">
-                Mode
+                模式
               </Typography>
               <Select
                 className="w-[132px]"
@@ -577,7 +577,7 @@ export function SelectedLayerPropertiesContent({
                     tone="secondary"
                     variant="label"
                   >
-                    Source
+                    源
                   </Typography>
                   <Select
                     className="w-[132px]"
@@ -600,7 +600,7 @@ export function SelectedLayerPropertiesContent({
                     tone="secondary"
                     variant="label"
                   >
-                    Mask Mode
+                    蒙版模式
                   </Typography>
                   <Select
                     className="w-[132px]"
@@ -621,7 +621,7 @@ export function SelectedLayerPropertiesContent({
                     tone="secondary"
                     variant="label"
                   >
-                    Invert
+                    反相
                   </Typography>
                   <Toggle
                     checked={maskConfig.invert}
@@ -636,7 +636,7 @@ export function SelectedLayerPropertiesContent({
 
             <Slider
               label={renderFieldLabel(
-                "Hue",
+                "色相",
                 buildTimelineControl(hueBinding, hue)
               )}
               max={180}
@@ -649,7 +649,7 @@ export function SelectedLayerPropertiesContent({
 
             <Slider
               label={renderFieldLabel(
-                "Saturation",
+                "饱和度",
                 buildTimelineControl(saturationBinding, saturation)
               )}
               max={2}
@@ -682,7 +682,7 @@ export function SelectedLayerPropertiesContent({
               tone="secondary"
               variant="overline"
             >
-              Gradient
+              渐变
             </Typography>
             <div className="flex items-center justify-between gap-3">
               <Typography tone="muted" variant="caption">
@@ -695,7 +695,7 @@ export function SelectedLayerPropertiesContent({
                 uiSound="action.randomize"
                 variant="secondary"
               >
-                Randomize
+                随机
               </Button>
             </div>
           </section>
@@ -710,7 +710,7 @@ export function SelectedLayerPropertiesContent({
               tone="secondary"
               variant="overline"
             >
-              Interaction
+              交互
             </Typography>
             <div className="flex items-center justify-between gap-3">
               <Typography tone="muted" variant="caption">
@@ -725,7 +725,7 @@ export function SelectedLayerPropertiesContent({
                   }
                   variant={isRecordingFluidLayer ? "primary" : "secondary"}
                 >
-                  {isRecordingFluidLayer ? "Stop" : "Record"}
+                  {isRecordingFluidLayer ? "停止" : "录制"}
                 </Button>
                 <Button
                   disabled={
@@ -735,7 +735,7 @@ export function SelectedLayerPropertiesContent({
                   size="compact"
                   variant="ghost"
                 >
-                  Clear
+                  清除
                 </Button>
               </div>
             </div>

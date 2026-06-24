@@ -159,9 +159,9 @@ function getCustomPaletteFieldLabel(
     case "customColor1":
       return "Shadows"
     case "customColor2":
-      return colorCount <= 2 ? "Highlights" : "Midtones"
+      return colorCount <= 2 ? "高光" : "中间调"
     case "customColor3":
-      return colorCount === 3 ? "Highlights" : "High Mids"
+      return colorCount === 3 ? "高光" : "中高调"
     case "customColor4":
       return "Highlights"
     default:

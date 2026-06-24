@@ -45,7 +45,7 @@ function GitHubStarLink({ mobile = false }: { mobile?: boolean }) {
   return (
     <HoverTooltip content="GitHub" side={mobile ? "top" : "bottom"}>
       <Link
-        aria-label="Open Shader Lab on GitHub"
+        aria-label="在 GitHub 上打开 Shader Lab"
         className={
           mobile
             ? "inline-flex size-8 items-center justify-center rounded-[var(--ds-radius-control)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] text-[var(--ds-color-text-secondary)] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:border-[var(--ds-border-hover)] hover:bg-white/8 hover:text-[var(--ds-color-text-primary)] active:scale-[0.98]"
@@ -311,7 +311,7 @@ export function EditorTopBar() {
           >
             <div className="inline-flex items-center gap-1.5">
               <IconButton
-                aria-label="Drag"
+                aria-label="拖动"
                 className="h-7 w-7 cursor-grab text-[var(--ds-color-text-muted)] active:cursor-grabbing"
                 tooltipSide="bottom"
                 variant="ghost"
@@ -320,11 +320,11 @@ export function EditorTopBar() {
                 <DragHandleDots2Icon height={14} width={14} />
               </IconButton>
               <IconButton
-                aria-label="Undo"
+                aria-label="撤销"
                 className="h-7 w-7 disabled:opacity-45"
                 disabled={!canUndo}
                 onClick={handleUndo}
-                tooltip="Revert"
+                tooltip="还原"
                 tooltipSide="bottom"
                 uiSound="none"
                 variant="default"
@@ -332,7 +332,7 @@ export function EditorTopBar() {
                 <ResetIcon height={18} width={18} />
               </IconButton>
               <IconButton
-                aria-label="Redo"
+                aria-label="重做"
                 className="h-7 w-7 disabled:opacity-45"
                 disabled={!canRedo}
                 onClick={handleRedo}
@@ -346,7 +346,7 @@ export function EditorTopBar() {
 
             <div className="inline-flex items-center gap-1.5">
               <IconButton
-                aria-label="Zoom out"
+                aria-label="缩小"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => applyZoomStep("out")}
                 tooltipSide="bottom"
@@ -374,7 +374,7 @@ export function EditorTopBar() {
                 </button>
               </HoverTooltip>
               <IconButton
-                aria-label="Zoom in"
+                aria-label="放大"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => applyZoomStep("in")}
                 tooltipSide="bottom"
@@ -413,7 +413,7 @@ export function EditorTopBar() {
                           tone="secondary"
                           variant="caption"
                         >
-                          Reset layout
+                          重置布局
                         </Typography>
                       </button>
                     </HoverTooltip>
@@ -424,8 +424,8 @@ export function EditorTopBar() {
                 <IconButton
                   aria-label={
                     sidebarView === "scene"
-                      ? "Layer properties"
-                      : "Scene settings"
+                      ? "图层属性"
+                      : "场景设置"
                   }
                   className={cn(
                     "h-7 w-7",
@@ -442,11 +442,11 @@ export function EditorTopBar() {
                 </IconButton>
               ) : null}
               <IconButton
-                aria-label={soundEnabled ? "Mute interface sounds" : "Unmute interface sounds"}
+                aria-label={soundEnabled ? "静音界面音效" : "取消静音界面音效"}
                 aria-pressed={!soundEnabled}
                 className={cn("h-7 w-7", !soundEnabled && "bg-white/10")}
                 onClick={() => toggleSoundEnabled()}
-                tooltip={soundEnabled ? "Mute sounds" : "Unmute sounds"}
+                tooltip={soundEnabled ? "静音" : "取消静音"}
                 tooltipSide="bottom"
                 uiSound="none"
                 variant={!soundEnabled ? "active" : "default"}
@@ -458,10 +458,10 @@ export function EditorTopBar() {
                 )}
               </IconButton>
               <IconButton
-                aria-label="Export"
+                aria-label="导出"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => setIsExportDialogOpen(true)}
-                tooltip="Export"
+                tooltip="导出"
                 tooltipSide="bottom"
                 uiSound="action.export"
                 variant="default"
@@ -482,18 +482,18 @@ export function EditorTopBar() {
           >
             <div className="inline-flex w-full items-center justify-between gap-1.5">
               <IconButton
-                aria-label="Undo"
+                aria-label="撤销"
                 className="h-7 w-7 disabled:opacity-45"
                 disabled={!canUndo}
                 onClick={handleUndo}
-                tooltip="Revert"
+                tooltip="还原"
                 uiSound="none"
                 variant="default"
               >
                 <ResetIcon height={18} width={18} />
               </IconButton>
               <IconButton
-                aria-label="Redo"
+                aria-label="重做"
                 className="h-7 w-7 disabled:opacity-45"
                 disabled={!canRedo}
                 onClick={handleRedo}
@@ -506,7 +506,7 @@ export function EditorTopBar() {
 
             <div className="inline-flex w-full items-center justify-between gap-1.5">
               <IconButton
-                aria-label="Zoom out"
+                aria-label="缩小"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => applyZoomStep("out")}
                 variant="default"
@@ -528,7 +528,7 @@ export function EditorTopBar() {
                 </button>
               </HoverTooltip>
               <IconButton
-                aria-label="Zoom in"
+                aria-label="放大"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => applyZoomStep("in")}
                 variant="default"
@@ -540,21 +540,21 @@ export function EditorTopBar() {
                 className="mx-1 block h-5 w-px rounded-full bg-[var(--ds-border-divider)]"
               />
               <IconButton
-                aria-label="Export"
+                aria-label="导出"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => setIsExportDialogOpen(true)}
-                tooltip="Download"
+                tooltip="下载"
                 uiSound="action.export"
                 variant="default"
               >
                 <DownloadIcon height={16} width={16} />
               </IconButton>
               <IconButton
-                aria-label={soundEnabled ? "Mute interface sounds" : "Unmute interface sounds"}
+                aria-label={soundEnabled ? "静音界面音效" : "取消静音界面音效"}
                 aria-pressed={!soundEnabled}
                 className={cn("h-7 w-7", !soundEnabled && "bg-white/10")}
                 onClick={() => toggleSoundEnabled()}
-                tooltip={soundEnabled ? "Mute sounds" : "Unmute sounds"}
+                tooltip={soundEnabled ? "静音" : "取消静音"}
                 uiSound="none"
                 variant={!soundEnabled ? "active" : "default"}
               >

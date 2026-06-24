@@ -16,8 +16,8 @@ import type { CompositionAspect, SceneConfig } from "@/types/editor"
 import { COMPOSITION_ASPECTS, DEFAULT_SCENE_CONFIG } from "@/types/editor"
 
 const ASPECT_LABELS: Partial<Record<string, string>> = {
-  screen: "Screen",
-  custom: "Custom",
+  screen: "屏幕",
+  custom: "自定义",
 }
 
 const aspectOptions = COMPOSITION_ASPECTS.map((aspect) => ({
@@ -89,8 +89,8 @@ export function SceneConfigContent() {
   return (
     <div className="flex min-h-0 max-h-[min(62vh,620px)] flex-col gap-0 overflow-x-hidden overflow-y-auto">
       {/* Composition */}
-      <Section title="Composition">
-        <Row label="Aspect">
+      <Section title="构图">
+        <Row label="宽高比">
           <Select
             onValueChange={(value) =>
               handleUpdate("compositionAspect", value as CompositionAspect)
@@ -135,8 +135,8 @@ export function SceneConfigContent() {
       </Section>
 
       {/* Background */}
-      <Section title="Background">
-        <Row label="Color">
+      <Section title="背景">
+        <Row label="颜色">
           <ColorPicker
             onValueChange={(value) => handleUpdate("backgroundColor", value)}
             value={sceneConfig.backgroundColor}
@@ -165,48 +165,48 @@ export function SceneConfigContent() {
             }}
             type="button"
           >
-            Reset
+            重置
           </button>
         }
-        title="Color Adjustments"
+        title="颜色调整"
       >
         <Slider
-          label="Exposure"
+          label="曝光"
           max={400}
           min={-400}
           onValueChange={(value) => handleUpdate("exposure", value / 100)}
           value={sceneConfig.exposure * 100}
         />
         <Slider
-          label="Brightness"
+          label="亮度"
           max={100}
           min={-100}
           onValueChange={(value) => handleUpdate("brightness", value / 100)}
           value={sceneConfig.brightness * 100}
         />
         <Slider
-          label="Contrast"
+          label="对比度"
           max={100}
           min={-100}
           onValueChange={(value) => handleUpdate("contrast", value / 100)}
           value={sceneConfig.contrast * 100}
         />
         <Slider
-          label="Saturation"
+          label="饱和度"
           max={200}
           min={0}
           onValueChange={(value) => handleUpdate("saturation", value / 100)}
           value={sceneConfig.saturation * 100}
         />
         <Slider
-          label="Vibrance"
+          label="自然饱和度"
           max={100}
           min={-100}
           onValueChange={(value) => handleUpdate("vibrance", value / 100)}
           value={sceneConfig.vibrance * 100}
         />
         <Slider
-          label="Hue"
+          label="色相"
           max={180}
           min={-180}
           onValueChange={(value) => handleUpdate("hue", value)}
@@ -214,20 +214,20 @@ export function SceneConfigContent() {
           valueSuffix="deg"
         />
         <Slider
-          label="Temperature"
+          label="色温"
           max={100}
           min={-100}
           onValueChange={(value) => handleUpdate("temperature", value / 100)}
           value={sceneConfig.temperature * 100}
         />
         <Slider
-          label="Tint"
+          label="色调"
           max={100}
           min={-100}
           onValueChange={(value) => handleUpdate("tint", value / 100)}
           value={sceneConfig.tint * 100}
         />
-        <Row label="Invert">
+        <Row label="反相">
           <Toggle
             checked={sceneConfig.invert}
             onCheckedChange={(value) => handleUpdate("invert", value)}
@@ -236,7 +236,7 @@ export function SceneConfigContent() {
       </Section>
 
       {/* Output Mix */}
-      <Section title="Output Mix">
+      <Section title="输出混合">
         <ChannelMixerMatrix
           onChange={(value) => handleUpdate("channelMixer", value)}
           value={sceneConfig.channelMixer}
@@ -244,7 +244,7 @@ export function SceneConfigContent() {
       </Section>
 
       {/* Curves */}
-      <Section title="Curves">
+      <Section title="曲线">
         <ColorCurvesEditor
           onChange={(value) => handleUpdate("colorCurves", value)}
           value={sceneConfig.colorCurves}
@@ -266,13 +266,13 @@ export function SceneConfigContent() {
             }}
             type="button"
           >
-            Reset
+            重置
           </button>
         }
-        title="Levels"
+        title="色阶"
       >
         <Slider
-          label="Black Point"
+          label="黑场"
           max={100}
           min={0}
           onValueChange={(value) =>
@@ -284,7 +284,7 @@ export function SceneConfigContent() {
           value={sceneConfig.clampMin * 100}
         />
         <Slider
-          label="White Point"
+          label="白场"
           max={100}
           min={0}
           onValueChange={(value) =>
@@ -296,7 +296,7 @@ export function SceneConfigContent() {
           value={sceneConfig.clampMax * 100}
         />
         <Slider
-          label="Gamma"
+          label="伽马"
           max={400}
           min={10}
           onValueChange={(value) => handleUpdate("clampGamma", value / 100)}
@@ -305,8 +305,8 @@ export function SceneConfigContent() {
       </Section>
 
       {/* Quantize */}
-      <Section title="Quantize">
-        <Row label="Enabled">
+      <Section title="量化">
+        <Row label="启用">
           <Toggle
             checked={sceneConfig.quantizeEnabled}
             onCheckedChange={(value) => handleUpdate("quantizeEnabled", value)}
@@ -314,7 +314,7 @@ export function SceneConfigContent() {
         </Row>
         {sceneConfig.quantizeEnabled && (
           <Slider
-            label="Levels"
+            label="色阶"
             max={256}
             min={2}
             onValueChange={(value) =>
@@ -326,8 +326,8 @@ export function SceneConfigContent() {
       </Section>
 
       {/* Color Map */}
-      <Section title="Color Map">
-        <Row label="Enabled">
+      <Section title="颜色映射">
+        <Row label="启用">
           <Toggle
             checked={sceneConfig.colorMap !== null}
             onCheckedChange={(enabled) => {

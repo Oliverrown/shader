@@ -127,8 +127,8 @@ type LayerListItemProps = {
 }
 
 const LAYER_ACTION_OPTIONS = [
-  { label: "Reset properties", value: "reset" },
-  { label: "Delete layer", value: "delete" },
+  { label: "重置属性", value: "reset" },
+  { label: "删除图层", value: "delete" },
 ] as const satisfies readonly {
   label: ReactNode
   value: LayerAction
@@ -260,12 +260,12 @@ const LayerListItem = memo(function LayerListItem({
           </IconButton>
         ) : (
           <IconButton
-            aria-label={layer.visible ? "Hide layer" : "Show layer"}
+            aria-label={layer.visible ? "隐藏图层" : "显示图层"}
             onClick={(event) => {
               event.stopPropagation()
               onSetLayerVisibility(layer.id, !layer.visible)
             }}
-            tooltip="Toggle visibility"
+            tooltip="切换可见性"
             uiSound={layer.visible ? "action.visibilityOff" : "action.visibilityOn"}
             variant="ghost"
           >
@@ -283,7 +283,7 @@ const LayerListItem = memo(function LayerListItem({
             event.stopPropagation()
             onLayerAction(layer.id, "delete")
           }}
-          tooltip="Delete layer"
+          tooltip="删除图层"
           uiSound="none"
           variant="ghost"
         >
@@ -371,12 +371,12 @@ const LayerListItem = memo(function LayerListItem({
         </IconButton>
       ) : (
         <IconButton
-          aria-label={layer.visible ? "Hide layer" : "Show layer"}
+          aria-label={layer.visible ? "隐藏图层" : "显示图层"}
           onClick={(event) => {
             event.stopPropagation()
             onSetLayerVisibility(layer.id, !layer.visible)
           }}
-          tooltip="Toggle visibility"
+          tooltip="切换可见性"
           uiSound={layer.visible ? "action.visibilityOff" : "action.visibilityOn"}
           variant="ghost"
         >
@@ -394,7 +394,7 @@ const LayerListItem = memo(function LayerListItem({
           event.stopPropagation()
           onLayerAction(layer.id, "delete")
         }}
-        tooltip="Delete layer"
+        tooltip="删除图层"
         uiSound="none"
         variant="ghost"
       >
@@ -601,7 +601,7 @@ export function LayerSidebar() {
     } catch (error) {
       setLayerRuntimeError(
         target.layerId,
-        error instanceof Error ? error.message : "Failed to relink asset."
+        error instanceof Error ? error.message : "重新关联素材失败。"
       )
     }
   }
@@ -690,17 +690,17 @@ export function LayerSidebar() {
               tone="secondary"
               variant="overline"
             >
-              Layers
+              图层
             </Typography>
             <div className="inline-flex items-center gap-1.5">
               <IconButton
-                aria-label="Hide UI (Cmd + .)"
+                aria-label="隐藏界面 (Cmd + .)"
                 className="pointer-events-auto"
                 onClick={() => {
                   enterImmersiveCanvas()
                   playUISound("action.hideUI")
                 }}
-                tooltip="Hide UI (Cmd + .)"
+                tooltip="隐藏界面 (Cmd + .)"
                 uiSound="none"
                 variant="ghost"
               >
@@ -764,7 +764,7 @@ export function LayerSidebar() {
               <div className="flex min-h-11 items-center justify-between border-[var(--ds-border-divider)] border-b px-3">
                 <div className="inline-flex items-center gap-2">
                   <IconButton
-                    aria-label="Move layers panel"
+                    aria-label="移动图层面板"
                     className="h-7 w-7 cursor-grab text-[var(--ds-color-text-muted)] active:cursor-grabbing"
                     variant="ghost"
                     {...dragHandleProps}
@@ -776,18 +776,18 @@ export function LayerSidebar() {
                     tone="secondary"
                     variant="overline"
                   >
-                    Layers
+                    图层
                   </Typography>
                 </div>
                 <div className="inline-flex items-center gap-1.5">
                   <IconButton
-                    aria-label="Hide UI (Cmd + .)"
+                    aria-label="隐藏界面 (Cmd + .)"
                     className="pointer-events-auto"
                     onClick={() => {
                       enterImmersiveCanvas()
                       playUISound("action.hideUI")
                     }}
-                    tooltip="Hide UI (Cmd + .)"
+                    tooltip="隐藏界面 (Cmd + .)"
                     uiSound="none"
                     variant="ghost"
                   >

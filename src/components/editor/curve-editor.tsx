@@ -269,7 +269,7 @@ function CurveEditorContent({ easing, onChange }: CurveEditorProps) {
     <div className="flex w-[340px] flex-col gap-3 p-3">
       <div className="relative overflow-hidden rounded-[14px] border border-white/6 bg-[linear-gradient(180deg,rgb(255_255_255_/_0.045)_0%,rgb(255_255_255_/_0.018)_100%)] px-3 py-3 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]">
         <svg
-          aria-label="Easing curve editor"
+          aria-label="缓动曲线编辑器"
           className="block select-none"
           height={GRAPH_SIZE}
           ref={svgRef}
@@ -444,7 +444,7 @@ function CurveEditorContent({ easing, onChange }: CurveEditorProps) {
               />
             </svg>
             <span className="font-[var(--ds-font-mono)] text-[11px] leading-[14px]">
-              Step Hold
+              阶梯保持
             </span>
           </button>
 
@@ -493,7 +493,7 @@ function CurveEditorContent({ easing, onChange }: CurveEditorProps) {
                 tone="secondary"
                 variant="overline"
               >
-                Curve Values
+                曲线数值
               </Typography>
               <Typography
                 className="font-[var(--ds-font-mono)] text-[10px]"
@@ -537,7 +537,7 @@ export function CurveEditorPopover({ easing, onChange }: CurveEditorProps) {
   return (
     <Popover.Root modal={false}>
       <Popover.Trigger
-        aria-label="Edit easing curve"
+        aria-label="编辑缓动曲线"
         className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] text-[var(--ds-color-text-secondary)] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:bg-white/8 hover:border-[var(--ds-border-hover)] active:scale-[0.96] data-[popup-open]:bg-white/8 data-[popup-open]:border-[var(--ds-border-hover)] data-[popup-open]:text-[var(--ds-color-text-primary)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--ds-border-active)]"
       >
         <CurvePreview easing={easing} />

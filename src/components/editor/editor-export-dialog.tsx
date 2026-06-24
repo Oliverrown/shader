@@ -71,10 +71,10 @@ import {
 type ExportTab = "image" | "project" | "shader" | "video"
 
 const QUALITY_LABELS: Record<ExportQualityPreset, string> = {
-  draft: "Draft",
-  high: "High",
-  standard: "Standard",
-  ultra: "Ultra",
+  draft: "草稿",
+  high: "高",
+  standard: "标准",
+  ultra: "超高",
 }
 
 const ASPECT_PRESETS: ExportAspectPreset[] = [
@@ -540,7 +540,7 @@ export function EditorExportDialog({
       )
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Image export failed."
+        error instanceof Error ? error.message : "图像导出失败。"
       )
     } finally {
       setIsWorking(false)
@@ -576,7 +576,7 @@ export function EditorExportDialog({
 
       downloadBlob(blob, buildDownloadName(videoFormat))
       setVideoProgress({
-        label: "Export complete",
+        label: "导出完成",
         value: 1,
       })
       setStatusMessage(
@@ -588,7 +588,7 @@ export function EditorExportDialog({
         setStatusMessage("Video export cancelled.")
       } else {
         setErrorMessage(
-          error instanceof Error ? error.message : "Video export failed."
+          error instanceof Error ? error.message : "视频导出失败。"
         )
       }
     } finally {
@@ -652,7 +652,7 @@ export function EditorExportDialog({
       useTimelineStore.getState().setPlaying(false)
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         setErrorMessage(
-          error instanceof Error ? error.message : "Live recording failed."
+          error instanceof Error ? error.message : "实时录制失败。"
         )
       }
     } finally {
@@ -685,7 +685,7 @@ export function EditorExportDialog({
       setStatusMessage("Shader Lab project exported.")
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Project export failed."
+        error instanceof Error ? error.message : "项目导出失败。"
       )
     }
   }
@@ -705,12 +705,12 @@ export function EditorExportDialog({
       setStatusMessage(
         result.missingAssetCount > 0
           ? `Project imported. ${result.missingAssetCount} media layer(s) need relinking.`
-          : "Project imported."
+          : "项目已导入。"
       )
       onOpenChange(false)
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Project import failed."
+        error instanceof Error ? error.message : "项目导入失败。"
       )
     } finally {
       setIsWorking(false)
@@ -724,7 +724,7 @@ export function EditorExportDialog({
     if (!shaderSnippet) {
       setErrorMessage(
         shaderExportIssues[0]?.message ??
-          "Shader export is not available for this project."
+          "该项目不支持着色器导出。"
       )
       return
     }
@@ -738,7 +738,7 @@ export function EditorExportDialog({
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "Could not copy shader snippet."
+          : "无法复制着色器代码片段。"
       )
     } finally {
       setIsCopyingShader(false)
@@ -779,7 +779,7 @@ export function EditorExportDialog({
         <div className="fixed inset-0 z-90" role="presentation">
           <motion.button
             animate={{ opacity: 1 }}
-            aria-label="Close export dialog"
+            aria-label="关闭导出对话框"
             className="absolute inset-0 w-full border-0 bg-[rgb(4_5_7_/_0.56)]"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
@@ -823,10 +823,10 @@ export function EditorExportDialog({
               >
                 <div className="flex items-center justify-between border-b border-[var(--ds-border-divider)] px-4 pt-[14px] pb-3">
                   <Typography as="h2" className="leading-5" variant="title">
-                    Export
+                    导出
                   </Typography>
                   <IconButton
-                    aria-label="Close export dialog"
+                    aria-label="关闭导出对话框"
                     className="h-7 w-7"
                     onClick={() => onOpenChange(false)}
                     variant="default"
@@ -1106,7 +1106,7 @@ function LiveRecordingHud({
             Cancel
           </Button>
           <Button onClick={onStop} size="compact" variant="primary">
-            Stop
+            停止
           </Button>
         </div>
       </GlassPanel>
@@ -1148,7 +1148,7 @@ function ImageTabContent({
 }) {
   return (
     <section className="flex flex-col gap-[14px]">
-      <FieldLabel label="Aspect">
+      <FieldLabel label="宽高比">
         <PresetRow>
           {ASPECT_PRESETS.map((preset) => (
             <PillButton
@@ -1161,7 +1161,7 @@ function ImageTabContent({
         </PresetRow>
       </FieldLabel>
 
-      <FieldLabel label="Quality">
+      <FieldLabel label="质量">
         <PresetRow>
           {QUALITY_PRESETS.map((preset) => (
             <PillButton
@@ -1280,13 +1280,13 @@ function VideoTabContent({
               tone="muted"
               variant="caption"
             >
-              Live recording is not supported in this browser.
+              此浏览器不支持实时录制。
             </Typography>
           ) : null}
         </div>
       ) : null}
 
-      <FieldLabel label="Format">
+      <FieldLabel label="格式">
         <PresetRow>
           <PillButton
             active={videoFormat === "webm"}
@@ -1303,7 +1303,7 @@ function VideoTabContent({
         </PresetRow>
       </FieldLabel>
 
-      <FieldLabel label="Aspect">
+      <FieldLabel label="宽高比">
         <PresetRow>
           {ASPECT_PRESETS.map((preset) => (
             <PillButton
@@ -1316,7 +1316,7 @@ function VideoTabContent({
         </PresetRow>
       </FieldLabel>
 
-      <FieldLabel label="Quality">
+      <FieldLabel label="质量">
         <PresetRow>
           {QUALITY_PRESETS.map((preset) => (
             <PillButton
@@ -1353,7 +1353,7 @@ function VideoTabContent({
           </PresetRow>
         </FieldLabel>
 
-        <FieldLabel label="Duration">
+        <FieldLabel label="时长">
           <NumberInput
             disabled={videoDurationReadOnly}
             formatValue={(value) =>
@@ -1391,7 +1391,7 @@ function VideoTabContent({
         ) : (
           <DownloadIcon height={16} width={16} />
         )}
-        {isWorking ? "Cancel Export" : `Export ${videoFormat.toUpperCase()}`}
+        {isWorking ? "取消导出" : `Export ${videoFormat.toUpperCase()}`}
       </Button>
     </section>
   )
@@ -1513,7 +1513,7 @@ function ShaderTabContent({
         </div>
       ) : null}
 
-      <FieldLabel label="Snippet">
+      <FieldLabel label="代码片段">
         <pre className="m-0 max-h-[280px] overflow-auto rounded-[var(--ds-radius-panel)] border border-[var(--ds-border-divider)] bg-white/4 p-3 font-[var(--ds-font-mono)] text-[11px] leading-[1.55] whitespace-pre-wrap break-words">
           <code>
             {snippet ?? "// Shader export is blocked for this project."}
@@ -1523,7 +1523,7 @@ function ShaderTabContent({
 
       <Button disabled={!canCopy || isCopying} onClick={() => void onCopy()}>
         <CopyIcon height={16} width={16} />
-        {isCopying ? "Copying..." : "Copy snippet"}
+        {isCopying ? "复制中…" : "复制片段"}
       </Button>
     </section>
   )
@@ -1603,10 +1603,10 @@ function DimensionFields({
 }) {
   return (
     <div className="grid gap-[10px] min-[900px]:grid-cols-2">
-      <FieldLabel label="Width">
+      <FieldLabel label="宽度">
         <NumberInput min={1} onChange={onWidthChange} step={1} value={width} />
       </FieldLabel>
-      <FieldLabel label="Height">
+      <FieldLabel label="高度">
         <NumberInput
           min={1}
           onChange={onHeightChange}

@@ -649,7 +649,7 @@ export function PropertiesSidebar() {
                 <div className="flex items-center justify-start gap-2 border-b border-[var(--ds-border-divider)] px-3 py-1.5">
                   <div className="inline-flex items-center gap-2">
                     <IconButton
-                      aria-label="Move properties panel"
+                      aria-label="移动属性面板"
                       className="h-7 w-7 cursor-grab text-[var(--ds-color-text-muted)] active:cursor-grabbing"
                       variant="ghost"
                       {...dragHandleProps}
@@ -657,7 +657,7 @@ export function PropertiesSidebar() {
                       <DragHandleDots2Icon height={14} width={14} />
                     </IconButton>
                     <Typography tone="secondary" variant="overline">
-                      {sidebarView === "scene" ? "Scene" : "Properties"}
+                      {sidebarView === "scene" ? "场景" : "属性"}
                     </Typography>
                   </div>
                 </div>

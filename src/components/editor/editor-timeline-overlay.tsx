@@ -324,7 +324,7 @@ function TimelineTransport({
     >
       <div className="inline-flex items-center gap-1">
         <IconButton
-          aria-label={isPlaying ? "Pause playback" : "Play timeline"}
+          aria-label={isPlaying ? "暂停播放" : "播放时间轴"}
           className="h-7 w-7"
           onClick={onTogglePlaying}
           uiSound={isPlaying ? "action.pause" : "action.play"}
@@ -337,7 +337,7 @@ function TimelineTransport({
           )}
         </IconButton>
         <IconButton
-          aria-label="Stop playback"
+          aria-label="停止播放"
           className="h-7 w-7"
           onClick={onStop}
           uiSound="action.stop"
@@ -346,7 +346,7 @@ function TimelineTransport({
           <StopIcon height={14} width={14} />
         </IconButton>
         <IconButton
-          aria-label={loop ? "Disable loop" : "Enable loop"}
+          aria-label={loop ? "禁用循环" : "启用循环"}
           className={cn(
             "h-7 w-7",
             loop && "bg-white/12 text-[var(--ds-color-text-primary)]"
@@ -366,7 +366,7 @@ function TimelineTransport({
 
       <div className="inline-flex items-center gap-1">
         <IconButton
-          aria-label={autoKey ? "Disable auto-key" : "Enable auto-key"}
+          aria-label={autoKey ? "禁用自动关键帧" : "启用自动关键帧"}
           className={cn(
             "h-7 w-auto gap-1.5 px-[10px]",
             autoKey && "bg-white/12 text-[var(--ds-color-text-primary)]"
@@ -393,10 +393,10 @@ function TimelineTransport({
 
       <div className="inline-flex items-center gap-2">
         <Typography as="span" tone="secondary" variant="caption">
-          Dur
+          时长
         </Typography>
         <NumberInput
-          aria-label="Timeline duration in seconds"
+          aria-label="时间轴时长（秒）"
           size={2}
           className={cn(
             "min-h-7 appearance-none rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] text-center font-[var(--ds-font-mono)] text-[12px] leading-4 text-[var(--ds-color-text-primary)] outline-none transition-[background-color,border-color] duration-160 ease-[var(--ease-out-cubic)] focus:border-[var(--ds-border-hover)]",
@@ -439,7 +439,7 @@ function TimelineTransport({
         </Typography>
         <IconButton
           aria-label={
-            expanded ? "Collapse timeline panel" : "Expand timeline panel"
+            expanded ? "收起时间轴面板" : "展开时间轴面板"
           }
           className="h-7 w-7"
           onClick={onToggleExpanded}
@@ -1332,7 +1332,7 @@ export function EditorTimelineOverlay() {
                       tone="secondary"
                       variant="overline"
                     >
-                      Properties
+                      属性
                     </Typography>
 
                     <div className="flex flex-col gap-1.5">
@@ -1396,7 +1396,7 @@ export function EditorTimelineOverlay() {
                                     event.stopPropagation()
                                     setTrackEnabled(track.id, !track.enabled)
                                   }}
-                                  tooltip={track.enabled ? "Disable track" : "Enable track"}
+                                  tooltip={track.enabled ? "禁用轨道" : "启用轨道"}
                                   uiSound={track.enabled ? "action.visibilityOff" : "action.visibilityOn"}
                                   variant="ghost"
                                 >

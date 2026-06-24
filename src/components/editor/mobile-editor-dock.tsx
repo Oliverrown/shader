@@ -21,10 +21,10 @@ type MobileDockItem = {
 }
 
 const MOBILE_DOCK_ITEMS: readonly MobileDockItem[] = [
-  { icon: LayersIcon, label: "Layers", panel: "layers" },
-  { icon: MixerHorizontalIcon, label: "Properties", panel: "properties" },
-  { icon: GearIcon, label: "Scene", panel: "scene" },
-  { icon: DashboardIcon, label: "Actions", panel: "actions" },
+  { icon: LayersIcon, label: "图层", panel: "layers" },
+  { icon: MixerHorizontalIcon, label: "属性", panel: "properties" },
+  { icon: GearIcon, label: "场景", panel: "scene" },
+  { icon: DashboardIcon, label: "操作", panel: "actions" },
 ] as const
 
 export function MobileEditorDock() {
