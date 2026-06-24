@@ -78,8 +78,15 @@ export function applyEditorHistorySnapshot(snapshot: EditorHistorySnapshot): voi
 }
 
 export function getHistorySnapshotSignature(snapshot: EditorHistorySnapshot): string {
+  // `currentTime` is a transient playback value that advances ~60x/sec during
+  // playback. Including it here would make every animation frame register as a
+  // distinct "change", continuously firing the history subscribers and causing
+  // an infinite update loop. Playhead position is intentionally not part of
+  // undo/redo change detection.
+  const { currentTime: _currentTime, ...timelineSignature } = snapshot.timeline
+
   return JSON.stringify({
     layers: snapshot.layers,
-    timeline: snapshot.timeline,
+    timeline: timelineSignature,
   })
 }

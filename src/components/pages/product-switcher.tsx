@@ -1,6 +1,6 @@
 "use client"
 
-import { CaretDownIcon } from "@phosphor-icons/react"
+import { CaretDownIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
 import { type FocusEvent, useEffect, useRef, useState } from "react"
 
@@ -112,7 +112,6 @@ export function ProductSwitcher() {
         <CaretDownIcon
           aria-hidden="true"
           className="h-4 w-4 text-white/45 transition-transform duration-160 ease-[var(--ease-out-cubic)]"
-          weight="bold"
         />
       </button>
 
