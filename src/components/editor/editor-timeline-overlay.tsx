@@ -576,6 +576,7 @@ export function EditorTimelineOverlay() {
     null
   )
   const previousHasDerivedVideoDurationRef = useRef<boolean | null>(null)
+  const appliedDerivedVideoDurationRef = useRef<number | null>(null)
   const scrubSurfaceRef = useRef<HTMLDivElement | null>(null)
   const trackCanvasRef = useRef<HTMLDivElement | null>(null)
   const keyframeButtonRefs = useRef(new Map<string, HTMLButtonElement>())
@@ -634,11 +635,23 @@ export function EditorTimelineOverlay() {
   )
 
   useEffect(() => {
-    if (!(hasDerivedVideoDuration && derivedVideoDuration !== duration)) {
+    if (!hasDerivedVideoDuration) {
+      appliedDerivedVideoDurationRef.current = null
       return
     }
 
-    setDuration(derivedVideoDuration)
+    // Only push each derived duration once. The store clamps the value
+    // (MIN/MAX), so comparing the raw derived value against the stored
+    // duration could stay unequal forever and cause an infinite update loop.
+    if (appliedDerivedVideoDurationRef.current === derivedVideoDuration) {
+      return
+    }
+
+    appliedDerivedVideoDurationRef.current = derivedVideoDuration
+
+    if (derivedVideoDuration !== duration) {
+      setDuration(derivedVideoDuration)
+    }
   }, [derivedVideoDuration, duration, hasDerivedVideoDuration, setDuration])
 
   useEffect(() => {
