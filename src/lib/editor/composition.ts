@@ -7,7 +7,7 @@ export type CompositionFrame = {
   y: number
 }
 
-function getCompositionAspectRatio(
+export function getCompositionAspectRatio(
   aspect: CompositionAspect,
   customWidth: number,
   customHeight: number

@@ -6,6 +6,10 @@ import {
   browserSupportsWebGPU,
   createWebGPURenderer,
 } from "@/renderer/create-webgpu-renderer"
+import {
+  getCompositionAspectRatio,
+  getEffectiveCompositionSize,
+} from "@/lib/editor/composition"
 import { useAssetStore } from "@/store/asset-store"
 import { useEditorStore } from "@/store/editor-store"
 import { useLayerStore } from "@/store/layer-store"
@@ -64,33 +68,39 @@ export function useEditorRenderer() {
     let lastFrameTime = performance.now()
     let previewTime = 0
     let resizeObserver: ResizeObserver | null = null
+    let initializeTimer: number | null = null
 
     editorStore.setWebGPUStatus("initializing")
 
     async function initializeRenderer() {
+      let renderer: EditorRenderer | null = null
+
       try {
-        const renderer = await createWebGPURenderer(canvasElement)
+        const nextRenderer = await createWebGPURenderer(canvasElement)
+
+        renderer = nextRenderer
+
+        await nextRenderer.initialize()
 
         if (isDisposed) {
-          renderer.dispose()
+          nextRenderer.dispose()
           return
         }
 
-        rendererRef.current = renderer
-        await renderer.initialize()
-        editorStore.setLiveRenderer(renderer)
+        rendererRef.current = nextRenderer
+        editorStore.setLiveRenderer(nextRenderer)
         editorStore.setLiveCanvas(canvasElement)
 
         if (isDisposed) {
           editorStore.setLiveRenderer(null)
           editorStore.setLiveCanvas(null)
-          renderer.dispose()
+          nextRenderer.dispose()
           return
         }
 
         const initialSize = measureElement(viewportElement)
         editorStore.setCanvasSize(initialSize.width, initialSize.height)
-        renderer.resize(initialSize, getPixelRatio())
+        nextRenderer.resize(initialSize, getPixelRatio())
         editorStore.setWebGPUStatus("ready")
         setIsReady(true)
 
@@ -107,7 +117,7 @@ export function useEditorRenderer() {
           useEditorStore
             .getState()
             .setCanvasSize(nextSize.width, nextSize.height)
-          renderer.resize(nextSize, getPixelRatio())
+          nextRenderer.resize(nextSize, getPixelRatio())
         })
 
         resizeObserver.observe(viewportElement)
@@ -139,13 +149,24 @@ export function useEditorRenderer() {
 
           const clockTime = previewTime
           useTimelineStore.getState().setLastRenderedClockTime(clockTime)
-          renderer.setPreviewFrozen(true)
+          nextRenderer.setPreviewFrozen(true)
+          const cropAspectRatio = getCompositionAspectRatio(
+            editorState.sceneConfig.compositionAspect,
+            editorState.sceneConfig.compositionWidth,
+            editorState.sceneConfig.compositionHeight
+          )
+          const logicalSize = getEffectiveCompositionSize(
+            editorState.sceneConfig,
+            editorState.canvasSize
+          )
 
           const frame = buildRendererFrame({
             assets: assetState.assets,
             clockTime,
+            cropAspectRatio,
             delta,
             layers: layerState.layers,
+            logicalSize,
             outputSize: editorState.outputSize,
             pixelRatio: getPixelRatio(),
             sceneConfig: editorState.sceneConfig,
@@ -153,7 +174,7 @@ export function useEditorRenderer() {
             viewportSize: editorState.canvasSize,
           })
 
-          await renderer.prepareForExportFrame(
+          await nextRenderer.prepareForExportFrame(
             timelineState.currentTime,
             timelineState.loop
           )
@@ -162,7 +183,7 @@ export function useEditorRenderer() {
             return
           }
 
-          renderer.render(frame)
+          nextRenderer.render(frame)
           animationFrameRef.current = window.requestAnimationFrame(
             (nextNow) => {
               void renderFrame(nextNow)
@@ -174,6 +195,8 @@ export function useEditorRenderer() {
           void renderFrame(nextNow)
         })
       } catch (error) {
+        renderer?.dispose()
+
         const message =
           error instanceof Error
             ? error.message
@@ -184,10 +207,18 @@ export function useEditorRenderer() {
       }
     }
 
-    void initializeRenderer()
+    initializeTimer = window.setTimeout(() => {
+      initializeTimer = null
+      void initializeRenderer()
+    }, 0)
 
     return () => {
       isDisposed = true
+
+      if (initializeTimer !== null) {
+        window.clearTimeout(initializeTimer)
+        initializeTimer = null
+      }
 
       if (resizeObserver) {
         resizeObserver.disconnect()

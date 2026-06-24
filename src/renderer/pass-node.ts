@@ -4,6 +4,7 @@ import {
   cos,
   float,
   mix,
+  select,
   sin,
   texture as tslTexture,
   type TSLNode,
@@ -23,6 +24,15 @@ import type {
 
 type Node = TSLNode
 
+export type OutputCropFrame = {
+  height: number
+  targetHeight: number
+  targetWidth: number
+  width: number
+  x: number
+  y: number
+}
+
 export class PassNode {
   readonly layerId: string
 
@@ -34,6 +44,10 @@ export class PassNode {
   protected readonly inputNode: Node
   protected effectNode: Node
   protected readonly hueUniform: Node
+  protected readonly outputCropMaxXUniform: Node
+  protected readonly outputCropMaxYUniform: Node
+  protected readonly outputCropMinXUniform: Node
+  protected readonly outputCropMinYUniform: Node
   protected readonly saturationUniform: Node
 
   private readonly opacityUniform: Node
@@ -52,6 +66,10 @@ export class PassNode {
     this.opacityUniform = uniform(1)
     this.hueUniform = uniform(0)
     this.saturationUniform = uniform(1)
+    this.outputCropMinXUniform = uniform(0)
+    this.outputCropMinYUniform = uniform(0)
+    this.outputCropMaxXUniform = uniform(1)
+    this.outputCropMaxYUniform = uniform(1)
 
     const placeholder = new THREE.Texture()
     const renderTargetUv = vec2(uv().x, float(1).sub(uv().y))
@@ -151,6 +169,36 @@ export class PassNode {
     return false
   }
 
+  updateOutputCropFrame(frame: OutputCropFrame): boolean {
+    const safeWidth = Math.max(1, frame.targetWidth)
+    const safeHeight = Math.max(1, frame.targetHeight)
+    const minX = Math.max(0, Math.min(1, frame.x / safeWidth))
+    const minY = Math.max(0, Math.min(1, frame.y / safeHeight))
+    const maxX = Math.max(
+      minX,
+      Math.min(1, (frame.x + frame.width) / safeWidth)
+    )
+    const maxY = Math.max(
+      minY,
+      Math.min(1, (frame.y + frame.height) / safeHeight)
+    )
+
+    if (
+      minX === this.outputCropMinXUniform.value &&
+      minY === this.outputCropMinYUniform.value &&
+      maxX === this.outputCropMaxXUniform.value &&
+      maxY === this.outputCropMaxYUniform.value
+    ) {
+      return false
+    }
+
+    this.outputCropMinXUniform.value = minX
+    this.outputCropMinYUniform.value = minY
+    this.outputCropMaxXUniform.value = maxX
+    this.outputCropMaxYUniform.value = maxY
+    return true
+  }
+
   needsContinuousRender(): boolean {
     return false
   }
@@ -189,7 +237,7 @@ export class PassNode {
 
   protected rebuildColorNode(): void {
     const adjustedEffectNode = this.applySharedColorAdjustments(this.effectNode)
-    this.material.colorNode = buildBlendNode(
+    const blendedNode = buildBlendNode(
       this.blendMode,
       this.inputNode,
       adjustedEffectNode,
@@ -203,6 +251,28 @@ export class PassNode {
           }
         : undefined,
     ) as Node
+    this.material.colorNode = this.applyOutputCrop(blendedNode)
+  }
+
+  protected getOutputCropUv(): Node {
+    return vec2(
+      uv()
+        .x.sub(this.outputCropMinXUniform)
+        .div(this.outputCropMaxXUniform.sub(this.outputCropMinXUniform)),
+      uv()
+        .y.sub(this.outputCropMinYUniform)
+        .div(this.outputCropMaxYUniform.sub(this.outputCropMinYUniform))
+    )
+  }
+
+  private applyOutputCrop(sourceNode: Node): Node {
+    const inCrop = uv()
+      .x.greaterThanEqual(this.outputCropMinXUniform)
+      .and(uv().x.lessThanEqual(this.outputCropMaxXUniform))
+      .and(uv().y.greaterThanEqual(this.outputCropMinYUniform))
+      .and(uv().y.lessThanEqual(this.outputCropMaxYUniform))
+
+    return select(inCrop, sourceNode, this.inputNode)
   }
 
   private applySharedColorAdjustments(sourceNode: Node): Node {

@@ -22,7 +22,8 @@ import { useEditorStore } from "@/store/editor-store"
 import { useLayerStore } from "@/store/layer-store"
 
 export function EditorCanvasViewport() {
-  const { canvasRef, isReady, viewportRef } = useEditorRenderer()
+  const { canvasRef, fallbackMessage, isReady, viewportRef } =
+    useEditorRenderer()
   const immersiveCanvas = useEditorStore((state) => state.immersiveCanvas)
   const exitImmersiveCanvas = useEditorStore(
     (state) => state.exitImmersiveCanvas
@@ -184,7 +185,9 @@ export function EditorCanvasViewport() {
           x: event.clientX - rect.left - rect.width / 2,
           y: event.clientY - rect.top - rect.height / 2,
         }
-        const nextZoom = clampZoom(state.zoom * getWheelZoomFactor(event.deltaY))
+        const nextZoom = clampZoom(
+          state.zoom * getWheelZoomFactor(event.deltaY)
+        )
         const nextState = applyZoomAtPoint(
           state.zoom,
           state.panOffset,
@@ -240,10 +243,12 @@ export function EditorCanvasViewport() {
         return
       }
 
-      useEditorStore.getState().setPan(
-        activePan.startPanX + (event.clientX - activePan.originX),
-        activePan.startPanY + (event.clientY - activePan.originY)
-      )
+      useEditorStore
+        .getState()
+        .setPan(
+          activePan.startPanX + (event.clientX - activePan.originX),
+          activePan.startPanY + (event.clientY - activePan.originY)
+        )
     },
     []
   )
@@ -363,7 +368,15 @@ export function EditorCanvasViewport() {
         ) : null}
       </div>
 
-      {!isReady ? (
+      {fallbackMessage ? (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
+          <p className="max-w-[min(320px,80vw)] text-center font-[var(--ds-font-sans)] text-white/60 text-xs leading-5">
+            {fallbackMessage}
+          </p>
+        </div>
+      ) : null}
+
+      {!(fallbackMessage || isReady) ? (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
           <div
             aria-hidden="true"

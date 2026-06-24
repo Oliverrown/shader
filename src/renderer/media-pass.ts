@@ -38,6 +38,8 @@ export class MediaPass extends PassNode {
   private currentTexture: THREE.Texture | null = null
   private loadedSignature: string | null = null
   private mediaLoadNonce = 0
+  private outputCropAspectRatio: number | null = null
+  private renderAspectRatio = 1
   private videoHandle: VideoHandle | null = null
   private videoTexture: THREE.VideoTexture | null = null
   private previewFrozen = false
@@ -156,7 +158,26 @@ export class MediaPass extends PassNode {
   }
 
   override resize(width: number, height: number): void {
-    this.canvasAspectUniform.value = width / Math.max(height, 1)
+    this.renderAspectRatio = width / Math.max(height, 1)
+    this.canvasAspectUniform.value =
+      this.outputCropAspectRatio ?? this.renderAspectRatio
+  }
+
+  override updateOutputCropAspectRatio(ratio: number | null): boolean {
+    const nextRatio =
+      typeof ratio === "number" && Number.isFinite(ratio) && ratio > 0
+        ? ratio
+        : null
+
+    if (nextRatio === this.outputCropAspectRatio) {
+      return false
+    }
+
+    this.outputCropAspectRatio = nextRatio
+    this.canvasAspectUniform.value =
+      this.outputCropAspectRatio ?? this.renderAspectRatio
+    this.rebuildEffectNode()
+    return true
   }
 
   override needsContinuousRender(): boolean {
@@ -188,7 +209,7 @@ export class MediaPass extends PassNode {
     }
 
     const aspectRatio = this.textureAspectUniform.div(this.canvasAspectUniform)
-    const centeredUv = uv().sub(0.5).mul(this.scaleUniform)
+    const centeredUv = this.getOutputCropUv().sub(0.5).mul(this.scaleUniform)
     const coverScaleX = max(aspectRatio, float(1))
     const coverScaleY = max(float(1).div(aspectRatio), float(1))
     const containScaleX = clamp(aspectRatio, float(0), float(1))

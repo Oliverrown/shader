@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import { getDefaultProjectAssets } from "@/lib/editor/default-project"
 import { isSvgFileName } from "@/lib/editor/media-file"
 import type { AssetKind, EditorAsset } from "@/types/editor"
 
@@ -133,7 +134,7 @@ function loadVideoMetadata(
 }
 
 export const useAssetStore = create<AssetStore>((set, get) => ({
-  assets: [],
+  assets: getDefaultProjectAssets(),
 
   async loadAsset(file) {
     const kind = validateFile(file)

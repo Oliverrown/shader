@@ -1,3 +1,4 @@
+import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
 import { EditorCanvasViewport } from "@/components/editor/editor-canvas-viewport"
 import { MobileEditorDock } from "@/components/editor/mobile-editor-dock"
@@ -26,8 +27,9 @@ export function ShaderLabPage() {
         href="https://eng.basement.studio/tools/shader-lab"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-3 left-3 z-50 text-white/50 text-xs leading-4 transition-colors hover:text-white/80 min-[900px]:bottom-[34px]"
+        className="fixed bottom-3 left-3 z-50 inline-flex items-center gap-1.5 text-white/50 text-xs leading-4 transition-colors hover:text-white/80 min-[900px]:bottom-[28px]"
       >
+        <GitHubLogoIcon height={14} width={14} />
         此为 basement 开源项目翻译版
       </Link>
     </main>

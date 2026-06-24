@@ -9,7 +9,7 @@ import { GradientPass } from "@/renderer/gradient-pass"
 import { LivePass } from "@/renderer/live-pass"
 import { MagnifyLensPass } from "@/renderer/magnify-lens-pass"
 import { MediaPass } from "@/renderer/media-pass"
-import type { PassNode } from "@/renderer/pass-node"
+import type { OutputCropFrame, PassNode } from "@/renderer/pass-node"
 import { createPassNode } from "@/renderer/pass-node-factory"
 import { PixelTrailPass } from "@/renderer/pixel-trail-pass"
 import { ScenePostProcess } from "@/renderer/scene-post-process"
@@ -46,6 +46,54 @@ function parseSvgRasterResolution(value: unknown): number {
   }
 
   return Math.round(parsed)
+}
+
+function getOutputCropFrame(
+  width: number,
+  height: number,
+  ratio: number | null
+): OutputCropFrame {
+  const targetWidth = Math.max(1, width)
+  const targetHeight = Math.max(1, height)
+
+  if (!(typeof ratio === "number" && Number.isFinite(ratio) && ratio > 0)) {
+    return {
+      height: targetHeight,
+      targetHeight,
+      targetWidth,
+      width: targetWidth,
+      x: 0,
+      y: 0,
+    }
+  }
+
+  const targetRatio = targetWidth / targetHeight
+
+  if (ratio > targetRatio) {
+    const cropWidth = targetWidth
+    const cropHeight = Math.round(targetWidth / ratio)
+
+    return {
+      height: cropHeight,
+      targetHeight,
+      targetWidth,
+      width: cropWidth,
+      x: 0,
+      y: Math.round((targetHeight - cropHeight) / 2),
+    }
+  }
+
+  const cropWidth = Math.round(targetHeight * ratio)
+  const cropHeight = targetHeight
+
+  return {
+    height: cropHeight,
+    targetHeight,
+    targetWidth,
+    width: cropWidth,
+    x: Math.round((targetWidth - cropWidth) / 2),
+    y: 0,
+  }
 }
 
 function createLayerSignature(layer: RenderableLayerPass): string {
@@ -129,10 +177,19 @@ export class PipelineManager {
     this.activePassesDirty = true
   }
 
+  private getCurrentOutputCropFrame(): OutputCropFrame {
+    return getOutputCropFrame(
+      this.width,
+      this.height,
+      this.outputCropAspectRatio
+    )
+  }
+
   private width: number
   private height: number
   private logicalWidth: number
   private logicalHeight: number
+  private outputCropAspectRatio: number | null = null
   private readonly baseMaterial: THREE.MeshBasicMaterial
   private currentBackgroundColor = "#080808"
   private readonly postProcess: ScenePostProcess
@@ -210,6 +267,8 @@ export class PipelineManager {
         pass = this.createPass(renderableLayer.layer)
         pass.resize(this.width, this.height)
         pass.updateLogicalSize(this.logicalWidth, this.logicalHeight)
+        pass.updateOutputCropAspectRatio(this.outputCropAspectRatio)
+        pass.updateOutputCropFrame(this.getCurrentOutputCropFrame())
         this.passMap.set(layerId, pass)
         this.markDirty()
       }
@@ -317,9 +376,11 @@ export class PipelineManager {
     this.height = Math.max(1, size.height)
     this.rtA.setSize(this.width, this.height)
     this.rtB.setSize(this.width, this.height)
+    const outputCropFrame = this.getCurrentOutputCropFrame()
 
     for (const pass of this.passMap.values()) {
       pass.resize(this.width, this.height)
+      pass.updateOutputCropFrame(outputCropFrame)
     }
 
     this.markDirty()
@@ -367,13 +428,27 @@ export class PipelineManager {
   }
 
   updateOutputCropAspectRatio(ratio: number | null): void {
+    const nextRatio =
+      typeof ratio === "number" && Number.isFinite(ratio) && ratio > 0
+        ? ratio
+        : null
+    const ratioChanged = nextRatio !== this.outputCropAspectRatio
+
+    if (ratioChanged) {
+      this.outputCropAspectRatio = nextRatio
+    }
+
+    const outputCropFrame = this.getCurrentOutputCropFrame()
     let passChanged = false
 
     for (const pass of this.passMap.values()) {
-      passChanged = pass.updateOutputCropAspectRatio(ratio) || passChanged
+      passChanged =
+        pass.updateOutputCropAspectRatio(nextRatio) ||
+        pass.updateOutputCropFrame(outputCropFrame) ||
+        passChanged
     }
 
-    if (passChanged) {
+    if (ratioChanged || passChanged) {
       this.markDirty()
     }
   }
