@@ -438,24 +438,6 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       return
     }
 
-    if (typeof window !== "undefined") {
-      const w = window as unknown as Record<string, number | boolean>
-      if (w.__v0_in_advance) {
-        w.__v0_advance_reentry = ((w.__v0_advance_reentry as number) ?? 0) + 1
-        if ((w.__v0_advance_reentry as number) % 10 === 0) {
-          console.log(
-            "[v0] advance RE-ENTRANT call",
-            w.__v0_advance_reentry,
-            new Error("advance reentry").stack
-          )
-        }
-      }
-    }
-
-    if (typeof window !== "undefined") {
-      ;(window as unknown as Record<string, boolean>).__v0_in_advance = true
-    }
-
     set((state) => {
       const next = advanceProjectTimeline(state, delta)
 
@@ -471,10 +453,6 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
         isPlaying: next.isPlaying,
       }
     })
-
-    if (typeof window !== "undefined") {
-      ;(window as unknown as Record<string, boolean>).__v0_in_advance = false
-    }
   },
 
   toggleKeyframe: ({ binding, layerId, time, value }) => {

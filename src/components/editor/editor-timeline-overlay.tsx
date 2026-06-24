@@ -490,21 +490,6 @@ function CurveEditorOverlayControl({
 }
 
 export function EditorTimelineOverlay() {
-  if (typeof window !== "undefined") {
-    const w = window as unknown as Record<string, number>
-    const now = performance.now()
-    const last = (w.__v0_overlay_t as number) ?? 0
-    w.__v0_overlay_n = ((w.__v0_overlay_n as number) ?? 0) + 1
-    if (now - last < 4) {
-      w.__v0_overlay_burst = ((w.__v0_overlay_burst as number) ?? 0) + 1
-      if ((w.__v0_overlay_burst as number) % 20 === 0) {
-        console.log("[v0] overlay render burst", w.__v0_overlay_burst)
-      }
-    } else {
-      w.__v0_overlay_burst = 0
-    }
-    w.__v0_overlay_t = now
-  }
   const reduceMotion = useReducedMotion() ?? false
   const immersiveCanvas = useEditorStore((state) => state.immersiveCanvas)
   const timelinePanelOpen = useEditorStore((state) => state.timelinePanelOpen)

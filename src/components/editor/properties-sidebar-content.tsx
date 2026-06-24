@@ -237,24 +237,6 @@ function CustomShaderSection({
   )
 }
 
-function logSelectedLayerRenderBurst() {
-  if (typeof window === "undefined") {
-    return
-  }
-  const w = window as unknown as Record<string, number>
-  const now = performance.now()
-  const last = (w.__v0_slc_t as number) ?? 0
-  if (now - last < 4) {
-    w.__v0_slc_burst = ((w.__v0_slc_burst as number) ?? 0) + 1
-    if ((w.__v0_slc_burst as number) % 20 === 0) {
-      console.log("[v0] selected-layer-content render burst", w.__v0_slc_burst)
-    }
-  } else {
-    w.__v0_slc_burst = 0
-  }
-  w.__v0_slc_t = now
-}
-
 export function SelectedLayerPropertiesContent({
   blendMode,
   compositeMode,
@@ -322,7 +304,6 @@ export function SelectedLayerPropertiesContent({
   values: Record<string, ParameterValue>
   visibleParams: ParameterDefinition[]
 }) {
-  logSelectedLayerRenderBurst()
   const fluidInteractionEventCount = useLayerStore(
     (state) =>
       state.layers.find((layer) => layer.id === layerId)?.fluidInteractionEvents
