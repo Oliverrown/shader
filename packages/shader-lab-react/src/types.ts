@@ -9,14 +9,18 @@ export type ShaderLabLayerKind = "effect" | "source"
 
 export type ShaderLabSourceLayerType =
   | "custom-shader"
+  | "fluid"
   | "gradient"
   | "image"
   | "live"
+  | "magnify-lens"
+  | "pixel-trail"
   | "text"
   | "video"
 
 export type ShaderLabEffectLayerType =
   | "ascii"
+  | "bloom"
   | "circuit-bent"
   | "directional-blur"
   | "chromatic-aberration"
@@ -36,6 +40,7 @@ export type ShaderLabEffectLayerType =
   | "slice"
   | "smear"
   | "threshold"
+  | "voxel"
 
 export type ShaderLabLayerType =
   | ShaderLabEffectLayerType
@@ -106,6 +111,12 @@ export type ShaderLabSketchSource =
 
 export type ShaderLabTimelineInterpolation = "linear" | "smooth" | "step"
 
+export type ShaderLabCubicBezierPoints = [number, number, number, number]
+
+export type ShaderLabKeyframeEasing =
+  | { type: "bezier"; controlPoints: ShaderLabCubicBezierPoints }
+  | { type: "step" }
+
 export type ShaderLabAnimatedPropertyBinding =
   | {
       kind: "layer"
@@ -121,6 +132,7 @@ export type ShaderLabAnimatedPropertyBinding =
     }
 
 export interface ShaderLabTimelineKeyframe {
+  easing?: ShaderLabKeyframeEasing
   id: string
   time: number
   value: ShaderLabParameterValue
@@ -130,7 +142,8 @@ export interface ShaderLabTimelineTrack {
   binding: ShaderLabAnimatedPropertyBinding
   enabled: boolean
   id: string
-  interpolation: ShaderLabTimelineInterpolation
+  /** @deprecated Use per-keyframe `easing` instead. */
+  interpolation?: ShaderLabTimelineInterpolation
   keyframes: ShaderLabTimelineKeyframe[]
   layerId: string
 }
@@ -159,7 +172,7 @@ export interface ShaderLabLayerConfig {
 }
 
 export interface ShaderLabConfig {
-  composition: {
+  composition?: {
     height: number
     width: number
   }

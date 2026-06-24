@@ -2,11 +2,12 @@
 
 import {
   CopyIcon,
-  FileArrowDownIcon,
-  FolderIcon,
-  UploadSimpleIcon,
-  XIcon,
-} from "@phosphor-icons/react"
+  Cross2Icon,
+  DownloadIcon,
+  ExclamationTriangleIcon,
+  FileIcon,
+  UploadIcon,
+} from "@radix-ui/react-icons"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import {
   type ChangeEvent,
@@ -24,8 +25,9 @@ import { GlassPanel } from "@/components/ui/glass-panel"
 import { IconButton } from "@/components/ui/icon-button"
 import { NumberInput as EditableNumberInput } from "@/components/ui/number-input"
 import { Typography } from "@/components/ui/typography"
+import type { UISoundId } from "@/lib/audio/shader-lab-sounds"
+import { playOptionalUISound } from "@/lib/audio/shader-lab-sounds"
 import { cn } from "@/lib/cn"
-import { getEffectiveCompositionSize } from "@/lib/editor/composition"
 import {
   ASPECT_PRESET_LABELS,
   clampExportSize,
@@ -40,6 +42,11 @@ import {
   getSupportedVideoMimeType,
   type VideoExportFormat,
 } from "@/lib/editor/export"
+import {
+  getSupportedLiveVideoMimeTypes,
+  type LiveVideoRecordingProgress,
+  recordLiveCanvasVideo,
+} from "@/lib/editor/live-video-recorder"
 import {
   applyLabProjectFile,
   buildLabProjectFile,
@@ -96,6 +103,13 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(", ")
 
+const QUALITY_SOUND_MAP: Record<ExportQualityPreset, UISoundId> = {
+  draft: "action.qualityDraft",
+  standard: "action.qualityStandard",
+  high: "action.qualityHigh",
+  ultra: "action.qualityUltra",
+}
+
 function roundDurationForExport(value: number): number {
   if (!Number.isFinite(value) || value <= 0) {
     return DEFAULT_VIDEO_EXPORT_DURATION
@@ -117,11 +131,13 @@ export function EditorExportDialog({
   onOpenChange,
 }: EditorExportDialogProps) {
   const reduceMotion = useReducedMotion() ?? false
-  const canvasSize = useEditorStore((state) => state.canvasSize)
+  const outputSize = useEditorStore((state) => state.outputSize)
   const sceneConfig = useEditorStore((state) => state.sceneConfig)
-  const compositionSize = useMemo(
-    () => getEffectiveCompositionSize(sceneConfig, canvasSize),
-    [canvasSize, sceneConfig]
+  const liveCanvas = useEditorStore((state) => state.liveCanvas)
+  const compositionSize = outputSize
+  const suggestedAspectPreset = useMemo(
+    () => getSuggestedExportAspectPreset(sceneConfig),
+    [sceneConfig]
   )
   const assets = useAssetStore((state) => state.assets)
   const layers = useLayerStore((state) => state.layers)
@@ -143,7 +159,7 @@ export function EditorExportDialog({
     useState<ExportQualityPreset>("standard")
   const [imageSize, setImageSize] = useState(() =>
     getDimensionsForPreset(
-      useEditorStore.getState().canvasSize,
+      useEditorStore.getState().outputSize,
       "original",
       "standard",
       DEFAULT_MAX_EXPORT_DIMENSION
@@ -154,7 +170,7 @@ export function EditorExportDialog({
     useState<ExportQualityPreset>("standard")
   const [videoSize, setVideoSize] = useState(() =>
     getDimensionsForPreset(
-      useEditorStore.getState().canvasSize,
+      useEditorStore.getState().outputSize,
       "original",
       "standard",
       DEFAULT_MAX_EXPORT_DIMENSION
@@ -172,8 +188,19 @@ export function EditorExportDialog({
     mp4: false,
     webm: false,
   })
+  const [liveVideoSupport, setLiveVideoSupport] = useState({
+    mp4: null as string | null,
+    webm: null as string | null,
+  })
+  const [liveRecordingProgress, setLiveRecordingProgress] =
+    useState<LiveVideoRecordingProgress | null>(null)
+  const [liveRecordingStatus, setLiveRecordingStatus] = useState<
+    "idle" | "recording"
+  >("idle")
   const [isCopyingShader, setIsCopyingShader] = useState(false)
   const videoExportAbortRef = useRef<AbortController | null>(null)
+  const liveRecordingAbortRef = useRef<AbortController | null>(null)
+  const liveRecordingStopRef = useRef<AbortController | null>(null)
   const importInputRef = useRef<HTMLInputElement | null>(null)
   const measureRef = useRef<HTMLDivElement | null>(null)
   const dialogRef = useRef<HTMLDivElement | null>(null)
@@ -182,6 +209,17 @@ export function EditorExportDialog({
   const shaderExportIssues = useMemo(
     () => validateShaderExportSupport(layers, assets),
     [assets, layers]
+  )
+  const hasFluidLayer = useMemo(
+    () =>
+      layers.some(
+        (layer) =>
+          layer.visible &&
+          (layer.type === "fluid" ||
+            layer.type === "pixel-trail" ||
+            layer.type === "magnify-lens")
+      ),
+    [layers]
   )
   const derivedVideoDuration = useMemo(
     () => getLongestVideoLayerDuration(layers, assets),
@@ -266,6 +304,10 @@ export function EditorExportDialog({
   }, [])
 
   useEffect(() => {
+    setLiveVideoSupport(getSupportedLiveVideoMimeTypes())
+  }, [])
+
+  useEffect(() => {
     const node = measureRef.current
 
     if (!node) {
@@ -331,6 +373,8 @@ export function EditorExportDialog({
     setVideoDuration(defaultVideoDuration)
     setVideoDurationDirty(false)
     setVideoProgress(null)
+    setImageAspect(suggestedAspectPreset)
+    setVideoAspect(suggestedAspectPreset)
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -359,7 +403,7 @@ export function EditorExportDialog({
           ? document.activeElement
           : null
 
-      if (!activeElement || !dialogRef.current?.contains(activeElement)) {
+      if (!(activeElement && dialogRef.current?.contains(activeElement))) {
         event.preventDefault()
         ;(event.shiftKey ? lastFocusable : firstFocusable)?.focus()
         return
@@ -378,9 +422,7 @@ export function EditorExportDialog({
     }
 
     window.requestAnimationFrame(() => {
-      dialogRef.current
-        ?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
-        ?.focus()
+      dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus()
     })
 
     window.addEventListener("keydown", handleKeyDown)
@@ -389,7 +431,7 @@ export function EditorExportDialog({
       window.removeEventListener("keydown", handleKeyDown)
       previousFocusRef.current?.focus()
     }
-  }, [defaultVideoDuration, onOpenChange, open])
+  }, [defaultVideoDuration, onOpenChange, open, suggestedAspectPreset])
 
   const clearFeedback = useCallback(() => {
     setErrorMessage(null)
@@ -404,6 +446,7 @@ export function EditorExportDialog({
 
       clearFeedback()
       setActiveTab(nextTab)
+      playOptionalUISound("generic.press")
     },
     [activeTab, clearFeedback]
   )
@@ -552,6 +595,81 @@ export function EditorExportDialog({
       videoExportAbortRef.current = null
       setIsWorking(false)
     }
+  }
+
+  async function handleLiveVideoRecording() {
+    clearFeedback()
+
+    if (!liveCanvas) {
+      setErrorMessage("Live recording requires the visible canvas to be ready.")
+      return
+    }
+
+    const mimeType =
+      videoFormat === "mp4"
+        ? (liveVideoSupport.mp4 ?? liveVideoSupport.webm)
+        : (liveVideoSupport.webm ?? liveVideoSupport.mp4)
+
+    if (!mimeType) {
+      setErrorMessage("Live recording is not supported in this browser.")
+      return
+    }
+
+    const abortController = new AbortController()
+    const stopController = new AbortController()
+    liveRecordingAbortRef.current = abortController
+    liveRecordingStopRef.current = stopController
+    setLiveRecordingProgress({
+      duration: Math.max(0.25, videoDuration),
+      elapsed: 0,
+      value: 0,
+    })
+    setLiveRecordingStatus("recording")
+
+    const timelineStore = useTimelineStore.getState()
+    if (timelineStore.currentTime >= timelineStore.duration) {
+      timelineStore.setCurrentTime(0)
+    }
+    timelineStore.setPlaying(true)
+    onOpenChange(false)
+
+    try {
+      const blob = await recordLiveCanvasVideo({
+        canvas: liveCanvas,
+        duration: Math.max(0.25, videoDuration),
+        fps: Math.max(1, videoFps),
+        mimeType,
+        onProgress: setLiveRecordingProgress,
+        signal: abortController.signal,
+        stopSignal: stopController.signal,
+      })
+
+      useTimelineStore.getState().setPlaying(false)
+      const extension = mimeType.includes("mp4") ? "mp4" : "webm"
+      downloadBlob(blob, buildDownloadName(extension))
+      setStatusMessage(`Live ${extension.toUpperCase()} recording exported.`)
+    } catch (error) {
+      useTimelineStore.getState().setPlaying(false)
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        setErrorMessage(
+          error instanceof Error ? error.message : "Live recording failed."
+        )
+      }
+    } finally {
+      liveRecordingAbortRef.current = null
+      liveRecordingStopRef.current = null
+      setLiveRecordingProgress(null)
+      setLiveRecordingStatus("idle")
+    }
+  }
+
+  function stopLiveVideoRecording() {
+    liveRecordingStopRef.current?.abort()
+  }
+
+  function cancelLiveVideoRecording() {
+    liveRecordingAbortRef.current?.abort()
+    useTimelineStore.getState().setPlaying(false)
   }
 
   async function handleProjectExport() {
@@ -713,7 +831,7 @@ export function EditorExportDialog({
                     onClick={() => onOpenChange(false)}
                     variant="default"
                   >
-                    <XIcon size={18} weight="bold" />
+                    <Cross2Icon height={18} width={18} />
                   </IconButton>
                 </div>
 
@@ -782,9 +900,14 @@ export function EditorExportDialog({
                       ) : null}
                       {activeTab === "video" ? (
                         <VideoTabContent
+                          hasFluidLayer={hasFluidLayer}
                           isWorking={isWorking}
+                          liveRecordingSupported={Boolean(
+                            liveVideoSupport.webm || liveVideoSupport.mp4
+                          )}
                           mp4Supported={videoSupport.mp4}
                           onExport={handleVideoExport}
+                          onLiveRecord={handleLiveVideoRecording}
                           onVideoAspectChange={setVideoAspect}
                           onVideoDurationChange={(value) => {
                             setVideoDurationDirty(true)
@@ -858,9 +981,14 @@ export function EditorExportDialog({
                         ) : null}
                         {activeTab === "video" ? (
                           <VideoTabContent
+                            hasFluidLayer={hasFluidLayer}
                             isWorking={isWorking}
+                            liveRecordingSupported={Boolean(
+                              liveVideoSupport.webm || liveVideoSupport.mp4
+                            )}
                             mp4Supported={videoSupport.mp4}
                             onExport={handleVideoExport}
+                            onLiveRecord={handleLiveVideoRecording}
                             onVideoAspectChange={setVideoAspect}
                             onVideoDurationChange={(value) => {
                               setVideoDurationDirty(true)
@@ -873,7 +1001,9 @@ export function EditorExportDialog({
                             onVideoWidthChange={updateVideoWidth}
                             videoAspect={videoAspect}
                             videoDuration={videoDuration}
-                            videoDurationReadOnly={derivedVideoDuration !== null}
+                            videoDurationReadOnly={
+                              derivedVideoDuration !== null
+                            }
                             videoFormat={videoFormat}
                             videoFps={videoFps}
                             videoProgress={videoProgress}
@@ -931,9 +1061,75 @@ export function EditorExportDialog({
           </div>
         </div>
       ) : null}
+      {liveRecordingStatus === "recording" && liveRecordingProgress ? (
+        <LiveRecordingHud
+          onCancel={cancelLiveVideoRecording}
+          onStop={stopLiveVideoRecording}
+          progress={liveRecordingProgress}
+        />
+      ) : null}
     </AnimatePresence>,
     document.body
   )
+}
+
+function LiveRecordingHud({
+  onCancel,
+  onStop,
+  progress,
+}: {
+  onCancel: () => void
+  onStop: () => void
+  progress: LiveVideoRecordingProgress
+}) {
+  return (
+    <motion.div
+      animate={{ opacity: 1, y: 0 }}
+      className="fixed right-4 bottom-4 z-90 w-[min(360px,calc(100vw-32px))]"
+      exit={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 8 }}
+      transition={{ duration: 0.16, ease: "easeOut" }}
+    >
+      <GlassPanel className="flex flex-col gap-3 p-3" variant="panel">
+        <div className="flex items-center justify-between gap-3">
+          <Typography tone="secondary" variant="label">
+            Live recording
+          </Typography>
+          <Typography tone="muted" variant="caption">
+            {formatSeconds(progress.elapsed)} /{" "}
+            {formatSeconds(progress.duration)}
+          </Typography>
+        </div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
+          <div
+            className="h-full rounded-full bg-[var(--ds-color-text-primary)]"
+            style={{
+              width: `${Math.max(0, Math.min(progress.value, 1)) * 100}%`,
+            }}
+          />
+        </div>
+        <div className="flex items-center justify-end gap-2">
+          <Button onClick={onCancel} size="compact" variant="ghost">
+            Cancel
+          </Button>
+          <Button onClick={onStop} size="compact" variant="primary">
+            Stop
+          </Button>
+        </div>
+      </GlassPanel>
+    </motion.div>
+  )
+}
+
+function formatSeconds(value: number): string {
+  if (!Number.isFinite(value)) {
+    return "0:00"
+  }
+
+  const totalSeconds = Math.max(0, Math.floor(value))
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`
 }
 
 function ImageTabContent({
@@ -980,6 +1176,9 @@ function ImageTabContent({
               key={preset}
               label={QUALITY_LABELS[preset]}
               onClick={() => onImageQualityChange(preset)}
+              uiSound={
+                imageQuality === preset ? "none" : QUALITY_SOUND_MAP[preset]
+              }
             />
           ))}
         </PresetRow>
@@ -996,18 +1195,31 @@ function ImageTabContent({
         使用当前播放头所在帧。
       </Typography>
 
+<<<<<<< HEAD
       <Button disabled={isWorking} onClick={() => void onExport()}>
         <FileArrowDownIcon size={16} weight="bold" />
         导出 PNG
+=======
+      <Button
+        disabled={isWorking}
+        onClick={() => void onExport()}
+        uiSound="action.export"
+      >
+        <DownloadIcon height={16} width={16} />
+        Export PNG
+>>>>>>> upstream/main
       </Button>
     </section>
   )
 }
 
 function VideoTabContent({
+  hasFluidLayer,
   isWorking,
+  liveRecordingSupported,
   mp4Supported,
   onExport,
+  onLiveRecord,
   onVideoAspectChange,
   onVideoDurationChange,
   onVideoFpsChange,
@@ -1025,9 +1237,12 @@ function VideoTabContent({
   videoSize,
   webmSupported,
 }: {
+  hasFluidLayer: boolean
   isWorking: boolean
+  liveRecordingSupported: boolean
   mp4Supported: boolean
   onExport: () => Promise<void>
+  onLiveRecord: () => Promise<void>
   onVideoAspectChange: (preset: ExportAspectPreset) => void
   onVideoDurationChange: (value: number) => void
   onVideoFpsChange: (value: number) => void
@@ -1051,7 +1266,44 @@ function VideoTabContent({
 
   return (
     <section className="flex flex-col gap-[14px]">
+<<<<<<< HEAD
       <FieldLabel label="格式">
+=======
+      {hasFluidLayer ? (
+        <div className="flex flex-col gap-3 rounded-[var(--ds-radius-control)] border border-[rgb(255_190_92_/_0.22)] p-3">
+          <Typography
+            className="flex items-center gap-2 leading-[14px] text-[rgb(255_219_166_/_0.92)]"
+            variant="caption"
+          >
+            <ExclamationTriangleIcon height={14} width={14} />
+            Interactive layers use a live simulation. Normal video export can
+            capture incomplete or broken fluid motion. Use live recording
+            instead.
+          </Typography>
+          <Button
+            disabled={!liveRecordingSupported || isWorking}
+            onClick={() => void onLiveRecord()}
+            size="compact"
+            uiSound="action.play"
+            variant="neutral"
+          >
+            <DownloadIcon height={16} width={16} />
+            Record Live Video
+          </Button>
+          {!liveRecordingSupported ? (
+            <Typography
+              className="leading-[14px]"
+              tone="muted"
+              variant="caption"
+            >
+              Live recording is not supported in this browser.
+            </Typography>
+          ) : null}
+        </div>
+      ) : null}
+
+      <FieldLabel label="Format">
+>>>>>>> upstream/main
         <PresetRow>
           <PillButton
             active={videoFormat === "webm"}
@@ -1089,6 +1341,9 @@ function VideoTabContent({
               key={preset}
               label={QUALITY_LABELS[preset]}
               onClick={() => onVideoQualityChange(preset)}
+              uiSound={
+                videoQuality === preset ? "none" : QUALITY_SOUND_MAP[preset]
+              }
             />
           ))}
         </PresetRow>
@@ -1146,11 +1401,12 @@ function VideoTabContent({
       <Button
         disabled={!(isWorking || selectedFormatSupported)}
         onClick={() => void onExport()}
+        uiSound="action.export"
       >
         {isWorking ? (
-          <XIcon size={16} weight="bold" />
+          <Cross2Icon height={16} width={16} />
         ) : (
-          <FileArrowDownIcon size={16} weight="bold" />
+          <DownloadIcon height={16} width={16} />
         )}
         {isWorking ? "取消导出" : `导出 ${videoFormat.toUpperCase()}`}
       </Button>
@@ -1179,9 +1435,19 @@ function ProjectTabContent({
 }) {
   return (
     <section className="flex flex-col gap-[14px]">
+<<<<<<< HEAD
       <Button disabled={isWorking} onClick={() => void onExport()}>
         <FileArrowDownIcon size={16} weight="bold" />
         导出 .lab 文件
+=======
+      <Button
+        disabled={isWorking}
+        onClick={() => void onExport()}
+        uiSound="action.export"
+      >
+        <DownloadIcon height={16} width={16} />
+        Export .lab file
+>>>>>>> upstream/main
       </Button>
 
       <label
@@ -1209,7 +1475,7 @@ function ProjectTabContent({
           type="file"
         />
 
-        <UploadSimpleIcon size={20} weight="bold" />
+        <UploadIcon height={20} width={20} />
         <div>
           <Typography className="leading-4" variant="label">
             导入 .lab 配置文件
@@ -1227,7 +1493,7 @@ function ProjectTabContent({
           }}
           variant="active"
         >
-          <FolderIcon size={20} />
+          <FileIcon height={20} width={20} />
         </IconButton>
       </label>
     </section>
@@ -1279,8 +1545,13 @@ function ShaderTabContent({
       </FieldLabel>
 
       <Button disabled={!canCopy || isCopying} onClick={() => void onCopy()}>
+<<<<<<< HEAD
         <CopyIcon size={16} weight="bold" />
         {isCopying ? "复制中..." : "复制片段"}
+=======
+        <CopyIcon height={16} width={16} />
+        {isCopying ? "Copying..." : "Copy snippet"}
+>>>>>>> upstream/main
       </Button>
     </section>
   )
@@ -1312,11 +1583,13 @@ function PillButton({
   disabled = false,
   label,
   onClick,
+  uiSound = "generic.press",
 }: {
   active: boolean
   disabled?: boolean
   label: string
   onClick: () => void
+  uiSound?: UISoundId | "none"
 }) {
   return (
     <button
@@ -1326,7 +1599,12 @@ function PillButton({
           "bg-[var(--ds-color-surface-active)] border-[var(--ds-border-active)]"
       )}
       disabled={disabled}
-      onClick={onClick}
+      onClick={() => {
+        onClick()
+        if (!(disabled || active)) {
+          playOptionalUISound(uiSound)
+        }
+      }}
       type="button"
     >
       <Typography
@@ -1409,10 +1687,7 @@ function buildRenderProjectState() {
 
   return {
     assets,
-    compositionSize: getEffectiveCompositionSize(
-      editorState.sceneConfig,
-      editorState.canvasSize
-    ),
+    compositionSize: editorState.outputSize,
     layers,
     sceneConfig: editorState.sceneConfig,
     timeline: {
@@ -1421,9 +1696,80 @@ function buildRenderProjectState() {
       isPlaying: timelineState.isPlaying,
       loop: timelineState.loop,
       selectedKeyframeId: timelineState.selectedKeyframeId,
+      selectedKeyframeIds: timelineState.selectedKeyframeIds,
       selectedTrackId: timelineState.selectedTrackId,
       tracks: structuredClone(timelineState.tracks),
     },
+  }
+}
+
+function getSuggestedExportAspectPreset(
+  sceneConfig: ReturnType<typeof useEditorStore.getState>["sceneConfig"]
+): ExportAspectPreset {
+  const sceneRatio = getSceneCompositionAspectRatio(sceneConfig)
+
+  if (sceneRatio === null) {
+    return "original"
+  }
+
+  let closestPreset: ExportAspectPreset = "original"
+  let smallestDelta = Number.POSITIVE_INFINITY
+
+  for (const preset of ASPECT_PRESETS) {
+    if (preset === "original") {
+      continue
+    }
+
+    const presetRatio = getPresetRatio(preset)
+    const delta = Math.abs(sceneRatio - presetRatio)
+
+    if (delta < smallestDelta) {
+      closestPreset = preset
+      smallestDelta = delta
+    }
+  }
+
+  return smallestDelta <= 0.02 ? closestPreset : "original"
+}
+
+function getPresetRatio(
+  preset: Exclude<ExportAspectPreset, "original">
+): number {
+  switch (preset) {
+    case "1:1":
+      return 1
+    case "4:5":
+      return 4 / 5
+    case "9:16":
+      return 9 / 16
+    case "16:9":
+      return 16 / 9
+  }
+}
+
+function getSceneCompositionAspectRatio(
+  sceneConfig: ReturnType<typeof useEditorStore.getState>["sceneConfig"]
+): number | null {
+  switch (sceneConfig.compositionAspect) {
+    case "screen":
+      return null
+    case "16:9":
+      return 16 / 9
+    case "9:16":
+      return 9 / 16
+    case "4:3":
+      return 4 / 3
+    case "3:4":
+      return 3 / 4
+    case "1:1":
+      return 1
+    case "custom": {
+      const width = Math.max(1, sceneConfig.compositionWidth)
+      const height = Math.max(1, sceneConfig.compositionHeight)
+      return width / height
+    }
+    default:
+      return null
   }
 }
 

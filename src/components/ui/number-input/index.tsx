@@ -1,12 +1,10 @@
 "use client"
 
-import {
-  type InputHTMLAttributes,
-  useEffect,
-  useRef,
-  useState,
-} from "react"
+import { type InputHTMLAttributes, useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/cn"
+import { formatNumberForDisplay } from "@/lib/format-number"
+import type { UISoundId } from "@/lib/audio/shader-lab-sounds"
+import { playOptionalUISound } from "@/lib/audio/shader-lab-sounds"
 
 type NumberInputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -15,6 +13,7 @@ type NumberInputProps = Omit<
   formatValue?: ((value: number) => string) | undefined
   onChange: (value: number) => void
   parseValue?: ((value: string) => number | null) | undefined
+  uiSound?: UISoundId | "none"
   value: number
 }
 
@@ -41,11 +40,12 @@ export function NumberInput({
   onKeyDown,
   parseValue = defaultParseValue,
   step,
+  uiSound = "generic.numberCommit",
   value,
   ...props
 }: NumberInputProps) {
   const [draftValue, setDraftValue] = useState(() =>
-    formatValue ? formatValue(value) : value.toString()
+    formatValue ? formatValue(value) : formatNumberForDisplay(value)
   )
   const isEditingRef = useRef(false)
 
@@ -54,14 +54,18 @@ export function NumberInput({
       return
     }
 
-    setDraftValue(formatValue ? formatValue(value) : value.toString())
+    setDraftValue(
+      formatValue ? formatValue(value) : formatNumberForDisplay(value)
+    )
   }, [formatValue, value])
 
   const commitDraftValue = () => {
     const parsedValue = parseValue(draftValue)
 
     if (parsedValue === null) {
-      setDraftValue(formatValue ? formatValue(value) : value.toString())
+      setDraftValue(
+        formatValue ? formatValue(value) : formatNumberForDisplay(value)
+      )
       return
     }
 
@@ -71,7 +75,14 @@ export function NumberInput({
     )
 
     onChange(clampedValue)
-    setDraftValue(formatValue ? formatValue(clampedValue) : clampedValue.toString())
+    if (clampedValue !== value) {
+      playOptionalUISound(uiSound)
+    }
+    setDraftValue(
+      formatValue
+        ? formatValue(clampedValue)
+        : formatNumberForDisplay(clampedValue)
+    )
   }
 
   return (
@@ -103,7 +114,9 @@ export function NumberInput({
 
         if (event.key === "Escape") {
           isEditingRef.current = false
-          setDraftValue(formatValue ? formatValue(value) : value.toString())
+          setDraftValue(
+            formatValue ? formatValue(value) : formatNumberForDisplay(value)
+          )
           event.currentTarget.blur()
           return
         }

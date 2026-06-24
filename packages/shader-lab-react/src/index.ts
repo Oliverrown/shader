@@ -5,6 +5,17 @@ export {
 } from "./runtime-clock"
 export { buildRuntimeFrame, type ShaderLabRuntimeFrame } from "./runtime-frame"
 export {
+  createShaderLabFluidRuntime,
+  ShaderLabFluidRuntime,
+} from "./fluid/runtime"
+export {
+  defaultShaderLabFluidControls,
+  type ShaderLabFluidColorMode,
+  type ShaderLabFluidControls,
+  type ShaderLabFluidRuntimeOptions,
+  type ShaderLabFluidSplatColor,
+} from "./fluid/types"
+export {
   ShaderLabCanvasSource,
   type ShaderLabCanvasSourceOptions,
 } from "./shader-lab-canvas-source"
@@ -31,8 +42,10 @@ export type {
   ShaderLabBlendMode,
   ShaderLabCompositeMode,
   ShaderLabConfig,
+  ShaderLabCubicBezierPoints,
   ShaderLabEffectLayerType,
   ShaderLabInlineSketchSource,
+  ShaderLabKeyframeEasing,
   ShaderLabLayerConfig,
   ShaderLabLayerKind,
   ShaderLabLayerType,

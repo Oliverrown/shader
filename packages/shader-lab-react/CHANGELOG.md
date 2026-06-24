@@ -1,5 +1,66 @@
 # @basementstudio/shader-lab
 
+## 1.3.14
+
+### Patch Changes
+
+- 23ae465: voxel pass - new shader effect that fakes isometric blocks
+
+## 1.3.13
+
+### Patch Changes
+
+- 7257f2a: new interactive layers - fluid, magnifying, and pixel trail
+
+## 1.3.12
+
+### Patch Changes
+
+- f94e6f2: Allow ShaderLabComposition to infer size from its container when composition is omitted
+
+## 1.3.11
+
+### Patch Changes
+
+- 8979cdb: add sdbox3d utility for custom shader layer
+
+## 1.3.10
+
+### Patch Changes
+
+- 768c7e9: ink pass updates and new standalone bloom layer
+
+## 1.3.9
+
+### Patch Changes
+
+- a43c21f: improve performance on particle grid pass, and use logical dimensions fixes across several passes
+
+## 1.3.8
+
+### Patch Changes
+
+- 42bff22: fix offsets in live and media passes
+
+## 1.3.7
+
+### Patch Changes
+
+- 8678fd0: sync the package text runtime with the latest text layer updates and fix npm provenance publishing by declaring the repository url
+
+## 1.3.6
+
+### Patch Changes
+
+- 9ad4873: Improve the timeline editor with multi-keyframe selection, marquee selection, keyboard editing shortcuts, and track toggles. Add curve editing and new easings, per keyframe.
+- Sync the package text runtime with the newer text layer canvas rendering behavior, including logical-size scaling, anchor/offset placement, and background alpha support. Fix npm provenance publishing by declaring the package repository URL.
+
+## 1.3.5
+
+### Patch Changes
+
+- 45227dc: minor fixes in pattern and ascii layers
+
 ## 1.3.4
 
 ### Patch Changes

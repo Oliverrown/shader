@@ -1,29 +1,37 @@
 "use client"
 
 import {
-  GearSixIcon,
-  SlidersHorizontalIcon,
-  SquaresFourIcon,
-  StackSimpleIcon,
-} from "@phosphor-icons/react"
-import type { ComponentType } from "react"
+  DashboardIcon,
+  GearIcon,
+  LayersIcon,
+  MixerHorizontalIcon,
+} from "@radix-ui/react-icons"
+import type { ElementType } from "react"
 import { GlassPanel } from "@/components/ui/glass-panel"
 import { Typography } from "@/components/ui/typography"
+import { playUISound } from "@/lib/audio/shader-lab-sounds"
 import { cn } from "@/lib/cn"
 import { useEditorStore } from "@/store/editor-store"
 import type { MobileEditorPanel } from "@/types/editor"
 
 type MobileDockItem = {
-  icon: ComponentType<{ size: number; weight: "fill" | "regular" }>
+  icon: ElementType
   label: string
   panel: Exclude<MobileEditorPanel, "none">
 }
 
 const MOBILE_DOCK_ITEMS: readonly MobileDockItem[] = [
+<<<<<<< HEAD
   { icon: StackSimpleIcon, label: "图层", panel: "layers" },
   { icon: SlidersHorizontalIcon, label: "属性", panel: "properties" },
   { icon: GearSixIcon, label: "场景", panel: "scene" },
   { icon: SquaresFourIcon, label: "操作", panel: "actions" },
+=======
+  { icon: LayersIcon, label: "Layers", panel: "layers" },
+  { icon: MixerHorizontalIcon, label: "Properties", panel: "properties" },
+  { icon: GearIcon, label: "Scene", panel: "scene" },
+  { icon: DashboardIcon, label: "Actions", panel: "actions" },
+>>>>>>> upstream/main
 ] as const
 
 export function MobileEditorDock() {
@@ -59,15 +67,16 @@ export function MobileEditorDock() {
               onClick={() => {
                 closeTimelinePanel()
                 setMobilePanel(isActive ? "none" : panel)
+                playUISound("action.panelSwitch")
               }}
               type="button"
             >
-              <Icon size={18} weight={isActive ? "fill" : "regular"} />
+              <Icon height={18} width={18} />
               <Typography
                 as="span"
                 className="leading-none"
                 tone={isActive ? "primary" : "muted"}
-                variant="monoXs"
+                variant="caption"
               >
                 {label}
               </Typography>

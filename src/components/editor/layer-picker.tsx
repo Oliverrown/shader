@@ -3,16 +3,17 @@
 import {
   CameraIcon,
   CodeIcon,
-  GradientIcon,
+  CursorArrowIcon,
   ImageIcon,
+  MagicWandIcon,
   PlusIcon,
-  TextTIcon,
-  VideoCameraIcon,
-} from "@phosphor-icons/react"
+  TextIcon,
+  VideoIcon,
+} from "@radix-ui/react-icons"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import Image from "next/image"
 import {
-  type ComponentType,
+  type ElementType,
   useCallback,
   useEffect,
   useId,
@@ -27,6 +28,7 @@ import { cn } from "@/lib/cn"
 
 export type AddLayerAction =
   | "ascii"
+  | "bloom"
   | "circuit-bent"
   | "directional-blur"
   | "chromatic-aberration"
@@ -36,13 +38,16 @@ export type AddLayerAction =
   | "dithering"
   | "edge-detect"
   | "fluted-glass"
+  | "fluid"
   | "gradient"
   | "halftone"
   | "image"
   | "ink"
   | "live"
+  | "magnify-lens"
   | "particle-grid"
   | "pixelation"
+  | "pixel-trail"
   | "pattern"
   | "pixel-sorting"
   | "plotter"
@@ -52,11 +57,12 @@ export type AddLayerAction =
   | "threshold"
   | "text"
   | "video"
+  | "voxel"
 
 type LayerPickerCategory = "all" | "core" | "distort"
 
 type SourceItem = {
-  icon: ComponentType<{ size: number; weight: "regular" | "bold" }>
+  icon: ElementType
   label: string
   value: AddLayerAction
 }
@@ -84,12 +90,24 @@ const CATEGORY_OPTIONS: readonly {
 ] as const
 
 const SOURCE_ITEMS: readonly SourceItem[] = [
+<<<<<<< HEAD
   { icon: ImageIcon, label: "图像", value: "image" },
   { icon: VideoCameraIcon, label: "视频", value: "video" },
   { icon: CameraIcon, label: "摄像头", value: "live" },
   { icon: TextTIcon, label: "文字", value: "text" },
   { icon: GradientIcon, label: "网格渐变", value: "gradient" },
   { icon: CodeIcon, label: "自定义着色器", value: "custom-shader" },
+=======
+  { icon: ImageIcon, label: "Image", value: "image" },
+  { icon: VideoIcon, label: "Video", value: "video" },
+  { icon: CameraIcon, label: "Camera", value: "live" },
+  { icon: TextIcon, label: "Text", value: "text" },
+  { icon: CursorArrowIcon, label: "Fluid", value: "fluid" },
+  { icon: CursorArrowIcon, label: "Pixel Trail", value: "pixel-trail" },
+  { icon: CursorArrowIcon, label: "Magnify Lens", value: "magnify-lens" },
+  { icon: MagicWandIcon, label: "Mesh Gradient", value: "gradient" },
+  { icon: CodeIcon, label: "Custom Shader", value: "custom-shader" },
+>>>>>>> upstream/main
 ] as const
 
 const EFFECT_ITEMS: readonly EffectItem[] = [
@@ -151,8 +169,22 @@ const EFFECT_ITEMS: readonly EffectItem[] = [
   },
   {
     category: "core",
+<<<<<<< HEAD
     description: "将色调压缩为更少层级，保留图形化外观。",
     label: "色调分离",
+=======
+    description:
+      "Quantizes the frame into isometric cubes; depth raises columns by luminance.",
+    label: "Voxel",
+    previewSrc: "/examples/voxel.webp",
+    value: "voxel",
+  },
+  {
+    category: "core",
+    description:
+      "Compresses tones into fewer steps while keeping the image graphic.",
+    label: "Posterize",
+>>>>>>> upstream/main
     previewSrc: "/examples/posterize.webp",
     value: "posterize",
   },
@@ -165,8 +197,22 @@ const EFFECT_ITEMS: readonly EffectItem[] = [
   },
   {
     category: "core",
+<<<<<<< HEAD
     description: "绘图机美学，支持排线、交叉排线与墨水模拟。",
     label: "绘图机",
+=======
+    description:
+      "Adds a standalone highlight bloom pass to the incoming frame.",
+    label: "Bloom",
+    value: "bloom",
+    // previewSrc: "/examples/bloom.webp",
+  },
+  {
+    category: "core",
+    description:
+      "Pen-plotter aesthetic with hatching, crosshatching, and ink simulation.",
+    label: "Plotter",
+>>>>>>> upstream/main
     previewSrc: "/examples/plotter.webp",
     value: "plotter",
   },
@@ -323,7 +369,7 @@ function EffectCard({
         <div
           className={cn("min-w-0 px-2 pt-1 pb-2", item.description && "pr-6")}
         >
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-[var(--ds-font-mono)] text-[11px] text-[var(--ds-color-text-primary)] leading-[14px]">
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-[var(--ds-font-sans)] text-[11px] text-[var(--ds-color-text-primary)] leading-[14px]">
             {item.label}
           </div>
         </div>
@@ -343,11 +389,11 @@ function SourceButton({
 
   return (
     <button
-      className="inline-flex h-7 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-white/8 bg-[rgb(255_255_255_/_0.03)] px-3 font-[var(--ds-font-mono)] text-[10px] text-[var(--ds-color-text-secondary)] leading-none transition-[transform,border-color,background-color,color] duration-[180ms] ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/14 hover:bg-[rgb(255_255_255_/_0.07)] hover:text-[var(--ds-color-text-primary)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--ds-border-active)] focus-visible:outline-offset-2 active:scale-[0.97]"
+      className="inline-flex h-7 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-white/8 bg-[rgb(255_255_255_/_0.03)] px-3 font-[var(--ds-font-sans)] text-[10px] text-[var(--ds-color-text-secondary)] leading-none transition-[transform,border-color,background-color,color] duration-[180ms] ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/14 hover:bg-[rgb(255_255_255_/_0.07)] hover:text-[var(--ds-color-text-primary)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--ds-border-active)] focus-visible:outline-offset-2 active:scale-[0.97]"
       onClick={() => onSelect(item.value)}
       type="button"
     >
-      <Icon size={12} weight="regular" />
+      <Icon height={12} width={12} />
       {item.label}
     </button>
   )
@@ -382,21 +428,36 @@ export function LayerPicker({ className, onSelect }: LayerPickerProps) {
     }
 
     const rect = triggerRef.current.getBoundingClientRect()
+    const sidebarPanel = triggerRef.current.closest<HTMLElement>(
+      "[data-layer-sidebar-panel='true']"
+    )
+    const sidebarRect = sidebarPanel?.getBoundingClientRect() ?? null
+    const viewportPadding = 16
+    const panelGap = 8
 
     if (window.innerWidth < 900) {
       setPanelPosition({
-        left: 16,
-        top: 16,
+        left: viewportPadding,
+        top: viewportPadding,
       })
       return
     }
 
-    const sidebarRight = 16 + 284 + 8
-    const left = Math.min(sidebarRight, window.innerWidth - 560 - 16)
+    const panelWidth = Math.min(560, window.innerWidth - viewportPadding * 2)
+    const panelHeight =
+      panelRef.current?.getBoundingClientRect().height ??
+      Math.min(window.innerHeight * 0.52, 520)
+    const anchorRight = sidebarRect?.right ?? rect.right
+    const preferredLeft = anchorRight + panelGap
+    const maxLeft = window.innerWidth - panelWidth - viewportPadding
+    const left = Math.max(viewportPadding, Math.min(preferredLeft, maxLeft))
+    const preferredTop = sidebarRect?.top ?? rect.top
+    const maxTop = window.innerHeight - panelHeight - viewportPadding
+    const top = Math.max(viewportPadding, Math.min(preferredTop, maxTop))
 
     setPanelPosition({
       left,
-      top: rect.top,
+      top,
     })
   }, [])
 
@@ -504,9 +565,10 @@ export function LayerPicker({ className, onSelect }: LayerPickerProps) {
           })
         }}
         ref={triggerRef}
+        tooltip="Add layer"
         variant="emphasis"
       >
-        <PlusIcon size={14} weight="bold" />
+        <PlusIcon height={14} width={14} />
       </IconButton>
 
       {typeof document !== "undefined"
@@ -548,8 +610,13 @@ export function LayerPicker({ className, onSelect }: LayerPickerProps) {
                     variant="panel"
                   >
                     <div className="border-[var(--ds-border-divider)] border-b px-3 pt-3 pb-2.5">
+<<<<<<< HEAD
                       <div className="mb-2 font-[var(--ds-font-mono)] text-[10px] text-[var(--ds-color-text-muted)] uppercase tracking-[0.14em]">
                         素材源
+=======
+                      <div className="mb-2 font-[var(--ds-font-sans)] text-[10px] text-[var(--ds-color-text-muted)] uppercase tracking-[0.14em]">
+                        Source
+>>>>>>> upstream/main
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {SOURCE_ITEMS.map((item) => (
@@ -571,7 +638,7 @@ export function LayerPicker({ className, onSelect }: LayerPickerProps) {
                             return (
                               <button
                                 className={cn(
-                                  "relative inline-flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-transparent px-2.5 py-1 font-[var(--ds-font-mono)] text-[10px] text-[var(--ds-color-text-secondary)] leading-none transition-[transform,color] duration-[180ms] ease-[cubic-bezier(0.32,0.72,0,1)] hover:text-[var(--ds-color-text-primary)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--ds-border-active)] focus-visible:outline-offset-2 active:scale-[0.97]",
+                                  "relative inline-flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-transparent px-2.5 py-1 font-[var(--ds-font-sans)] text-[10px] text-[var(--ds-color-text-secondary)] leading-none transition-[transform,color] duration-[180ms] ease-[cubic-bezier(0.32,0.72,0,1)] hover:text-[var(--ds-color-text-primary)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--ds-border-active)] focus-visible:outline-offset-2 active:scale-[0.97]",
                                   active &&
                                     "text-[var(--ds-color-text-primary)]"
                                 )}

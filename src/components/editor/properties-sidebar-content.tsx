@@ -1,8 +1,8 @@
 "use client"
 
-import { TextAlignRightIcon } from "@phosphor-icons/react"
+import { TextAlignRightIcon } from "@radix-ui/react-icons"
 import { AnimatePresence, motion } from "motion/react"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
 import { Select } from "@/components/ui/select"
@@ -15,7 +15,13 @@ import {
   CUSTOM_SHADER_ENTRY_EXPORT,
   CUSTOM_SHADER_STARTER,
 } from "@/lib/editor/custom-shader/shared"
+import {
+  cancelFluidInteractionRecording,
+  startFluidInteractionRecording,
+  stopFluidInteractionRecording,
+} from "@/lib/editor/fluid-interaction-recorder"
 import { formatCustomShaderSource } from "@/renderer/custom-shader-runtime"
+import { useLayerStore } from "@/store/layer-store"
 import { useTimelineStore } from "@/store/timeline-store"
 import type {
   AnimatedPropertyBinding,
@@ -48,10 +54,14 @@ import {
 export function EmptyPropertiesContent() {
   return (
     <div className="flex flex-col gap-1.5 p-4">
+<<<<<<< HEAD
       <Typography tone="secondary" variant="overline">
         属性
       </Typography>
       <Typography variant="body">选择图层以编辑。</Typography>
+=======
+      <Typography variant="body">Select a layer to edit it.</Typography>
+>>>>>>> upstream/main
       <Typography tone="muted" variant="caption">
         暂无内容。在左侧面板新建图层。
       </Typography>
@@ -217,7 +227,7 @@ function CustomShaderSection({
             title="格式化草图源码"
             variant="ghost"
           >
-            <TextAlignRightIcon size={14} weight="regular" />
+            <TextAlignRightIcon height={14} width={14} />
           </IconButton>
         </div>
 
@@ -253,6 +263,7 @@ export function SelectedLayerPropertiesContent({
   onToggleParamGroup,
   onTimelineKeyframe,
   opacity,
+  randomizeGradientParams,
   reduceMotion,
   saturation,
   setLayerBlendMode,
@@ -287,6 +298,7 @@ export function SelectedLayerPropertiesContent({
     value: ParameterValue
   ) => void
   opacity: number
+  randomizeGradientParams: (id: string) => void
   reduceMotion: boolean
   saturation: number
   setLayerBlendMode: (id: string, value: BlendMode) => void
@@ -299,12 +311,135 @@ export function SelectedLayerPropertiesContent({
   values: Record<string, ParameterValue>
   visibleParams: ParameterDefinition[]
 }) {
+  const fluidInteractionEventCount = useLayerStore(
+    (state) =>
+      state.layers.find((layer) => layer.id === layerId)?.fluidInteractionEvents
+        ?.length ?? 0
+  )
+  const recordingFluidLayerId = useLayerStore(
+    (state) => state.recordingFluidLayerId
+  )
+  const setFluidInteractionEvents = useLayerStore(
+    (state) => state.setFluidInteractionEvents
+  )
+  const setRecordingFluidLayer = useLayerStore(
+    (state) => state.setRecordingFluidLayer
+  )
+  const setTimelinePlaying = useTimelineStore((state) => state.setPlaying)
+  const setTimelineCurrentTime = useTimelineStore(
+    (state) => state.setCurrentTime
+  )
+  const timelineCurrentTime = useTimelineStore((state) => state.currentTime)
+  const timelineDuration = useTimelineStore((state) => state.duration)
+  const timelineIsPlaying = useTimelineStore((state) => state.isPlaying)
+  const timelineLoop = useTimelineStore((state) => state.loop)
+  const previousFluidRecordingTimeRef = useRef<number | null>(null)
   const groupedParams = useMemo(
     () => groupVisibleParams(visibleParams),
     [visibleParams]
   )
   const showGroupedParams =
     groupedParams.length > 1 || groupedParams[0]?.label !== DEFAULT_PARAM_GROUP
+  const isRecordingFluidLayer = recordingFluidLayerId === layerId
+  let fluidInteractionMessage = "No recording"
+
+  if (isRecordingFluidLayer) {
+    fluidInteractionMessage = "Recording"
+  } else if (fluidInteractionEventCount > 0) {
+    fluidInteractionMessage = `${fluidInteractionEventCount} samples`
+  }
+
+  const finishFluidRecording = useCallback(() => {
+    const events = stopFluidInteractionRecording()
+    setFluidInteractionEvents(layerId, events)
+    setRecordingFluidLayer(null)
+    setTimelinePlaying(false)
+    previousFluidRecordingTimeRef.current = null
+  }, [
+    layerId,
+    setFluidInteractionEvents,
+    setRecordingFluidLayer,
+    setTimelinePlaying,
+  ])
+
+  const handleToggleFluidRecording = useCallback(() => {
+    if (isRecordingFluidLayer) {
+      finishFluidRecording()
+      return
+    }
+
+    if (recordingFluidLayerId) {
+      cancelFluidInteractionRecording()
+    }
+
+    setFluidInteractionEvents(layerId, [])
+    const timeline = useTimelineStore.getState()
+    if (timeline.currentTime >= timeline.duration) {
+      setTimelineCurrentTime(0)
+    }
+    startFluidInteractionRecording(layerId)
+    setRecordingFluidLayer(layerId)
+    previousFluidRecordingTimeRef.current = timeline.currentTime
+    setTimelinePlaying(true)
+  }, [
+    finishFluidRecording,
+    isRecordingFluidLayer,
+    layerId,
+    recordingFluidLayerId,
+    setFluidInteractionEvents,
+    setRecordingFluidLayer,
+    setTimelineCurrentTime,
+    setTimelinePlaying,
+  ])
+
+  const handleClearFluidRecording = useCallback(() => {
+    if (isRecordingFluidLayer) {
+      cancelFluidInteractionRecording()
+      setRecordingFluidLayer(null)
+      setTimelinePlaying(false)
+    }
+
+    setFluidInteractionEvents(layerId, [])
+  }, [
+    isRecordingFluidLayer,
+    layerId,
+    setFluidInteractionEvents,
+    setRecordingFluidLayer,
+    setTimelinePlaying,
+  ])
+
+  useEffect(() => {
+    if (!isRecordingFluidLayer) {
+      previousFluidRecordingTimeRef.current = null
+      return
+    }
+
+    const previousTime = previousFluidRecordingTimeRef.current
+
+    if (previousTime === null) {
+      previousFluidRecordingTimeRef.current = timelineCurrentTime
+      return
+    }
+
+    const looped = timelineLoop && timelineCurrentTime < previousTime
+    const reachedEnd =
+      !(timelineLoop || timelineIsPlaying) &&
+      timelineCurrentTime >= timelineDuration - 0.001
+
+    if (looped || reachedEnd) {
+      finishFluidRecording()
+      return
+    }
+
+    previousFluidRecordingTimeRef.current = timelineCurrentTime
+  }, [
+    finishFluidRecording,
+    isRecordingFluidLayer,
+    timelineCurrentTime,
+    timelineDuration,
+    timelineIsPlaying,
+    timelineLoop,
+  ])
 
   const opacityBinding = useMemo(
     () => ({
@@ -365,29 +500,36 @@ export function SelectedLayerPropertiesContent({
 
   return (
     <>
+<<<<<<< HEAD
       <div className="flex flex-col gap-1.5 border-b border-[var(--ds-border-divider)] px-4 pt-[14px] pb-3">
         <div className="flex items-center justify-between gap-2">
           <Typography tone="secondary" variant="overline">
             属性
           </Typography>
+=======
+      <div className="flex flex-col gap-2 border-b border-[var(--ds-border-divider)] px-4 pt-[14px] pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex flex-col gap-1">
+            <Typography variant="title">{layerName}</Typography>
+            {layerSubtitle ? (
+              <Typography tone="muted" variant="monoXs">
+                {layerSubtitle}
+              </Typography>
+            ) : null}
+            {layerRuntimeError ? (
+              <Typography tone="muted" variant="caption">
+                {layerRuntimeError}
+              </Typography>
+            ) : null}
+          </div>
+>>>>>>> upstream/main
           <span className="inline-flex min-h-5 items-center rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-active)] px-[7px] font-[var(--ds-font-mono)] text-[10px] leading-3 text-[var(--ds-color-text-secondary)] capitalize">
             {formatLayerKind(layerKind)}
           </span>
         </div>
-        <Typography variant="title">{layerName}</Typography>
-        {layerSubtitle ? (
-          <Typography tone="muted" variant="monoXs">
-            {layerSubtitle}
-          </Typography>
-        ) : null}
-        {layerRuntimeError ? (
-          <Typography tone="muted" variant="caption">
-            {layerRuntimeError}
-          </Typography>
-        ) : null}
       </div>
 
-      <div className="flex min-h-0 max-h-[min(62vh,620px)] flex-col gap-0 overflow-y-auto">
+      <div className="flex min-h-0 max-h-[min(62vh,620px)] flex-col gap-0 overflow-x-hidden overflow-y-auto">
         <section className="flex flex-col gap-3 border-t border-[var(--ds-border-divider)] px-4 pt-[14px] pb-4 first:border-t-0">
           <Typography className="uppercase" tone="secondary" variant="overline">
             通用
@@ -546,6 +688,73 @@ export function SelectedLayerPropertiesContent({
             updateLayerParam={updateLayerParam}
             values={values}
           />
+        ) : null}
+
+        {layerType === "gradient" ? (
+          <section className="flex flex-col gap-3 border-t border-[var(--ds-border-divider)] px-4 pt-[14px] pb-4 first:border-t-0">
+            <Typography
+              className="uppercase"
+              tone="secondary"
+              variant="overline"
+            >
+              Gradient
+            </Typography>
+            <div className="flex items-center justify-between gap-3">
+              <Typography tone="muted" variant="caption">
+                Randomize all points, distortion, animation, and finish
+                settings.
+              </Typography>
+              <Button
+                onClick={() => randomizeGradientParams(layerId)}
+                size="compact"
+                uiSound="action.randomize"
+                variant="secondary"
+              >
+                Randomize
+              </Button>
+            </div>
+          </section>
+        ) : null}
+
+        {layerType === "fluid" ||
+        layerType === "pixel-trail" ||
+        layerType === "magnify-lens" ? (
+          <section className="flex flex-col gap-3 border-t border-[var(--ds-border-divider)] px-4 pt-[14px] pb-4 first:border-t-0">
+            <Typography
+              className="uppercase"
+              tone="secondary"
+              variant="overline"
+            >
+              Interaction
+            </Typography>
+            <div className="flex items-center justify-between gap-3">
+              <Typography tone="muted" variant="caption">
+                {fluidInteractionMessage}
+              </Typography>
+              <div className="flex shrink-0 items-center gap-2">
+                <Button
+                  onClick={handleToggleFluidRecording}
+                  size="compact"
+                  uiSound={
+                    isRecordingFluidLayer ? "action.stop" : "action.play"
+                  }
+                  variant={isRecordingFluidLayer ? "primary" : "secondary"}
+                >
+                  {isRecordingFluidLayer ? "Stop" : "Record"}
+                </Button>
+                <Button
+                  disabled={
+                    !isRecordingFluidLayer && fluidInteractionEventCount === 0
+                  }
+                  onClick={handleClearFluidRecording}
+                  size="compact"
+                  variant="ghost"
+                >
+                  Clear
+                </Button>
+              </div>
+            </div>
+          </section>
         ) : null}
 
         {visibleParams.length > 0 ? (

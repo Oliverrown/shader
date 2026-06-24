@@ -101,19 +101,26 @@
       "locked": false,
       "maskConfig": {
         "invert": false,
-        "mode": "stencil",
+        "mode": "multiply",
         "source": "luminance"
       },
       "name": "文字",
       "opacity": 1,
       "params": {
+<<<<<<< HEAD
         "text": "SuperOPC",
+=======
+        "text": "basement",
+        "anchor": "center",
+        "offset": [0, 0],
+>>>>>>> upstream/main
         "fontSize": 201,
         "fontFamily": "sans",
         "fontWeight": 800,
         "letterSpacing": -0.1,
         "textColor": "#ffffff",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#000000",
+        "backgroundAlpha": 1
       },
       "runtimeError": null,
       "saturation": 1,

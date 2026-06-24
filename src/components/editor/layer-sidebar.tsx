@@ -1,13 +1,17 @@
 "use client"
 import {
-  DotsSixVerticalIcon,
-  DotsThreeVerticalIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  FolderIcon,
-  SidebarSimpleIcon,
+  DotsVerticalIcon,
+  DragHandleDots2Icon,
+  EyeClosedIcon,
+  EyeOpenIcon,
+  FileIcon,
+  ImageIcon,
+  LayoutIcon,
+  ShadowIcon,
+  TextIcon,
+  TransparencyGridIcon,
   TrashIcon,
-} from "@phosphor-icons/react"
+} from "@radix-ui/react-icons"
 import { Reorder, useDragControls } from "motion/react"
 import {
   type ChangeEvent,
@@ -15,10 +19,12 @@ import {
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
   type PointerEvent as ReactPointerEvent,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from "react"
+import { FloatingDesktopPanel } from "@/components/editor/floating-desktop-panel"
 import {
   type AddLayerAction,
   LayerPicker,
@@ -26,7 +32,9 @@ import {
 import { GlassPanel } from "@/components/ui/glass-panel"
 import { IconButton } from "@/components/ui/icon-button"
 import { Select } from "@/components/ui/select"
+import { HoverTooltip } from "@/components/ui/tooltip"
 import { Typography } from "@/components/ui/typography"
+import { playUISound } from "@/lib/audio/shader-lab-sounds"
 import { cn } from "@/lib/cn"
 import { inferFileAssetKind } from "@/lib/editor/media-file"
 import { useAssetStore } from "@/store/asset-store"
@@ -37,64 +45,41 @@ import type { AssetKind, EditorAsset, EditorLayer } from "@/types/editor"
 type LayerAction = "delete" | "reset"
 
 const thumbnailBaseClassName =
-  "relative h-7 w-7 overflow-hidden rounded-[var(--ds-radius-thumb)] border border-white/6 bg-[linear-gradient(135deg,rgb(255_255_255_/_0.07),rgb(255_255_255_/_0.03))]"
+  "relative size-7 overflow-hidden rounded-[var(--ds-radius-thumb)] border border-white/6"
 
-function getLayerSecondaryText(
-  layer: EditorLayer,
+function LayerThumbnail({
+  asset,
+  layer,
+}: {
   asset: EditorAsset | null
-): string {
-  if (layer.runtimeError) {
-    return layer.runtimeError
+  layer: EditorLayer
+}) {
+  const hasPreview = asset?.kind === "image" || asset?.kind === "video"
+  let PlaceholderIcon = ImageIcon
+  if (layer.type === "pattern") {
+    PlaceholderIcon = TransparencyGridIcon
+  } else if (layer.type === "gradient") {
+    PlaceholderIcon = ShadowIcon
+  } else if (layer.type === "text") {
+    PlaceholderIcon = TextIcon
   }
 
-  if (
-    layer.type === "image" ||
-    layer.type === "video" ||
-    layer.type === "model"
-  ) {
-    return asset?.fileName ?? "No asset selected"
-  }
-
-  if (layer.type === "live") {
-    return "webcam"
-  }
-
-  if (layer.type === "custom-shader") {
-    return (
-      (typeof layer.params.sourceFileName === "string" &&
-        layer.params.sourceFileName) ||
-      "custom shader"
-    )
-  }
-
-  if (layer.type === "text") {
-    return (
-      (typeof layer.params.text === "string" && layer.params.text.trim()) ||
-      "text"
-    )
-  }
-
-  return layer.type.replaceAll("-", " ")
-}
-
-function getThumbnailClassName(
-  layer: EditorLayer,
-  asset: EditorAsset | null
-): string {
-  if (asset?.kind === "image" || asset?.kind === "video") {
-    return cn(thumbnailBaseClassName, "bg-center bg-cover")
-  }
-
-  if (layer.type === "model") {
-    return cn(
-      thumbnailBaseClassName,
-      "bg-[radial-gradient(circle_at_30%_30%,rgb(255_255_255_/_0.18),transparent_45%),linear-gradient(135deg,rgb(255_255_255_/_0.08),rgb(255_255_255_/_0.02))]"
-    )
-  }
-
-  return cn(
-    thumbnailBaseClassName,
-    "bg-[linear-gradient(135deg,rgb(255_255_255_/_0.1),rgb(255_255_255_/_0.03)),linear-gradient(180deg,rgb(255_255_255_/_0.05),transparent)] after:absolute after:inset-0 after:bg-[linear-gradient(90deg,transparent,rgb(255_255_255_/_0.18),transparent)] after:opacity-[0.35] after:content-['']"
+  return (
+    <div
+      className={cn(
+        thumbnailBaseClassName,
+        hasPreview
+          ? "bg-center bg-cover"
+          : "flex items-center justify-center bg-[var(--ds-color-surface-subtle)] text-[var(--ds-color-text-muted)]"
+      )}
+      style={
+        hasPreview ? { backgroundImage: `url("${asset.url}")` } : undefined
+      }
+    >
+      {hasPreview ? null : (
+        <PlaceholderIcon aria-hidden="true" height={14} width={14} />
+      )}
+    </div>
   )
 }
 
@@ -113,7 +98,7 @@ function getExpectedAssetKind(layer: EditorLayer): AssetKind | null {
 function getAcceptForAssetKind(kind: AssetKind): string {
   switch (kind) {
     case "image":
-      return "image/png,image/jpeg,image/webp,image/gif"
+      return "image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg"
     case "video":
       return "video/mp4,video/webm,video/quicktime,.mov"
     case "model":
@@ -128,6 +113,7 @@ function inferSelectedFileKind(file: File): AssetKind | null {
 type LayerListItemProps = {
   asset: EditorAsset | null
   hasMissingAsset: boolean
+  isFloatingPanelDragging: boolean
   isSelected: boolean
   layer: EditorLayer
   layerActionKey: number
@@ -148,9 +134,41 @@ const LAYER_ACTION_OPTIONS = [
   value: LayerAction
 }[]
 
+function LayerListShell({
+  children,
+  isFloatingPanelDragging,
+  onReorder,
+  values,
+}: {
+  children: ReactNode
+  isFloatingPanelDragging: boolean
+  onReorder: (nextLayers: EditorLayer[]) => void
+  values: EditorLayer[]
+}) {
+  const className =
+    "flex max-h-[min(52vh,480px)] flex-col gap-0.5 overflow-y-auto p-1"
+
+  if (isFloatingPanelDragging) {
+    return <ul className={className}>{children}</ul>
+  }
+
+  return (
+    <Reorder.Group
+      axis="y"
+      as="ul"
+      className={className}
+      onReorder={onReorder}
+      values={values}
+    >
+      {children}
+    </Reorder.Group>
+  )
+}
+
 const LayerListItem = memo(function LayerListItem({
   asset,
   hasMissingAsset,
+  isFloatingPanelDragging,
   isSelected,
   layer,
   layerActionKey,
@@ -162,11 +180,117 @@ const LayerListItem = memo(function LayerListItem({
   const dragControls = useDragControls()
 
   function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
-    if (layer.locked) {
+    if (layer.locked || isFloatingPanelDragging) {
       return
     }
 
     dragControls.start(event)
+  }
+
+  if (isFloatingPanelDragging) {
+    return (
+      <li
+        className={cn(
+          "relative grid min-h-11 grid-cols-[minmax(0,1fr)_28px_28px_28px] items-center gap-[var(--ds-space-2)] rounded-[var(--ds-radius-control)] border border-transparent px-2 py-[6px] transition-[background-color,border-color,box-shadow] duration-160 ease-[var(--ease-out-cubic)]",
+          !layer.locked &&
+            "cursor-pointer hover:border-[var(--ds-border-subtle)] hover:bg-[var(--ds-color-surface-subtle)]",
+          isSelected &&
+            "border-[var(--ds-border-active)] bg-[var(--ds-color-surface-active)]"
+        )}
+      >
+        <div className="grid min-w-0 grid-cols-[14px_minmax(0,1fr)] items-center gap-[var(--ds-space-2)]">
+          <HoverTooltip content="Reorder" side="right">
+            <button
+              aria-label={`Reorder ${layer.name}`}
+              className={cn(
+                "inline-flex h-[14px] w-[14px] touch-none items-center justify-center bg-transparent p-0 text-[var(--ds-color-text-muted)]",
+                !layer.locked && "cursor-grab active:cursor-grabbing",
+                layer.locked && "text-[var(--ds-color-text-disabled)]"
+              )}
+              disabled
+              type="button"
+            >
+              <DragHandleDots2Icon height={14} width={14} />
+            </button>
+          </HoverTooltip>
+
+          <button
+            className="grid min-w-0 cursor-pointer grid-cols-[28px_minmax(0,1fr)] items-center gap-[var(--ds-space-2)] bg-transparent p-0 text-left text-inherit"
+            onClick={(event) => onSelectLayer(layer.id, event)}
+            type="button"
+          >
+            <LayerThumbnail asset={asset} layer={layer} />
+
+            <div className="flex min-w-0 min-h-7 items-center">
+              <Typography
+                className="overflow-hidden text-ellipsis whitespace-nowrap leading-none"
+                variant="label"
+              >
+                {layer.name}
+              </Typography>
+            </div>
+          </button>
+        </div>
+
+        <Select
+          key={`${layer.id}:${layerActionKey}`}
+          onValueChange={(value) =>
+            onLayerAction(layer.id, value as LayerAction)
+          }
+          options={LAYER_ACTION_OPTIONS}
+          placeholder={<DotsVerticalIcon height={14} width={14} />}
+          popupClassName="min-w-[152px]"
+          triggerAriaLabel={`Layer actions for ${layer.name}`}
+          triggerVariant="icon"
+          uiSound="none"
+          valueClassName="inline-flex items-center justify-center leading-none text-[var(--ds-color-text-tertiary)] [&_svg]:h-[14px] [&_svg]:w-[14px]"
+        />
+
+        {hasMissingAsset ? (
+          <IconButton
+            aria-label={`Relink missing asset for ${layer.name}`}
+            onClick={(event) => {
+              event.stopPropagation()
+              onRelinkPick(layer)
+            }}
+            uiSound="none"
+            variant="ghost"
+          >
+            <FileIcon height={14} width={14} />
+          </IconButton>
+        ) : (
+          <IconButton
+            aria-label={layer.visible ? "Hide layer" : "Show layer"}
+            onClick={(event) => {
+              event.stopPropagation()
+              onSetLayerVisibility(layer.id, !layer.visible)
+            }}
+            tooltip="Toggle visibility"
+            uiSound={layer.visible ? "action.visibilityOff" : "action.visibilityOn"}
+            variant="ghost"
+          >
+            {layer.visible ? (
+              <EyeOpenIcon height={14} width={14} />
+            ) : (
+              <EyeClosedIcon height={14} width={14} />
+            )}
+          </IconButton>
+        )}
+
+        <IconButton
+          aria-label={`Delete ${layer.name}`}
+          onClick={(event) => {
+            event.stopPropagation()
+            onLayerAction(layer.id, "delete")
+          }}
+          tooltip="Delete layer"
+          uiSound="none"
+          variant="ghost"
+        >
+          <TrashIcon height={14} width={14} />
+        </IconButton>
+      </li>
+    )
   }
 
   return (
@@ -179,7 +303,7 @@ const LayerListItem = memo(function LayerListItem({
         isSelected &&
           "border-[var(--ds-border-active)] bg-[var(--ds-color-surface-active)]"
       )}
-      drag={layer.locked ? false : "y"}
+      drag={layer.locked || isFloatingPanelDragging ? false : "y"}
       dragControls={dragControls}
       dragListener={false}
       layout="position"
@@ -187,6 +311,7 @@ const LayerListItem = memo(function LayerListItem({
       value={layer}
     >
       <div className="grid min-w-0 grid-cols-[14px_minmax(0,1fr)] items-center gap-[var(--ds-space-2)]">
+<<<<<<< HEAD
         <button
           aria-label={`排序 ${layer.name}`}
           className={cn(
@@ -199,34 +324,37 @@ const LayerListItem = memo(function LayerListItem({
         >
           <DotsSixVerticalIcon size={14} weight="bold" />
         </button>
+=======
+        <HoverTooltip content="Reorder" side="right">
+          <button
+            aria-label={`Reorder ${layer.name}`}
+            className={cn(
+              "inline-flex h-[14px] w-[14px] touch-none items-center justify-center bg-transparent p-0 text-[var(--ds-color-text-muted)]",
+              !layer.locked && "cursor-grab active:cursor-grabbing",
+              layer.locked && "text-[var(--ds-color-text-disabled)]"
+            )}
+            disabled={layer.locked || isFloatingPanelDragging}
+            onPointerDown={handlePointerDown}
+            type="button"
+          >
+            <DragHandleDots2Icon height={14} width={14} />
+          </button>
+        </HoverTooltip>
+>>>>>>> upstream/main
 
         <button
           className="grid min-w-0 cursor-pointer grid-cols-[28px_minmax(0,1fr)] items-center gap-[var(--ds-space-2)] bg-transparent p-0 text-left text-inherit"
           onClick={(event) => onSelectLayer(layer.id, event)}
           type="button"
         >
-          <div
-            className={getThumbnailClassName(layer, asset)}
-            style={
-              asset?.kind === "image" || asset?.kind === "video"
-                ? { backgroundImage: `url("${asset.url}")` }
-                : undefined
-            }
-          />
+          <LayerThumbnail asset={asset} layer={layer} />
 
-          <div className="flex min-w-0 flex-col gap-0.5">
+          <div className="flex min-w-0 min-h-7 items-center">
             <Typography
-              className="overflow-hidden text-ellipsis whitespace-nowrap"
+              className="overflow-hidden text-ellipsis whitespace-nowrap leading-none"
               variant="label"
             >
               {layer.name}
-            </Typography>
-            <Typography
-              className="overflow-hidden text-ellipsis whitespace-nowrap"
-              tone="muted"
-              variant="monoXs"
-            >
-              {getLayerSecondaryText(layer, asset)}
             </Typography>
           </div>
         </button>
@@ -236,10 +364,11 @@ const LayerListItem = memo(function LayerListItem({
         key={`${layer.id}:${layerActionKey}`}
         onValueChange={(value) => onLayerAction(layer.id, value as LayerAction)}
         options={LAYER_ACTION_OPTIONS}
-        placeholder={<DotsThreeVerticalIcon size={14} weight="bold" />}
+        placeholder={<DotsVerticalIcon height={14} width={14} />}
         popupClassName="min-w-[152px]"
         triggerAriaLabel={`${layer.name} 的图层操作`}
         triggerVariant="icon"
+        uiSound="none"
         valueClassName="inline-flex items-center justify-center leading-none text-[var(--ds-color-text-tertiary)] [&_svg]:h-[14px] [&_svg]:w-[14px]"
       />
 
@@ -250,9 +379,10 @@ const LayerListItem = memo(function LayerListItem({
             event.stopPropagation()
             onRelinkPick(layer)
           }}
+          uiSound="none"
           variant="ghost"
         >
-          <FolderIcon size={14} weight="regular" />
+          <FileIcon height={14} width={14} />
         </IconButton>
       ) : (
         <IconButton
@@ -261,12 +391,14 @@ const LayerListItem = memo(function LayerListItem({
             event.stopPropagation()
             onSetLayerVisibility(layer.id, !layer.visible)
           }}
+          tooltip="Toggle visibility"
+          uiSound={layer.visible ? "action.visibilityOff" : "action.visibilityOn"}
           variant="ghost"
         >
           {layer.visible ? (
-            <EyeIcon size={14} weight="regular" />
+            <EyeOpenIcon height={14} width={14} />
           ) : (
-            <EyeSlashIcon size={14} weight="regular" />
+            <EyeClosedIcon height={14} width={14} />
           )}
         </IconButton>
       )}
@@ -277,9 +409,11 @@ const LayerListItem = memo(function LayerListItem({
           event.stopPropagation()
           onLayerAction(layer.id, "delete")
         }}
+        tooltip="Delete layer"
+        uiSound="none"
         variant="ghost"
       >
-        <TrashIcon size={14} weight="regular" />
+        <TrashIcon height={14} width={14} />
       </IconButton>
     </Reorder.Item>
   )
@@ -296,6 +430,7 @@ export function LayerSidebar() {
   const [layerActionSelectKeys, setLayerActionSelectKeys] = useState<
     Record<string, number>
   >({})
+  const [freezeDesktopLayerList, setFreezeDesktopLayerList] = useState(true)
 
   const layers = useLayerStore((state) => state.layers)
   const hoveredLayerId = useLayerStore((state) => state.hoveredLayerId)
@@ -312,16 +447,58 @@ export function LayerSidebar() {
   const setLayerRuntimeError = useLayerStore(
     (state) => state.setLayerRuntimeError
   )
-  const setLayersVisibility = useLayerStore((state) => state.setLayersVisibility)
+  const setLayersVisibility = useLayerStore(
+    (state) => state.setLayersVisibility
+  )
   const assets = useAssetStore((state) => state.assets)
   const loadAsset = useAssetStore((state) => state.loadAsset)
   const removeAsset = useAssetStore((state) => state.removeAsset)
   const leftSidebarVisible = useEditorStore((state) => state.sidebars.left)
   const mobilePanel = useEditorStore((state) => state.mobilePanel)
+  const isFloatingPanelDragging = useEditorStore(
+    (state) => state.activeFloatingPanelDrag === "layers"
+  )
+  const floatingPanelsResetToken = useEditorStore(
+    (state) => state.floatingPanelsResetToken
+  )
   const enterImmersiveCanvas = useEditorStore(
     (state) => state.enterImmersiveCanvas
   )
   const mobilePanelVisible = mobilePanel === "layers"
+  const shouldFreezeDesktopLayerList =
+    isFloatingPanelDragging || freezeDesktopLayerList
+
+  useEffect(() => {
+    let frameOne = 0
+    let frameTwo = 0
+
+    frameOne = window.requestAnimationFrame(() => {
+      frameTwo = window.requestAnimationFrame(() => {
+        setFreezeDesktopLayerList(false)
+      })
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frameOne)
+      window.cancelAnimationFrame(frameTwo)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (floatingPanelsResetToken === 0) {
+      return
+    }
+
+    setFreezeDesktopLayerList(true)
+
+    const timeout = window.setTimeout(() => {
+      setFreezeDesktopLayerList(false)
+    }, 320)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [floatingPanelsResetToken])
 
   const assetsById = useMemo(
     () => new Map(assets.map((asset) => [asset.id, asset])),
@@ -333,6 +510,7 @@ export function LayerSidebar() {
       const asset = await loadAsset(file)
       const layerId = addLayer(layerType)
       setLayerAsset(layerId, asset.id)
+      playUISound("action.addLayer")
     } catch {
       // No-op.
     }
@@ -353,6 +531,7 @@ export function LayerSidebar() {
       handleVideoPick()
     } else {
       addLayer(action)
+      playUISound("action.addLayer")
     }
   }
 
@@ -363,10 +542,12 @@ export function LayerSidebar() {
 
     if (action === "delete") {
       removeLayers(targetLayerIds)
+      playUISound("action.deleteLayer")
     } else {
       targetLayerIds.forEach((targetLayerId) => {
         resetLayerParams(targetLayerId)
       })
+      playUISound("action.reset")
     }
 
     setLayerActionSelectKeys((current) => ({
@@ -431,6 +612,7 @@ export function LayerSidebar() {
       }
 
       setLayerAsset(target.layerId, asset.id)
+      playUISound("action.relinkAsset")
     } catch (error) {
       setLayerRuntimeError(
         target.layerId,
@@ -480,17 +662,9 @@ export function LayerSidebar() {
   }
 
   return (
-    <aside
-      className={cn(
-        "pointer-events-none transition-[opacity,translate] duration-[220ms,260ms] ease-[ease-out,cubic-bezier(0.22,1,0.36,1)]",
-        "max-[899px]:fixed max-[899px]:right-3 max-[899px]:bottom-[88px] max-[899px]:left-3 max-[899px]:z-45 max-[899px]:translate-y-0",
-        "min-[900px]:absolute min-[900px]:top-[76px] min-[900px]:left-4 min-[900px]:z-20 min-[900px]:w-[284px] min-[900px]:translate-x-0",
-        !mobilePanelVisible && "max-[899px]:translate-y-3 max-[899px]:opacity-0",
-        !leftSidebarVisible && "min-[900px]:-translate-x-[18px] min-[900px]:opacity-0"
-      )}
-    >
+    <>
       <input
-        accept="image/png,image/jpeg,image/webp,image/gif"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg"
         className="hidden"
         onChange={handleImageChange}
         ref={imageInputRef}
@@ -510,16 +684,14 @@ export function LayerSidebar() {
         type="file"
       />
 
-      <GlassPanel
+      <aside
         className={cn(
-          "pointer-events-auto relative flex flex-col gap-[var(--ds-space-1)] p-0",
-          "max-[899px]:max-h-[min(56vh,420px)] max-[899px]:w-full",
-          "min-[900px]:w-[284px]",
-          !mobilePanelVisible && "max-[899px]:pointer-events-none",
-          !leftSidebarVisible && "min-[900px]:pointer-events-none"
+          "pointer-events-none transition-[opacity,translate] duration-[220ms,260ms] ease-[ease-out,cubic-bezier(0.22,1,0.36,1)]",
+          "fixed right-3 bottom-[88px] left-3 z-45 translate-y-0 min-[900px]:hidden",
+          !mobilePanelVisible && "translate-y-3 opacity-0"
         )}
-        variant="panel"
       >
+<<<<<<< HEAD
         <div className="flex min-h-11 items-center justify-between border-[var(--ds-border-divider)] border-b pr-3 pl-[var(--ds-space-4)]">
           <Typography className="uppercase" tone="secondary" variant="overline">
             图层
@@ -543,38 +715,165 @@ export function LayerSidebar() {
         <Reorder.Group
           axis="y"
           as="ul"
+=======
+        <GlassPanel
+          data-layer-sidebar-panel="true"
+>>>>>>> upstream/main
           className={cn(
-            "flex flex-col gap-0.5 overflow-y-auto p-1",
-            "max-[899px]:max-h-[min(44vh,320px)]",
-            "min-[900px]:max-h-[min(52vh,480px)]"
+            "pointer-events-auto relative flex flex-col gap-[var(--ds-space-1)] p-0 max-h-[min(56vh,420px)] w-full",
+            !mobilePanelVisible && "pointer-events-none"
           )}
-          onReorder={handleReorder}
-          values={layers}
+          variant="panel"
         >
-          {layers.map((layer) => {
-            const asset = layer.assetId
-              ? (assetsById.get(layer.assetId) ?? null)
-              : null
-            const hasMissingAsset = Boolean(layer.assetId && !asset)
-            const isSelected = selectedLayerIds.includes(layer.id)
-
-            return (
-              <LayerListItem
-                asset={asset}
-                hasMissingAsset={hasMissingAsset}
-                isSelected={isSelected}
-                key={layer.id}
-                layer={layer}
-                layerActionKey={layerActionSelectKeys[layer.id] ?? 0}
-                onLayerAction={handleLayerAction}
-                onRelinkPick={handleRelinkPick}
-                onSelectLayer={handleSelectLayer}
-                onSetLayerVisibility={handleSetLayerVisibility}
+          <div className="flex min-h-11 items-center justify-between border-[var(--ds-border-divider)] border-b pr-3 pl-[var(--ds-space-4)]">
+            <Typography
+              className="uppercase"
+              tone="secondary"
+              variant="overline"
+            >
+              Layers
+            </Typography>
+            <div className="inline-flex items-center gap-1.5">
+              <IconButton
+                aria-label="Hide UI (Cmd + .)"
+                className="pointer-events-auto"
+                onClick={() => {
+                  enterImmersiveCanvas()
+                  playUISound("action.hideUI")
+                }}
+                tooltip="Hide UI (Cmd + .)"
+                uiSound="none"
+                variant="ghost"
+              >
+                <LayoutIcon height={14} width={14} />
+              </IconButton>
+              <LayerPicker
+                className="pointer-events-auto"
+                onSelect={handleAddLayer}
               />
-            )
+            </div>
+          </div>
+
+          <Reorder.Group
+            axis="y"
+            as="ul"
+            className="flex max-h-[min(44vh,320px)] flex-col gap-0.5 overflow-y-auto p-1"
+            onReorder={handleReorder}
+            values={layers}
+          >
+            {layers.map((layer) => {
+              const asset = layer.assetId
+                ? (assetsById.get(layer.assetId) ?? null)
+                : null
+              const hasMissingAsset = Boolean(layer.assetId && !asset)
+              const isSelected = selectedLayerIds.includes(layer.id)
+
+              return (
+                <LayerListItem
+                  asset={asset}
+                  hasMissingAsset={hasMissingAsset}
+                  isFloatingPanelDragging={false}
+                  isSelected={isSelected}
+                  key={layer.id}
+                  layer={layer}
+                  layerActionKey={layerActionSelectKeys[layer.id] ?? 0}
+                  onLayerAction={handleLayerAction}
+                  onRelinkPick={handleRelinkPick}
+                  onSelectLayer={handleSelectLayer}
+                  onSetLayerVisibility={handleSetLayerVisibility}
+                />
+              )
+            })}
+          </Reorder.Group>
+        </GlassPanel>
+      </aside>
+
+      {leftSidebarVisible ? (
+        <FloatingDesktopPanel
+          id="layers"
+          resolvePosition={() => ({
+            left: 16,
+            top: 76,
           })}
-        </Reorder.Group>
-      </GlassPanel>
-    </aside>
+        >
+          {({ dragHandleProps, suppressResize: _suppressResize }) => (
+            <GlassPanel
+              data-layer-sidebar-panel="true"
+              className="relative flex w-[284px] flex-col gap-[var(--ds-space-1)] p-0"
+              variant="panel"
+            >
+              <div className="flex min-h-11 items-center justify-between border-[var(--ds-border-divider)] border-b px-3">
+                <div className="inline-flex items-center gap-2">
+                  <IconButton
+                    aria-label="Move layers panel"
+                    className="h-7 w-7 cursor-grab text-[var(--ds-color-text-muted)] active:cursor-grabbing"
+                    variant="ghost"
+                    {...dragHandleProps}
+                  >
+                    <DragHandleDots2Icon height={14} width={14} />
+                  </IconButton>
+                  <Typography
+                    className="uppercase"
+                    tone="secondary"
+                    variant="overline"
+                  >
+                    Layers
+                  </Typography>
+                </div>
+                <div className="inline-flex items-center gap-1.5">
+                  <IconButton
+                    aria-label="Hide UI (Cmd + .)"
+                    className="pointer-events-auto"
+                    onClick={() => {
+                      enterImmersiveCanvas()
+                      playUISound("action.hideUI")
+                    }}
+                    tooltip="Hide UI (Cmd + .)"
+                    uiSound="none"
+                    variant="ghost"
+                  >
+                    <LayoutIcon height={14} width={14} />
+                  </IconButton>
+                  <LayerPicker
+                    className="pointer-events-auto"
+                    onSelect={handleAddLayer}
+                  />
+                </div>
+              </div>
+
+              <LayerListShell
+                isFloatingPanelDragging={shouldFreezeDesktopLayerList}
+                onReorder={handleReorder}
+                values={layers}
+              >
+                {layers.map((layer) => {
+                  const asset = layer.assetId
+                    ? (assetsById.get(layer.assetId) ?? null)
+                    : null
+                  const hasMissingAsset = Boolean(layer.assetId && !asset)
+                  const isSelected = selectedLayerIds.includes(layer.id)
+
+                  return (
+                    <LayerListItem
+                      asset={asset}
+                      hasMissingAsset={hasMissingAsset}
+                      isFloatingPanelDragging={shouldFreezeDesktopLayerList}
+                      isSelected={isSelected}
+                      key={layer.id}
+                      layer={layer}
+                      layerActionKey={layerActionSelectKeys[layer.id] ?? 0}
+                      onLayerAction={handleLayerAction}
+                      onRelinkPick={handleRelinkPick}
+                      onSelectLayer={handleSelectLayer}
+                      onSetLayerVisibility={handleSetLayerVisibility}
+                    />
+                  )
+                })}
+              </LayerListShell>
+            </GlassPanel>
+          )}
+        </FloatingDesktopPanel>
+      ) : null}
+    </>
   )
 }

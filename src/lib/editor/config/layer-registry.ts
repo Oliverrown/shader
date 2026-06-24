@@ -3,6 +3,7 @@ import {
   CUSTOM_SHADER_INTERNAL_VISIBILITY,
   CUSTOM_SHADER_STARTER,
 } from "@/lib/editor/custom-shader/shared"
+import { TEXT_FONT_OPTIONS } from "@/lib/editor/text-fonts"
 import type {
   EffectLayerType,
   LayerDefinition,
@@ -13,7 +14,7 @@ import type {
   SourceLayerType,
 } from "@/types/editor"
 
-const imageParams = [
+const mediaPlacementParams = [
   {
     defaultValue: "cover",
     key: "fitMode",
@@ -44,8 +45,24 @@ const imageParams = [
   },
 ] as const satisfies ParameterDefinitions
 
+const imageParams = [
+  ...mediaPlacementParams,
+  {
+    defaultValue: "2048",
+    key: "svgRasterResolution",
+    label: "Rasterization Resolution",
+    options: [
+      { label: "1024", value: "1024" },
+      { label: "2048", value: "2048" },
+      { label: "4096", value: "4096" },
+      { label: "8192", value: "8192" },
+    ],
+    type: "select",
+  },
+] as const satisfies ParameterDefinitions
+
 const videoParams = [
-  ...imageParams,
+  ...mediaPlacementParams,
   {
     defaultValue: 1,
     key: "playbackRate",
@@ -172,6 +189,36 @@ const textParams = [
     type: "text",
   },
   {
+    animatable: false,
+    defaultValue: "center",
+    group: "Placement",
+    key: "anchor",
+    label: "Anchor",
+    options: [
+      { label: "Top Left", value: "top-left" },
+      { label: "Top Center", value: "top-center" },
+      { label: "Top Right", value: "top-right" },
+      { label: "Center Left", value: "center-left" },
+      { label: "Center", value: "center" },
+      { label: "Center Right", value: "center-right" },
+      { label: "Bottom Left", value: "bottom-left" },
+      { label: "Bottom Center", value: "bottom-center" },
+      { label: "Bottom Right", value: "bottom-right" },
+    ],
+    type: "select",
+    ui: "anchor-grid",
+  },
+  {
+    defaultValue: [0, 0] as [number, number],
+    group: "Placement",
+    key: "offset",
+    label: "Offset",
+    max: 1,
+    min: -1,
+    step: 0.01,
+    type: "vec2",
+  },
+  {
     defaultValue: 48,
     key: "fontSize",
     label: "字号",
@@ -183,6 +230,7 @@ const textParams = [
   {
     defaultValue: "sans",
     key: "fontFamily",
+<<<<<<< HEAD
     label: "字体",
     options: [
       { label: "Display Serif", value: "display-serif" },
@@ -190,6 +238,10 @@ const textParams = [
       { label: "Sans", value: "sans" },
       { label: "Impact", value: "impact" },
     ],
+=======
+    label: "Font",
+    options: TEXT_FONT_OPTIONS,
+>>>>>>> upstream/main
     type: "select",
   },
   {
@@ -197,8 +249,8 @@ const textParams = [
     key: "fontWeight",
     label: "字重",
     max: 900,
-    min: 300,
-    step: 100,
+    min: 100,
+    step: 1,
     type: "number",
   },
   {
@@ -221,6 +273,15 @@ const textParams = [
     key: "backgroundColor",
     label: "背景",
     type: "color",
+  },
+  {
+    defaultValue: 1,
+    key: "backgroundAlpha",
+    label: "Background Alpha",
+    max: 1,
+    min: 0,
+    step: 0.01,
+    type: "number",
   },
 ] as const satisfies ParameterDefinitions
 
@@ -249,7 +310,11 @@ const inkParams = [
     defaultValue: 0.81,
     group: "墨水渗色",
     key: "crispBlend",
+<<<<<<< HEAD
     label: "文字清晰度",
+=======
+    label: "Detail Blend",
+>>>>>>> upstream/main
     max: 1,
     min: 0,
     step: 0.01,
@@ -346,11 +411,26 @@ const inkParams = [
     type: "number",
   },
   {
+    defaultValue: "gradient",
+    group: "Colors",
+    key: "colorMode",
+    label: "Color Mode",
+    options: [
+      { label: "Gradient", value: "gradient" },
+      { label: "Source", value: "source" },
+    ],
+    type: "select",
+  },
+  {
     defaultValue: "#fffde8",
     group: "发光颜色",
     key: "coreColor",
     label: "核心色",
     type: "color",
+    visibleWhen: {
+      equals: "gradient",
+      key: "colorMode",
+    },
   },
   {
     defaultValue: "#FFA700",
@@ -358,6 +438,10 @@ const inkParams = [
     key: "midColor",
     label: "中间色",
     type: "color",
+    visibleWhen: {
+      equals: "gradient",
+      key: "colorMode",
+    },
   },
   {
     defaultValue: "#7192F1",
@@ -365,6 +449,10 @@ const inkParams = [
     key: "edgeColor",
     label: "边缘色",
     type: "color",
+    visibleWhen: {
+      equals: "gradient",
+      key: "colorMode",
+    },
   },
   {
     defaultValue: "#000000",
@@ -462,6 +550,69 @@ const inkParams = [
       equals: true,
       key: "bloomEnabled",
     },
+  },
+] as const satisfies ParameterDefinitions
+
+const bloomParams = [
+  {
+    defaultValue: 1.25,
+    group: "Bloom",
+    key: "bloomIntensity",
+    label: "Intensity",
+    max: 8,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 0.6,
+    group: "Bloom",
+    key: "bloomThreshold",
+    label: "Threshold",
+    max: 1,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 6,
+    group: "Bloom",
+    key: "bloomRadius",
+    label: "Radius",
+    max: 24,
+    min: 0,
+    step: 0.25,
+    type: "number",
+  },
+  {
+    defaultValue: 0.35,
+    group: "Bloom",
+    key: "bloomSoftness",
+    label: "Softness",
+    max: 1,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 0.2,
+    group: "Highlight",
+    key: "bloomKnee",
+    label: "Knee",
+    max: 0.5,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 1.5,
+    group: "Highlight",
+    key: "highlightDrive",
+    label: "Highlight Drive",
+    max: 4,
+    min: 1,
+    step: 0.01,
+    type: "number",
   },
 ] as const satisfies ParameterDefinitions
 
@@ -662,8 +813,13 @@ const gradientParams = [
     },
   },
   {
+<<<<<<< HEAD
     defaultValue: "simplex",
     group: "扭曲",
+=======
+    defaultValue: "ridge",
+    group: "Distortion",
+>>>>>>> upstream/main
     key: "noiseType",
     label: "噪点类型",
     options: [
@@ -677,8 +833,13 @@ const gradientParams = [
     type: "select",
   },
   {
+<<<<<<< HEAD
     defaultValue: 0,
     group: "扭曲",
+=======
+    defaultValue: 70.3,
+    group: "Distortion",
+>>>>>>> upstream/main
     key: "noiseSeed",
     label: "随机种子",
     max: 100,
@@ -687,8 +848,13 @@ const gradientParams = [
     type: "number",
   },
   {
+<<<<<<< HEAD
     defaultValue: 0.64,
     group: "扭曲",
+=======
+    defaultValue: 0.18,
+    group: "Distortion",
+>>>>>>> upstream/main
     key: "warpAmount",
     label: "扭曲量",
     max: 1,
@@ -697,8 +863,13 @@ const gradientParams = [
     type: "number",
   },
   {
+<<<<<<< HEAD
     defaultValue: 5.56,
     group: "扭曲",
+=======
+    defaultValue: 2.35,
+    group: "Distortion",
+>>>>>>> upstream/main
     key: "warpScale",
     label: "扭曲缩放",
     max: 6,
@@ -754,8 +925,13 @@ const gradientParams = [
     type: "boolean",
   },
   {
+<<<<<<< HEAD
     defaultValue: 0,
     group: "动画",
+=======
+    defaultValue: 1,
+    group: "Animation",
+>>>>>>> upstream/main
     key: "motionAmount",
     label: "运动量",
     max: 1,
@@ -764,8 +940,13 @@ const gradientParams = [
     type: "number",
   },
   {
+<<<<<<< HEAD
     defaultValue: 0.2,
     group: "动画",
+=======
+    defaultValue: 0.4,
+    group: "Animation",
+>>>>>>> upstream/main
     key: "motionSpeed",
     label: "运动速度",
     max: 2,
@@ -788,8 +969,13 @@ const gradientParams = [
     type: "number",
   },
   {
+<<<<<<< HEAD
     defaultValue: "reinhard",
     group: "收尾",
+=======
+    defaultValue: "cinematic",
+    group: "Finish",
+>>>>>>> upstream/main
     key: "tonemapMode",
     label: "色调映射",
     options: [
@@ -865,15 +1051,40 @@ const gradientParams = [
 
 const fluidParams = [
   {
-    defaultValue: 24,
+    defaultValue: 192,
+    key: "simRes",
+    label: "Sim Resolution",
+    max: 512,
+    min: 32,
+    step: 32,
+    type: "number",
+  },
+  {
+    defaultValue: 1024,
+    key: "dyeRes",
+    label: "Dye Resolution",
+    max: 2048,
+    min: 128,
+    step: 64,
+    type: "number",
+  },
+  {
+    defaultValue: 20,
     key: "iterations",
+<<<<<<< HEAD
     label: "迭代次数",
     max: 128,
     min: 4,
+=======
+    label: "Iterations",
+    max: 32,
+    min: 1,
+>>>>>>> upstream/main
     step: 1,
     type: "number",
   },
   {
+<<<<<<< HEAD
     defaultValue: 0.92,
     key: "dissipation",
     label: "消散",
@@ -886,16 +1097,120 @@ const fluidParams = [
     defaultValue: 0.24,
     key: "pressure",
     label: "压力",
+=======
+    defaultValue: 4,
+    key: "densityDissipation",
+    label: "Density Dissipation",
+    max: 8,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 0.2,
+    key: "velocityDissipation",
+    label: "Velocity Dissipation",
+    max: 4,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 0,
+    key: "pressureDissipation",
+    label: "Pressure Dissipation",
+>>>>>>> upstream/main
     max: 1,
     min: 0,
     step: 0.01,
     type: "number",
   },
   {
+<<<<<<< HEAD
     defaultValue: "#3c73ff",
     key: "inkColor",
     label: "油墨颜色",
+=======
+    defaultValue: 30,
+    key: "curlStrength",
+    label: "Curl",
+    max: 80,
+    min: 0,
+    step: 1,
+    type: "number",
+  },
+  {
+    defaultValue: 1,
+    key: "radius",
+    label: "Radius",
+    max: 2,
+    min: 0.05,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 6000,
+    key: "splatForce",
+    label: "Splat Force",
+    max: 15000,
+    min: 500,
+    step: 100,
+    type: "number",
+  },
+  {
+    defaultValue: true,
+    key: "autoSplats",
+    label: "Auto Splats",
+    type: "boolean",
+  },
+  {
+    defaultValue: 1.6,
+    key: "brightness",
+    label: "Brightness",
+    max: 4,
+    min: 0.1,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: "monochrome",
+    key: "colorMode",
+    label: "Color Mode",
+    options: [
+      { label: "Monochrome", value: "monochrome" },
+      { label: "Duotone", value: "duotone" },
+      { label: "Source", value: "source" },
+    ],
+    type: "select",
+  },
+  {
+    defaultValue: "#000000",
+    key: "monoDark",
+    label: "Mono Dark",
+>>>>>>> upstream/main
     type: "color",
+    visibleWhen: { equals: "monochrome", key: "colorMode" },
+  },
+  {
+    defaultValue: "#ffffff",
+    key: "monoLight",
+    label: "Mono Light",
+    type: "color",
+    visibleWhen: { equals: "monochrome", key: "colorMode" },
+  },
+  {
+    defaultValue: "#101010",
+    key: "duotoneDark",
+    label: "Duotone Dark",
+    type: "color",
+    visibleWhen: { equals: "duotone", key: "colorMode" },
+  },
+  {
+    defaultValue: "#f3f3ef",
+    key: "duotoneLight",
+    label: "Duotone Light",
+    type: "color",
+    visibleWhen: { equals: "duotone", key: "colorMode" },
   },
 ] as const satisfies ParameterDefinitions
 
@@ -2077,13 +2392,28 @@ const halftoneParams = [
 
 const particleGridParams = [
   {
-    defaultValue: 256,
+    defaultValue: "256",
     key: "gridResolution",
+<<<<<<< HEAD
     label: "分辨率",
     max: 512,
     min: 32,
     step: 4,
     type: "number",
+=======
+    label: "Resolution",
+    options: [
+      { label: "32", value: "32" },
+      { label: "64", value: "64" },
+      { label: "128", value: "128" },
+      { label: "256", value: "256" },
+      { label: "512", value: "512" },
+      { label: "1024", value: "1024" },
+      { label: "2048", value: "2048" },
+      { label: "4096", value: "4096" },
+    ],
+    type: "select",
+>>>>>>> upstream/main
   },
   {
     defaultValue: 4,
@@ -2225,6 +2555,103 @@ const pixelationParams = [
   },
 ] as const satisfies ParameterDefinitions
 
+const pixelTrailParams = [
+  {
+    defaultValue: 24,
+    key: "cellSize",
+    label: "Cell Size",
+    max: 128,
+    min: 4,
+    step: 1,
+    type: "number",
+    unit: "px",
+  },
+  {
+    defaultValue: 0.04,
+    key: "radius",
+    label: "Radius",
+    max: 0.3,
+    min: 0.005,
+    step: 0.005,
+    type: "number",
+  },
+  {
+    defaultValue: 0.9,
+    key: "decay",
+    label: "Decay",
+    max: 0.999,
+    min: 0.5,
+    step: 0.001,
+    type: "number",
+  },
+  {
+    defaultValue: 0.02,
+    key: "displaceAmount",
+    label: "Displace",
+    max: 0.2,
+    min: 0,
+    step: 0.001,
+    type: "number",
+  },
+  {
+    defaultValue: 1,
+    key: "intensity",
+    label: "Intensity",
+    max: 2,
+    min: 0,
+    step: 0.05,
+    type: "number",
+  },
+] as const satisfies ParameterDefinitions
+
+const magnifyLensParams = [
+  {
+    defaultValue: 0.18,
+    key: "radius",
+    label: "Radius",
+    max: 0.5,
+    min: 0.02,
+    step: 0.005,
+    type: "number",
+  },
+  {
+    defaultValue: 0.4,
+    key: "softness",
+    label: "Softness",
+    max: 1,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 1.8,
+    key: "zoom",
+    label: "Zoom",
+    max: 4,
+    min: 1,
+    step: 0.05,
+    type: "number",
+  },
+  {
+    defaultValue: 0.012,
+    key: "chromaStrength",
+    label: "Chromatic Edge",
+    max: 0.05,
+    min: 0,
+    step: 0.001,
+    type: "number",
+  },
+  {
+    defaultValue: 0.2,
+    key: "followLag",
+    label: "Follow Lag",
+    max: 0.95,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+] as const satisfies ParameterDefinitions
+
 const directionalBlurParams = [
   {
     defaultValue: "linear",
@@ -2332,6 +2759,93 @@ const pixelSortingParams = [
     min: 0,
     step: 0.01,
     type: "number",
+  },
+] as const satisfies ParameterDefinitions
+
+const voxelParams = [
+  {
+    defaultValue: 24,
+    key: "cellSize",
+    label: "Cell Size",
+    max: 96,
+    min: 4,
+    step: 1,
+    type: "number",
+    unit: "px",
+  },
+  {
+    defaultValue: 0,
+    key: "depth",
+    label: "Depth",
+    max: 1,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 6,
+    key: "maxHeight",
+    label: "Max Height",
+    max: 8,
+    min: 1,
+    step: 1,
+    type: "number",
+    visibleWhen: { gte: 0.01, key: "depth" },
+  },
+  {
+    defaultValue: 1,
+    key: "topShade",
+    label: "Top Shade",
+    max: 1.5,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 0.78,
+    key: "lightShade",
+    label: "Light Side",
+    max: 1.5,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: 0.55,
+    key: "darkShade",
+    label: "Dark Side",
+    max: 1.5,
+    min: 0,
+    step: 0.01,
+    type: "number",
+  },
+  {
+    defaultValue: false,
+    key: "flipLight",
+    label: "Flip Light",
+    type: "boolean",
+  },
+  {
+    defaultValue: false,
+    key: "lego",
+    label: "Lego",
+    type: "boolean",
+  },
+  {
+    defaultValue: 1.0,
+    key: "outlineWidth",
+    label: "Outline",
+    max: 4,
+    min: 0,
+    step: 0.1,
+    type: "number",
+    unit: "px",
+  },
+  {
+    defaultValue: "#0a0a0a",
+    key: "outlineColor",
+    label: "Outline Color",
+    type: "color",
   },
 ] as const satisfies ParameterDefinitions
 
@@ -3098,6 +3612,12 @@ const layerDefinitions: Record<LayerType, LayerDefinition> = {
     params: asciiParams,
     type: "ascii",
   },
+  bloom: {
+    defaultName: "Bloom",
+    kind: "effect",
+    params: bloomParams,
+    type: "bloom",
+  },
   "circuit-bent": {
     defaultName: "电路弯曲",
     kind: "effect",
@@ -3268,6 +3788,24 @@ const layerDefinitions: Record<LayerType, LayerDefinition> = {
     kind: "effect",
     params: chromaticAberrationParams,
     type: "chromatic-aberration",
+  },
+  "pixel-trail": {
+    defaultName: "Pixel Trail",
+    kind: "source",
+    params: pixelTrailParams,
+    type: "pixel-trail",
+  },
+  "magnify-lens": {
+    defaultName: "Magnify Lens",
+    kind: "source",
+    params: magnifyLensParams,
+    type: "magnify-lens",
+  },
+  voxel: {
+    defaultName: "Voxel",
+    kind: "effect",
+    params: voxelParams,
+    type: "voxel",
   },
 }
 
