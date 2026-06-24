@@ -54,16 +54,9 @@ import {
 export function EmptyPropertiesContent() {
   return (
     <div className="flex flex-col gap-1.5 p-4">
-<<<<<<< HEAD
-      <Typography tone="secondary" variant="overline">
-        属性
-      </Typography>
-      <Typography variant="body">选择图层以编辑。</Typography>
-=======
       <Typography variant="body">Select a layer to edit it.</Typography>
->>>>>>> upstream/main
       <Typography tone="muted" variant="caption">
-        暂无内容。在左侧面板新建图层。
+        Nothing to edit yet. Create a new layer in the left panel.
       </Typography>
     </div>
   )
@@ -146,13 +139,13 @@ function CustomShaderSection({
   return (
     <section className="flex flex-col gap-3 border-t border-[var(--ds-border-divider)] px-4 pt-[14px] pb-4 first:border-t-0">
       <Typography className="uppercase" tone="secondary" variant="overline">
-        着色器
+        Shader
       </Typography>
 
       <div className="flex flex-col gap-[10px]">
         <div className="grid items-center gap-[10px] [grid-template-columns:minmax(0,1fr)_132px]">
           <Typography className="min-w-0" tone="secondary" variant="label">
-            效果模式
+            Effect Mode
           </Typography>
           <Toggle
             checked={effectMode}
@@ -163,7 +156,7 @@ function CustomShaderSection({
 
         <label className="flex flex-col gap-2">
           <Typography className="min-w-0" tone="secondary" variant="label">
-            入口导出
+            Entry Export
           </Typography>
           <input
             className="min-h-9 appearance-none rounded-[var(--ds-radius-control)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] py-2 font-[var(--ds-font-mono)] text-[12px] leading-4 text-[var(--ds-color-text-primary)] outline-none transition-[border-color,background-color] duration-120 ease-[ease] focus:border-[var(--ds-color-text-secondary)] placeholder:text-[var(--ds-color-text-muted)]"
@@ -179,7 +172,7 @@ function CustomShaderSection({
 
         <label className="flex flex-col gap-2">
           <Typography className="min-w-0" tone="secondary" variant="label">
-            草图源码
+            Sketch Source
           </Typography>
           <textarea
             className="min-h-[280px] w-full resize-y appearance-none rounded-[var(--ds-radius-control)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-3 py-[10px] font-[var(--ds-font-mono)] text-[12px] leading-[18px] text-[var(--ds-color-text-primary)] outline-none transition-[border-color,background-color] duration-120 ease-[ease] focus:border-[var(--ds-color-text-secondary)]"
@@ -200,12 +193,12 @@ function CustomShaderSection({
               size="compact"
               variant="primary"
             >
-              应用
+              Apply
             </Button>
           </div>
 
           <IconButton
-            aria-label="格式化草图源码"
+            aria-label="Format sketch source"
             className="shrink-0"
             onClick={() => {
               void formatCustomShaderSource({
@@ -220,11 +213,11 @@ function CustomShaderSection({
                   setFormatError(
                     error instanceof Error
                       ? error.message
-                      : "无法格式化草图源码。"
+                      : "Could not format sketch source."
                   )
                 })
             }}
-            title="格式化草图源码"
+            title="Format sketch source"
             variant="ghost"
           >
             <TextAlignRightIcon height={14} width={14} />
@@ -444,7 +437,7 @@ export function SelectedLayerPropertiesContent({
   const opacityBinding = useMemo(
     () => ({
       kind: "layer" as const,
-      label: "不透明度",
+      label: "Opacity",
       property: "opacity" as const,
       valueType: "number" as const,
     }),
@@ -453,7 +446,7 @@ export function SelectedLayerPropertiesContent({
   const hueBinding = useMemo(
     () => ({
       kind: "layer" as const,
-      label: "色相",
+      label: "Hue",
       property: "hue" as const,
       valueType: "number" as const,
     }),
@@ -462,7 +455,7 @@ export function SelectedLayerPropertiesContent({
   const saturationBinding = useMemo(
     () => ({
       kind: "layer" as const,
-      label: "饱和度",
+      label: "Saturation",
       property: "saturation" as const,
       valueType: "number" as const,
     }),
@@ -500,13 +493,6 @@ export function SelectedLayerPropertiesContent({
 
   return (
     <>
-<<<<<<< HEAD
-      <div className="flex flex-col gap-1.5 border-b border-[var(--ds-border-divider)] px-4 pt-[14px] pb-3">
-        <div className="flex items-center justify-between gap-2">
-          <Typography tone="secondary" variant="overline">
-            属性
-          </Typography>
-=======
       <div className="flex flex-col gap-2 border-b border-[var(--ds-border-divider)] px-4 pt-[14px] pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex flex-col gap-1">
@@ -522,7 +508,6 @@ export function SelectedLayerPropertiesContent({
               </Typography>
             ) : null}
           </div>
->>>>>>> upstream/main
           <span className="inline-flex min-h-5 items-center rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-active)] px-[7px] font-[var(--ds-font-mono)] text-[10px] leading-3 text-[var(--ds-color-text-secondary)] capitalize">
             {formatLayerKind(layerKind)}
           </span>
@@ -532,13 +517,13 @@ export function SelectedLayerPropertiesContent({
       <div className="flex min-h-0 max-h-[min(62vh,620px)] flex-col gap-0 overflow-x-hidden overflow-y-auto">
         <section className="flex flex-col gap-3 border-t border-[var(--ds-border-divider)] px-4 pt-[14px] pb-4 first:border-t-0">
           <Typography className="uppercase" tone="secondary" variant="overline">
-            通用
+            General
           </Typography>
 
           <div className="flex flex-col gap-[10px]">
             <Slider
               label={renderFieldLabel(
-                "不透明度",
+                "Opacity",
                 buildTimelineControl(opacityBinding, opacity)
               )}
               max={100}
@@ -552,7 +537,7 @@ export function SelectedLayerPropertiesContent({
 
             <div className="grid items-center gap-[10px] [grid-template-columns:minmax(0,1fr)_132px]">
               <Typography className="min-w-0" tone="secondary" variant="label">
-                混合
+                Blend
               </Typography>
               <Select
                 className="w-[132px]"
@@ -569,7 +554,7 @@ export function SelectedLayerPropertiesContent({
 
             <div className="grid items-center gap-[10px] [grid-template-columns:minmax(0,1fr)_132px]">
               <Typography className="min-w-0" tone="secondary" variant="label">
-                模式
+                Mode
               </Typography>
               <Select
                 className="w-[132px]"
@@ -592,7 +577,7 @@ export function SelectedLayerPropertiesContent({
                     tone="secondary"
                     variant="label"
                   >
-                    来源
+                    Source
                   </Typography>
                   <Select
                     className="w-[132px]"
@@ -615,7 +600,7 @@ export function SelectedLayerPropertiesContent({
                     tone="secondary"
                     variant="label"
                   >
-                    蒙版模式
+                    Mask Mode
                   </Typography>
                   <Select
                     className="w-[132px]"
@@ -636,7 +621,7 @@ export function SelectedLayerPropertiesContent({
                     tone="secondary"
                     variant="label"
                   >
-                    反转
+                    Invert
                   </Typography>
                   <Toggle
                     checked={maskConfig.invert}
@@ -651,7 +636,7 @@ export function SelectedLayerPropertiesContent({
 
             <Slider
               label={renderFieldLabel(
-                "色相",
+                "Hue",
                 buildTimelineControl(hueBinding, hue)
               )}
               max={180}
@@ -664,7 +649,7 @@ export function SelectedLayerPropertiesContent({
 
             <Slider
               label={renderFieldLabel(
-                "饱和度",
+                "Saturation",
                 buildTimelineControl(saturationBinding, saturation)
               )}
               max={2}

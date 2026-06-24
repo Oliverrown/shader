@@ -18,10 +18,10 @@ const mediaPlacementParams = [
   {
     defaultValue: "cover",
     key: "fitMode",
-    label: "填充方式",
+    label: "适配",
     options: [
-      { label: "覆盖", value: "cover" },
-      { label: "包含", value: "contain" },
+      { label: "填充", value: "cover" },
+      { label: "适应", value: "contain" },
     ],
     type: "select",
   },
@@ -78,10 +78,10 @@ const liveParams = [
   {
     defaultValue: "user",
     key: "facingMode",
-    label: "摄像头",
+    label: "相机",
     options: [
-      { label: "前置", value: "user" },
-      { label: "后置", value: "environment" },
+      { label: "正面", value: "user" },
+      { label: "背面", value: "environment" },
     ],
     type: "select",
   },
@@ -94,10 +94,10 @@ const liveParams = [
   {
     defaultValue: "cover",
     key: "fitMode",
-    label: "填充方式",
+    label: "适配",
     options: [
-      { label: "覆盖", value: "cover" },
-      { label: "包含", value: "contain" },
+      { label: "填充", value: "cover" },
+      { label: "适应", value: "contain" },
     ],
     type: "select",
   },
@@ -182,9 +182,9 @@ const customShaderParams = [
 
 const textParams = [
   {
-    defaultValue: "SuperOPC",
+    defaultValue: "basement.studio",
     key: "text",
-    label: "文本",
+    label: "文字",
     maxLength: 32,
     type: "text",
   },
@@ -230,24 +230,14 @@ const textParams = [
   {
     defaultValue: "sans",
     key: "fontFamily",
-<<<<<<< HEAD
-    label: "字体",
-    options: [
-      { label: "衬线展示体", value: "display-serif" },
-      { label: "等宽", value: "mono" },
-      { label: "无衬线", value: "sans" },
-      { label: "Impact", value: "impact" },
-    ],
-=======
     label: "字体",
     options: TEXT_FONT_OPTIONS,
->>>>>>> upstream/main
     type: "select",
   },
   {
     defaultValue: 700,
     key: "fontWeight",
-    label: "字重",
+    label: "权重",
     max: 900,
     min: 100,
     step: 1,
@@ -310,11 +300,7 @@ const inkParams = [
     defaultValue: 0.81,
     group: "墨水渗色",
     key: "crispBlend",
-<<<<<<< HEAD
-    label: "文字清晰度",
-=======
     label: "细节混合",
->>>>>>> upstream/main
     max: 1,
     min: 0,
     step: 0.01,
@@ -334,7 +320,7 @@ const inkParams = [
     defaultValue: 90,
     group: "墨水渗色",
     key: "blurDirection",
-    label: "流向",
+    label: "流动方向",
     max: 180,
     min: -180,
     step: 1,
@@ -344,7 +330,7 @@ const inkParams = [
     defaultValue: 1,
     group: "墨水渗色",
     key: "dripLength",
-    label: "滴落长度",
+    label: "滴流长度",
     max: 10,
     min: 1,
     step: 0.1,
@@ -354,7 +340,7 @@ const inkParams = [
     defaultValue: 0.4,
     group: "墨水渗色",
     key: "dripWeight",
-    label: "滴落权重",
+    label: "滴流粗细",
     max: 2,
     min: 0.2,
     step: 0.1,
@@ -423,9 +409,9 @@ const inkParams = [
   },
   {
     defaultValue: "#fffde8",
-    group: "发光颜色",
+    group: "辉光颜色",
     key: "coreColor",
-    label: "核心色",
+    label: "核心颜色",
     type: "color",
     visibleWhen: {
       equals: "gradient",
@@ -434,7 +420,7 @@ const inkParams = [
   },
   {
     defaultValue: "#FFA700",
-    group: "发光颜色",
+    group: "辉光颜色",
     key: "midColor",
     label: "中间色",
     type: "color",
@@ -445,9 +431,9 @@ const inkParams = [
   },
   {
     defaultValue: "#7192F1",
-    group: "发光颜色",
+    group: "辉光颜色",
     key: "edgeColor",
-    label: "边缘色",
+    label: "边缘颜色",
     type: "color",
     visibleWhen: {
       equals: "gradient",
@@ -490,14 +476,14 @@ const inkParams = [
   },
   {
     defaultValue: true,
-    group: "泛光",
+    group: "辉光",
     key: "bloomEnabled",
-    label: "泛光",
+    label: "辉光",
     type: "boolean",
   },
   {
     defaultValue: 6.19,
-    group: "泛光",
+    group: "辉光",
     key: "bloomIntensity",
     label: "强度",
     max: 8,
@@ -511,7 +497,7 @@ const inkParams = [
   },
   {
     defaultValue: 0.97,
-    group: "泛光",
+    group: "辉光",
     key: "bloomThreshold",
     label: "阈值",
     max: 1,
@@ -525,7 +511,7 @@ const inkParams = [
   },
   {
     defaultValue: 0,
-    group: "泛光",
+    group: "辉光",
     key: "bloomRadius",
     label: "半径",
     max: 24,
@@ -539,9 +525,9 @@ const inkParams = [
   },
   {
     defaultValue: 0.96,
-    group: "泛光",
+    group: "辉光",
     key: "bloomSoftness",
-    label: "柔化",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -619,7 +605,7 @@ const bloomParams = [
 const gradientParams = [
   {
     defaultValue: "custom",
-    group: "控制点",
+    group: "点",
     key: "preset",
     label: "预设",
     options: [
@@ -633,9 +619,9 @@ const gradientParams = [
   },
   {
     defaultValue: 3,
-    group: "控制点",
+    group: "点",
     key: "activePoints",
-    label: "启用点数",
+    label: "活动点数",
     max: 5,
     min: 2,
     step: 1,
@@ -643,14 +629,14 @@ const gradientParams = [
   },
   {
     defaultValue: "#0E0C0C",
-    group: "控制点",
+    group: "点",
     key: "point1Color",
     label: "点 1 颜色",
     type: "color",
   },
   {
     defaultValue: [-0.82, -0.62] as [number, number],
-    group: "控制点",
+    group: "点",
     key: "point1Position",
     label: "点 1 位置",
     max: 1.5,
@@ -660,7 +646,7 @@ const gradientParams = [
   },
   {
     defaultValue: 0.42,
-    group: "控制点",
+    group: "点",
     key: "point1Weight",
     label: "点 1 权重",
     max: 3,
@@ -670,14 +656,14 @@ const gradientParams = [
   },
   {
     defaultValue: "#C1FF00",
-    group: "控制点",
+    group: "点",
     key: "point2Color",
     label: "点 2 颜色",
     type: "color",
   },
   {
     defaultValue: [0.22, 0.72] as [number, number],
-    group: "控制点",
+    group: "点",
     key: "point2Position",
     label: "点 2 位置",
     max: 1.5,
@@ -687,7 +673,7 @@ const gradientParams = [
   },
   {
     defaultValue: 1.55,
-    group: "控制点",
+    group: "点",
     key: "point2Weight",
     label: "点 2 权重",
     max: 3,
@@ -697,7 +683,7 @@ const gradientParams = [
   },
   {
     defaultValue: "#B2DAD5",
-    group: "控制点",
+    group: "点",
     key: "point3Color",
     label: "点 3 颜色",
     type: "color",
@@ -708,7 +694,7 @@ const gradientParams = [
   },
   {
     defaultValue: [0.88, -0.26] as [number, number],
-    group: "控制点",
+    group: "点",
     key: "point3Position",
     label: "点 3 位置",
     max: 1.5,
@@ -722,7 +708,7 @@ const gradientParams = [
   },
   {
     defaultValue: 0.64,
-    group: "控制点",
+    group: "点",
     key: "point3Weight",
     label: "点 3 权重",
     max: 3,
@@ -736,7 +722,7 @@ const gradientParams = [
   },
   {
     defaultValue: "#3B4148",
-    group: "控制点",
+    group: "点",
     key: "point4Color",
     label: "点 4 颜色",
     type: "color",
@@ -747,7 +733,7 @@ const gradientParams = [
   },
   {
     defaultValue: [-0.34, 0.52] as [number, number],
-    group: "控制点",
+    group: "点",
     key: "point4Position",
     label: "点 4 位置",
     max: 1.5,
@@ -761,7 +747,7 @@ const gradientParams = [
   },
   {
     defaultValue: 0.82,
-    group: "控制点",
+    group: "点",
     key: "point4Weight",
     label: "点 4 权重",
     max: 3,
@@ -775,7 +761,7 @@ const gradientParams = [
   },
   {
     defaultValue: "#F3E7D0",
-    group: "控制点",
+    group: "点",
     key: "point5Color",
     label: "点 5 颜色",
     type: "color",
@@ -786,7 +772,7 @@ const gradientParams = [
   },
   {
     defaultValue: [0.58, -0.76] as [number, number],
-    group: "控制点",
+    group: "点",
     key: "point5Position",
     label: "点 5 位置",
     max: 1.5,
@@ -800,7 +786,7 @@ const gradientParams = [
   },
   {
     defaultValue: 0.48,
-    group: "控制点",
+    group: "点",
     key: "point5Weight",
     label: "点 5 权重",
     max: 3,
@@ -813,15 +799,10 @@ const gradientParams = [
     },
   },
   {
-<<<<<<< HEAD
-    defaultValue: "simplex",
-    group: "扭曲",
-=======
     defaultValue: "ridge",
     group: "扭曲",
->>>>>>> upstream/main
     key: "noiseType",
-    label: "噪点类型",
+    label: "噪点",
     options: [
       { label: "单纯形", value: "simplex" },
       { label: "柏林", value: "perlin" },
@@ -833,13 +814,8 @@ const gradientParams = [
     type: "select",
   },
   {
-<<<<<<< HEAD
-    defaultValue: 0,
-    group: "扭曲",
-=======
     defaultValue: 70.3,
     group: "扭曲",
->>>>>>> upstream/main
     key: "noiseSeed",
     label: "随机种子",
     max: 100,
@@ -848,13 +824,8 @@ const gradientParams = [
     type: "number",
   },
   {
-<<<<<<< HEAD
-    defaultValue: 0.64,
-    group: "扭曲",
-=======
     defaultValue: 0.18,
     group: "扭曲",
->>>>>>> upstream/main
     key: "warpAmount",
     label: "扭曲量",
     max: 1,
@@ -863,13 +834,8 @@ const gradientParams = [
     type: "number",
   },
   {
-<<<<<<< HEAD
-    defaultValue: 5.56,
-    group: "扭曲",
-=======
     defaultValue: 2.35,
     group: "扭曲",
->>>>>>> upstream/main
     key: "warpScale",
     label: "扭曲缩放",
     max: 6,
@@ -901,7 +867,7 @@ const gradientParams = [
     defaultValue: 0.5,
     group: "扭曲",
     key: "warpBias",
-    label: "扭曲偏差",
+    label: "扭曲偏置",
     max: 1,
     min: 0,
     step: 0.01,
@@ -925,13 +891,8 @@ const gradientParams = [
     type: "boolean",
   },
   {
-<<<<<<< HEAD
-    defaultValue: 0,
-    group: "动画",
-=======
     defaultValue: 1,
     group: "动画",
->>>>>>> upstream/main
     key: "motionAmount",
     label: "运动量",
     max: 1,
@@ -940,13 +901,8 @@ const gradientParams = [
     type: "number",
   },
   {
-<<<<<<< HEAD
-    defaultValue: 0.2,
-    group: "动画",
-=======
     defaultValue: 0.4,
     group: "动画",
->>>>>>> upstream/main
     key: "motionSpeed",
     label: "运动速度",
     max: 2,
@@ -969,13 +925,8 @@ const gradientParams = [
     type: "number",
   },
   {
-<<<<<<< HEAD
-    defaultValue: "reinhard",
-    group: "收尾",
-=======
     defaultValue: "cinematic",
     group: "后期处理",
->>>>>>> upstream/main
     key: "tonemapMode",
     label: "色调映射",
     options: [
@@ -983,13 +934,13 @@ const gradientParams = [
       { label: "ACES", value: "aces" },
       { label: "Reinhard", value: "reinhard" },
       { label: "Toto's", value: "totos" },
-      { label: "电影级", value: "cinematic" },
+      { label: "电影感", value: "cinematic" },
     ],
     type: "select",
   },
   {
     defaultValue: 0,
-    group: "收尾",
+    group: "后期处理",
     key: "glowStrength",
     label: "辉光强度",
     max: 1,
@@ -999,7 +950,7 @@ const gradientParams = [
   },
   {
     defaultValue: 0,
-    group: "收尾",
+    group: "后期处理",
     key: "glowThreshold",
     label: "辉光阈值",
     max: 1,
@@ -1009,7 +960,7 @@ const gradientParams = [
   },
   {
     defaultValue: 0.08,
-    group: "收尾",
+    group: "后期处理",
     key: "grainAmount",
     label: "颗粒",
     max: 1,
@@ -1019,7 +970,7 @@ const gradientParams = [
   },
   {
     defaultValue: 0.12,
-    group: "收尾",
+    group: "后期处理",
     key: "vignetteStrength",
     label: "暗角强度",
     max: 1,
@@ -1029,7 +980,7 @@ const gradientParams = [
   },
   {
     defaultValue: 1.5,
-    group: "收尾",
+    group: "后期处理",
     key: "vignetteRadius",
     label: "暗角半径",
     max: 1.5,
@@ -1039,9 +990,9 @@ const gradientParams = [
   },
   {
     defaultValue: 1,
-    group: "收尾",
+    group: "后期处理",
     key: "vignetteSoftness",
-    label: "暗角柔化",
+    label: "暗角柔和度",
     max: 1,
     min: 0.01,
     step: 0.01,
@@ -1071,33 +1022,13 @@ const fluidParams = [
   {
     defaultValue: 20,
     key: "iterations",
-<<<<<<< HEAD
-    label: "迭代次数",
-    max: 128,
-    min: 4,
-=======
     label: "迭代次数",
     max: 32,
     min: 1,
->>>>>>> upstream/main
     step: 1,
     type: "number",
   },
   {
-<<<<<<< HEAD
-    defaultValue: 0.92,
-    key: "dissipation",
-    label: "消散",
-    max: 0.999,
-    min: 0.5,
-    step: 0.001,
-    type: "number",
-  },
-  {
-    defaultValue: 0.24,
-    key: "pressure",
-    label: "压力",
-=======
     defaultValue: 4,
     key: "densityDissipation",
     label: "密度耗散",
@@ -1119,18 +1050,12 @@ const fluidParams = [
     defaultValue: 0,
     key: "pressureDissipation",
     label: "压力耗散",
->>>>>>> upstream/main
     max: 1,
     min: 0,
     step: 0.01,
     type: "number",
   },
   {
-<<<<<<< HEAD
-    defaultValue: "#3c73ff",
-    key: "inkColor",
-    label: "油墨颜色",
-=======
     defaultValue: 30,
     key: "curlStrength",
     label: "旋度",
@@ -1187,7 +1112,6 @@ const fluidParams = [
     defaultValue: "#000000",
     key: "monoDark",
     label: "单色暗部",
->>>>>>> upstream/main
     type: "color",
     visibleWhen: { equals: "monochrome", key: "colorMode" },
   },
@@ -1220,7 +1144,7 @@ const modelParams = [
     key: "environment",
     label: "环境",
     options: [
-      { label: "工作室", value: "studio" },
+      { label: "影棚", value: "studio" },
       { label: "日落", value: "sunset" },
       { label: "仓库", value: "warehouse" },
       { label: "夜晚", value: "night" },
@@ -1248,7 +1172,7 @@ const modelParams = [
   {
     defaultValue: [0, 0, 0] as [number, number, number],
     key: "cameraOrbit",
-    label: "相机轨道",
+    label: "相机环绕",
     max: 6.283,
     min: -6.283,
     step: 0.01,
@@ -1275,7 +1199,7 @@ const asciiParams = [
   {
     defaultValue: 12,
     key: "cellSize",
-    label: "字元尺寸",
+    label: "单元格大小",
     max: 48,
     min: 4,
     step: 1,
@@ -1289,8 +1213,8 @@ const asciiParams = [
     options: [
       { label: "稀疏", value: "light" },
       { label: "密集", value: "dense" },
-      { label: "方块", value: "blocks" },
-      { label: "排线", value: "hatching" },
+      { label: "块", value: "blocks" },
+      { label: "影线", value: "hatching" },
       { label: "二进制", value: "binary" },
       { label: "自定义", value: "custom" },
     ],
@@ -1313,7 +1237,7 @@ const asciiParams = [
     key: "fontWeight",
     label: "字重",
     options: [
-      { label: "细体", value: "thin" },
+      { label: "细", value: "thin" },
       { label: "常规", value: "regular" },
       { label: "粗体", value: "bold" },
     ],
@@ -1324,7 +1248,7 @@ const asciiParams = [
     key: "colorMode",
     label: "颜色模式",
     options: [
-      { label: "源色", value: "source" },
+      { label: "源", value: "source" },
       { label: "单色", value: "monochrome" },
     ],
     type: "select",
@@ -1355,7 +1279,7 @@ const asciiParams = [
   {
     defaultValue: false,
     key: "invert",
-    label: "反转",
+    label: "反相",
     type: "boolean",
   },
   {
@@ -1368,7 +1292,7 @@ const asciiParams = [
       { label: "ACES", value: "aces" },
       { label: "Reinhard", value: "reinhard" },
       { label: "Totos", value: "totos" },
-      { label: "电影级", value: "cinematic" },
+      { label: "电影感", value: "cinematic" },
     ],
     type: "select",
   },
@@ -1390,7 +1314,7 @@ const asciiParams = [
     defaultValue: "luminance",
     group: "信号",
     key: "colorSignalMode",
-    label: "颜色信号",
+    label: "色彩信号",
     options: [
       { label: "亮度", value: "luminance" },
       { label: "明度", value: "lightness" },
@@ -1414,7 +1338,7 @@ const asciiParams = [
     defaultValue: 1,
     group: "信号",
     key: "signalWhitePoint",
-    label: "���场",
+    label: "白场",
     max: 1,
     min: 0,
     step: 0.01,
@@ -1444,7 +1368,7 @@ const asciiParams = [
     defaultValue: 0,
     group: "存在感",
     key: "presenceSoftness",
-    label: "柔化",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -1452,9 +1376,9 @@ const asciiParams = [
   },
   {
     defaultValue: 0,
-    group: "闪烁",
+    group: "微光",
     key: "shimmerAmount",
-    label: "量",
+    label: "数量",
     max: 1,
     min: 0,
     step: 0.01,
@@ -1462,7 +1386,7 @@ const asciiParams = [
   },
   {
     defaultValue: 1,
-    group: "闪烁",
+    group: "微光",
     key: "shimmerSpeed",
     label: "速度",
     max: 10,
@@ -1473,7 +1397,7 @@ const asciiParams = [
   {
     defaultValue: 0,
     key: "directionBias",
-    label: "方向偏差",
+    label: "方向偏置",
     max: 1,
     min: 0,
     step: 0.01,
@@ -1481,14 +1405,14 @@ const asciiParams = [
   },
   {
     defaultValue: false,
-    group: "泛光",
+    group: "辉光",
     key: "bloomEnabled",
-    label: "泛光",
+    label: "辉光",
     type: "boolean",
   },
   {
     defaultValue: 1.25,
-    group: "泛光",
+    group: "辉光",
     key: "bloomIntensity",
     label: "强度",
     max: 8,
@@ -1502,7 +1426,7 @@ const asciiParams = [
   },
   {
     defaultValue: 0.6,
-    group: "泛光",
+    group: "辉光",
     key: "bloomThreshold",
     label: "阈值",
     max: 1,
@@ -1516,7 +1440,7 @@ const asciiParams = [
   },
   {
     defaultValue: 6,
-    group: "泛光",
+    group: "辉光",
     key: "bloomRadius",
     label: "半径",
     max: 24,
@@ -1530,9 +1454,9 @@ const asciiParams = [
   },
   {
     defaultValue: 0.35,
-    group: "泛光",
+    group: "辉光",
     key: "bloomSoftness",
-    label: "柔化",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -1550,7 +1474,7 @@ const circuitBentParams = [
     key: "colorMode",
     label: "颜色模式",
     options: [
-      { label: "源色", value: "source" },
+      { label: "源", value: "source" },
       { label: "单色", value: "monochrome" },
     ],
     type: "select",
@@ -1565,14 +1489,14 @@ const circuitBentParams = [
   {
     defaultValue: false,
     key: "invert",
-    label: "反转",
+    label: "反相",
     type: "boolean",
   },
   {
     defaultValue: 0,
     group: "信号",
     key: "signalBlackPoint",
-    label: "黑���",
+    label: "黑场",
     max: 1,
     min: 0,
     step: 0.01,
@@ -1612,7 +1536,7 @@ const circuitBentParams = [
     defaultValue: 0.64,
     group: "信号",
     key: "presenceSoftness",
-    label: "存在感柔化",
+    label: "存在柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -1620,9 +1544,9 @@ const circuitBentParams = [
   },
   {
     defaultValue: 6.4,
-    group: "扫描线",
+    group: "线条",
     key: "linePitch",
-    label: "间距",
+    label: "点距",
     max: 48,
     min: 2,
     step: 0.1,
@@ -1630,7 +1554,7 @@ const circuitBentParams = [
   },
   {
     defaultValue: 0.5,
-    group: "扫描线",
+    group: "线条",
     key: "lineThickness",
     label: "粗细",
     max: 8,
@@ -1640,7 +1564,7 @@ const circuitBentParams = [
   },
   {
     defaultValue: 0,
-    group: "扫描线",
+    group: "线条",
     key: "lineAngle",
     label: "角度",
     max: 180,
@@ -1654,7 +1578,7 @@ const circuitBentParams = [
     key: "noiseMode",
     label: "噪点类型",
     options: [
-      { label: "正弦波", value: "sine" },
+      { label: "正弦", value: "sine" },
       { label: "柏林", value: "perlin" },
       { label: "湍流", value: "turbulence" },
     ],
@@ -1664,7 +1588,7 @@ const circuitBentParams = [
     defaultValue: 1,
     group: "噪点",
     key: "noiseAmount",
-    label: "量",
+    label: "数量",
     max: 1,
     min: 0,
     step: 0.01,
@@ -1687,7 +1611,7 @@ const patternParams = [
   {
     defaultValue: 12,
     key: "cellSize",
-    label: "单元尺寸",
+    label: "单元格大小",
     max: 48,
     min: 4,
     step: 1,
@@ -1699,7 +1623,7 @@ const patternParams = [
     key: "preset",
     label: "预设",
     options: [
-      { label: "条纹", value: "bars" },
+      { label: "条带", value: "bars" },
       { label: "烛光", value: "candles" },
       { label: "形状", value: "shapes" },
     ],
@@ -1710,7 +1634,7 @@ const patternParams = [
     key: "colorMode",
     label: "颜色模式",
     options: [
-      { label: "源色", value: "source" },
+      { label: "源", value: "source" },
       { label: "量化", value: "quantized" },
       { label: "单色", value: "monochrome" },
       { label: "自定义", value: "custom" },
@@ -1743,12 +1667,12 @@ const patternParams = [
   {
     defaultValue: false,
     key: "invert",
-    label: "反转",
+    label: "反相",
     type: "boolean",
   },
   {
     defaultValue: 4,
-    description: "调色板在亮度带间均匀分布。",
+    description: "调色板在各亮度区间均匀分布。",
     key: "customColorCount",
     label: "颜色数量",
     max: 4,
@@ -1759,9 +1683,9 @@ const patternParams = [
   },
   {
     defaultValue: 0,
-    description: "将调色板映射偏向暗部或亮部。",
+    description: "将调色板映射偏向暗部或高光。",
     key: "customLuminanceBias",
-    label: "亮度偏差",
+    label: "亮度偏置",
     max: 1,
     min: -1,
     step: 0.01,
@@ -1778,21 +1702,21 @@ const patternParams = [
   {
     defaultValue: "#0d1014",
     key: "customColor1",
-    label: "暗部",
+    label: "阴影",
     type: "color",
     visibleWhen: { equals: "custom", key: "colorMode" },
   },
   {
     defaultValue: "#4d5057",
     key: "customColor2",
-    label: "中间调 / 亮部",
+    label: "中间调 / 高光",
     type: "color",
     visibleWhen: { equals: "custom", key: "colorMode" },
   },
   {
     defaultValue: "#969aa2",
     key: "customColor3",
-    label: "高中调",
+    label: "高中频",
     type: "color",
     visibleWhen: {
       gte: 3,
@@ -1811,14 +1735,14 @@ const patternParams = [
   },
   {
     defaultValue: false,
-    group: "泛光",
+    group: "辉光",
     key: "bloomEnabled",
-    label: "泛光",
+    label: "辉光",
     type: "boolean",
   },
   {
     defaultValue: 1.25,
-    group: "泛光",
+    group: "辉光",
     key: "bloomIntensity",
     label: "强度",
     max: 8,
@@ -1832,7 +1756,7 @@ const patternParams = [
   },
   {
     defaultValue: 0.6,
-    group: "泛光",
+    group: "辉光",
     key: "bloomThreshold",
     label: "阈值",
     max: 1,
@@ -1846,7 +1770,7 @@ const patternParams = [
   },
   {
     defaultValue: 6,
-    group: "泛光",
+    group: "辉光",
     key: "bloomRadius",
     label: "半径",
     max: 24,
@@ -1860,9 +1784,9 @@ const patternParams = [
   },
   {
     defaultValue: 0.35,
-    group: "泛光",
+    group: "辉光",
     key: "bloomSoftness",
-    label: "柔化",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -1906,7 +1830,7 @@ const ditheringParams = [
     label: "颜色模式",
     options: [
       { label: "单色", value: "monochrome" },
-      { label: "源色", value: "source" },
+      { label: "源颜色", value: "source" },
       { label: "双色调", value: "duo-tone" },
     ],
     type: "select",
@@ -1926,7 +1850,7 @@ const ditheringParams = [
     defaultValue: "#101010",
     group: "颜色",
     key: "shadowColor",
-    label: "暗部",
+    label: "阴影",
     type: "color",
     visibleWhen: {
       equals: "duo-tone",
@@ -1948,7 +1872,7 @@ const ditheringParams = [
     defaultValue: 1,
     group: "图案",
     key: "pixelSize",
-    label: "像素尺寸",
+    label: "像素大小",
     max: 24,
     min: 1,
     step: 1,
@@ -1968,7 +1892,7 @@ const ditheringParams = [
     defaultValue: 4,
     group: "颜色",
     key: "levels",
-    label: "色阶数",
+    label: "色阶",
     max: 16,
     min: 2,
     step: 1,
@@ -1976,9 +1900,9 @@ const ditheringParams = [
   },
   {
     defaultValue: 1,
-    group: "效果",
+    group: "特效",
     key: "dotScale",
-    label: "点缩放",
+    label: "网点缩放",
     max: 1,
     min: 0.1,
     step: 0.1,
@@ -1986,14 +1910,14 @@ const ditheringParams = [
   },
   {
     defaultValue: false,
-    group: "效果",
+    group: "特效",
     key: "animateDither",
     label: "抖动动画",
     type: "boolean",
   },
   {
     defaultValue: 1,
-    group: "效果",
+    group: "特效",
     key: "ditherSpeed",
     label: "抖动速度",
     max: 3,
@@ -2007,9 +1931,9 @@ const ditheringParams = [
   },
   {
     defaultValue: false,
-    group: "效果",
+    group: "特效",
     key: "chromaticSplit",
-    label: "色差分离",
+    label: "色散分离",
     type: "boolean",
   },
 ] as const satisfies ParameterDefinitions
@@ -2020,7 +1944,7 @@ const halftoneParams = [
     key: "colorMode",
     label: "颜色模式",
     options: [
-      { label: "源色", value: "source" },
+      { label: "源", value: "source" },
       { label: "单色", value: "monochrome" },
       { label: "双色调", value: "duotone" },
       { label: "自定义", value: "custom" },
@@ -2052,7 +1976,7 @@ const halftoneParams = [
   {
     defaultValue: 1,
     key: "dotSize",
-    label: "网点尺寸",
+    label: "网点大小",
     max: 3,
     min: 0.1,
     step: 0.01,
@@ -2088,7 +2012,7 @@ const halftoneParams = [
   {
     defaultValue: 0.25,
     key: "softness",
-    label: "柔化",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2097,7 +2021,7 @@ const halftoneParams = [
   {
     defaultValue: 0,
     key: "dotGain",
-    label: "网点扩张",
+    label: "网点扩大",
     description: "模拟墨水渗入纸张纤维",
     max: 1,
     min: 0,
@@ -2108,7 +2032,8 @@ const halftoneParams = [
     defaultValue: 0,
     key: "dotMorph",
     label: "网点变形",
-    description: "根据色调值混合网点形状（中调由圆变方）",
+    description:
+      "Blends dot shape based on tonal value (circles → squares in midtones)",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2117,12 +2042,12 @@ const halftoneParams = [
   {
     defaultValue: false,
     key: "invertLuma",
-    label: "反转",
+    label: "反相",
     type: "boolean",
   },
   {
     defaultValue: 4,
-    description: "调色板在亮度带间均匀分布。",
+    description: "调色板在各亮度区间均匀分布。",
     key: "customColorCount",
     label: "颜色数量",
     max: 4,
@@ -2133,9 +2058,9 @@ const halftoneParams = [
   },
   {
     defaultValue: 0,
-    description: "将调色板映射偏向暗部或亮部。",
+    description: "将调色板映射偏向暗部或高光。",
     key: "customLuminanceBias",
-    label: "亮度偏差",
+    label: "亮度偏置",
     max: 1,
     min: -1,
     step: 0.01,
@@ -2144,15 +2069,15 @@ const halftoneParams = [
   },
   {
     defaultValue: false,
-    group: "泛光",
+    group: "辉光",
     key: "bloomEnabled",
-    label: "泛光",
+    label: "辉光",
     type: "boolean",
     visibleWhen: { equals: "custom", key: "colorMode" },
   },
   {
     defaultValue: 1.25,
-    group: "泛光",
+    group: "辉光",
     key: "bloomIntensity",
     label: "强度",
     max: 8,
@@ -2163,7 +2088,7 @@ const halftoneParams = [
   },
   {
     defaultValue: 0.6,
-    group: "泛光",
+    group: "辉光",
     key: "bloomThreshold",
     label: "阈值",
     max: 1,
@@ -2174,7 +2099,7 @@ const halftoneParams = [
   },
   {
     defaultValue: 6,
-    group: "泛光",
+    group: "辉光",
     key: "bloomRadius",
     label: "半径",
     max: 24,
@@ -2185,9 +2110,9 @@ const halftoneParams = [
   },
   {
     defaultValue: 0.35,
-    group: "泛光",
+    group: "辉光",
     key: "bloomSoftness",
-    label: "柔化",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2204,21 +2129,21 @@ const halftoneParams = [
   {
     defaultValue: "#0d1014",
     key: "customColor1",
-    label: "暗部",
+    label: "阴影",
     type: "color",
     visibleWhen: { equals: "custom", key: "colorMode" },
   },
   {
     defaultValue: "#4d5057",
     key: "customColor2",
-    label: "中间调 / 亮部",
+    label: "中间调 / 高光",
     type: "color",
     visibleWhen: { equals: "custom", key: "colorMode" },
   },
   {
     defaultValue: "#969aa2",
     key: "customColor3",
-    label: "高中调",
+    label: "高中频",
     type: "color",
     visibleWhen: {
       gte: 3,
@@ -2238,32 +2163,32 @@ const halftoneParams = [
   {
     defaultValue: "#0d1014",
     key: "ink",
-    label: "油墨",
+    label: "墨水",
     type: "color",
     visibleWhen: { equals: "monochrome", key: "colorMode" },
   },
   {
     defaultValue: "#F5F5F0",
     key: "duotoneLight",
-    label: "亮色",
+    label: "光照颜色",
     type: "color",
     visibleWhen: { equals: "duotone", key: "colorMode" },
   },
   {
     defaultValue: "#1d1d1c",
     key: "duotoneDark",
-    label: "暗色",
+    label: "暗部颜色",
     type: "color",
     visibleWhen: { equals: "duotone", key: "colorMode" },
   },
   {
     defaultValue: "process",
     key: "preset",
-    label: "油墨预设",
+    label: "墨水预设",
     options: [
-      { label: "标准 CMYK", value: "process" },
-      { label: "孔版印刷", value: "risograph" },
-      { label: "报纸印刷", value: "newspaper" },
+      { label: "处理 CMYK", value: "process" },
+      { label: "Risograph", value: "risograph" },
+      { label: "报纸", value: "newspaper" },
       { label: "复古", value: "vintage" },
       { label: "自定义", value: "custom" },
     ],
@@ -2274,7 +2199,7 @@ const halftoneParams = [
     defaultValue: 0.5,
     key: "gcr",
     label: "黑版生成",
-    description: "控制 K 版与 C+M+Y 的比例",
+    description: "控制分配到 K 版与 C+M+Y 的比例",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2295,7 +2220,7 @@ const halftoneParams = [
   {
     defaultValue: 15,
     key: "cyanAngle",
-    label: "青版角度",
+    label: "青色角度",
     max: 90,
     min: 0,
     step: 1,
@@ -2305,7 +2230,7 @@ const halftoneParams = [
   {
     defaultValue: 75,
     key: "magentaAngle",
-    label: "品版角度",
+    label: "品红角度",
     max: 90,
     min: 0,
     step: 1,
@@ -2315,7 +2240,7 @@ const halftoneParams = [
   {
     defaultValue: 0,
     key: "yellowAngle",
-    label: "黄版角度",
+    label: "黄色角度",
     max: 90,
     min: 0,
     step: 1,
@@ -2325,7 +2250,7 @@ const halftoneParams = [
   {
     defaultValue: 45,
     key: "keyAngle",
-    label: "黑版角度",
+    label: "主版角度",
     max: 90,
     min: 0,
     step: 1,
@@ -2352,8 +2277,8 @@ const halftoneParams = [
   {
     defaultValue: 0,
     key: "registration",
-    label: "套版误差",
-    description: "模拟 CMYK 印刷版位偏移",
+    label: "套准",
+    description: "模拟 CMYK 印刷中的版面错位",
     max: 5,
     min: 0,
     step: 0.1,
@@ -2363,28 +2288,28 @@ const halftoneParams = [
   {
     defaultValue: "#00AEEF",
     key: "inkCyan",
-    label: "青色墨",
+    label: "青色墨水",
     type: "color",
     visibleWhen: { equals: "cmyk", key: "colorMode" },
   },
   {
     defaultValue: "#EC008C",
     key: "inkMagenta",
-    label: "品红墨",
+    label: "品红墨水",
     type: "color",
     visibleWhen: { equals: "cmyk", key: "colorMode" },
   },
   {
     defaultValue: "#FFF200",
     key: "inkYellow",
-    label: "黄色墨",
+    label: "黄色墨水",
     type: "color",
     visibleWhen: { equals: "cmyk", key: "colorMode" },
   },
   {
     defaultValue: "#1a1a1a",
     key: "inkKey",
-    label: "黑色墨",
+    label: "主版墨水",
     type: "color",
     visibleWhen: { equals: "cmyk", key: "colorMode" },
   },
@@ -2394,13 +2319,6 @@ const particleGridParams = [
   {
     defaultValue: "256",
     key: "gridResolution",
-<<<<<<< HEAD
-    label: "分辨率",
-    max: 512,
-    min: 32,
-    step: 4,
-    type: "number",
-=======
     label: "分辨率",
     options: [
       { label: "32", value: "32" },
@@ -2413,12 +2331,11 @@ const particleGridParams = [
       { label: "4096", value: "4096" },
     ],
     type: "select",
->>>>>>> upstream/main
   },
   {
     defaultValue: 4,
     key: "pointSize",
-    label: "粒子尺寸",
+    label: "点大小",
     max: 32,
     min: 1,
     step: 1,
@@ -2443,7 +2360,7 @@ const particleGridParams = [
     defaultValue: 0,
     group: "运动",
     key: "noiseAmount",
-    label: "量",
+    label: "数量",
     max: 2,
     min: 0,
     step: 0.01,
@@ -2471,14 +2388,14 @@ const particleGridParams = [
   },
   {
     defaultValue: false,
-    group: "泛光",
+    group: "辉光",
     key: "bloomEnabled",
-    label: "泛光",
+    label: "辉光",
     type: "boolean",
   },
   {
     defaultValue: 1.25,
-    group: "泛光",
+    group: "辉光",
     key: "bloomIntensity",
     label: "强度",
     max: 8,
@@ -2492,7 +2409,7 @@ const particleGridParams = [
   },
   {
     defaultValue: 0.6,
-    group: "泛光",
+    group: "辉光",
     key: "bloomThreshold",
     label: "阈值",
     max: 1,
@@ -2506,7 +2423,7 @@ const particleGridParams = [
   },
   {
     defaultValue: 6,
-    group: "泛光",
+    group: "辉光",
     key: "bloomRadius",
     label: "半径",
     max: 24,
@@ -2520,9 +2437,9 @@ const particleGridParams = [
   },
   {
     defaultValue: 0.35,
-    group: "泛光",
+    group: "辉光",
     key: "bloomSoftness",
-    label: "柔化",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2538,7 +2455,7 @@ const pixelationParams = [
   {
     defaultValue: 8,
     key: "cellSize",
-    label: "像素尺寸",
+    label: "单元格大小",
     max: 64,
     min: 2,
     step: 1,
@@ -2547,7 +2464,7 @@ const pixelationParams = [
   {
     defaultValue: 1,
     key: "aspectRatio",
-    label: "长宽比",
+    label: "宽高比",
     max: 4,
     min: 0.25,
     step: 0.05,
@@ -2696,7 +2613,7 @@ const directionalBlurParams = [
   {
     defaultValue: [0.5, 0.5] as [number, number],
     key: "center",
-    label: "中心",
+    label: "居中",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2853,7 +2770,7 @@ const posterizeParams = [
   {
     defaultValue: 5,
     key: "levels",
-    label: "色阶数",
+    label: "色阶",
     max: 16,
     min: 2,
     step: 1,
@@ -2893,7 +2810,7 @@ const thresholdParams = [
   {
     defaultValue: 0.02,
     key: "softness",
-    label: "柔化",
+    label: "柔和度",
     max: 0.2,
     min: 0,
     step: 0.001,
@@ -2911,7 +2828,7 @@ const thresholdParams = [
   {
     defaultValue: false,
     key: "invert",
-    label: "反转",
+    label: "反相",
     type: "boolean",
   },
 ] as const satisfies ParameterDefinitions
@@ -2929,7 +2846,7 @@ const smearParams = [
   {
     defaultValue: 0.25,
     key: "start",
-    label: "起点",
+    label: "开始",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2938,7 +2855,7 @@ const smearParams = [
   {
     defaultValue: 0.75,
     key: "end",
-    label: "终点",
+    label: "结束",
     max: 1,
     min: 0,
     step: 0.01,
@@ -2970,8 +2887,8 @@ const flutedGlassParams = [
     key: "preset",
     label: "预设",
     options: [
-      { label: "建筑", value: "architectural" },
-      { label: "绘画", value: "painterly" },
+      { label: "建筑风", value: "architectural" },
+      { label: "绘画感", value: "painterly" },
     ],
     type: "select",
   },
@@ -3028,8 +2945,8 @@ const plotterParams = [
     key: "colorMode",
     label: "颜色",
     options: [
-      { label: "油墨", value: "ink" },
-      { label: "源色", value: "source" },
+      { label: "墨水", value: "ink" },
+      { label: "源", value: "source" },
     ],
     type: "select",
   },
@@ -3045,7 +2962,7 @@ const plotterParams = [
   {
     defaultValue: 1.5,
     key: "weight",
-    label: "线重",
+    label: "权重",
     max: 5,
     min: 0.5,
     step: 0.1,
@@ -3063,7 +2980,7 @@ const plotterParams = [
   {
     defaultValue: true,
     key: "crosshatch",
-    label: "交叉排线",
+    label: "交叉影线",
     type: "boolean",
   },
   {
@@ -3088,7 +3005,7 @@ const plotterParams = [
   {
     defaultValue: 0.3,
     key: "wobble",
-    label: "抖动",
+    label: "摆动",
     max: 1,
     min: 0,
     step: 0.01,
@@ -3103,7 +3020,7 @@ const plotterParams = [
   {
     defaultValue: "#1a1a1a",
     key: "inkColor",
-    label: "油墨颜色",
+    label: "墨水颜色",
     type: "color",
     visibleWhen: { key: "colorMode", equals: "ink" },
   },
@@ -3124,7 +3041,7 @@ const crtParams = [
   {
     defaultValue: 3,
     key: "cellSize",
-    label: "掩膜缩放",
+    label: "蒙版缩放",
     max: 32,
     min: 3,
     step: 1,
@@ -3142,7 +3059,7 @@ const crtParams = [
   {
     defaultValue: 1,
     key: "maskIntensity",
-    label: "掩膜强度",
+    label: "蒙版强度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -3150,9 +3067,9 @@ const crtParams = [
   },
   {
     defaultValue: 0.15,
-    group: "失真",
+    group: "扭曲",
     key: "barrelDistortion",
-    label: "桶形失真",
+    label: "桶形畸变",
     max: 0.3,
     min: 0,
     step: 0.001,
@@ -3160,9 +3077,9 @@ const crtParams = [
   },
   {
     defaultValue: 2,
-    group: "失真",
+    group: "扭曲",
     key: "chromaticAberration",
-    label: "色散",
+    label: "会聚",
     max: 2,
     min: 0,
     step: 0.01,
@@ -3170,9 +3087,9 @@ const crtParams = [
   },
   {
     defaultValue: 0.58,
-    group: "荧光体",
+    group: "荧光",
     key: "beamFocus",
-    label: "电子束聚焦",
+    label: "光束聚焦",
     max: 1,
     min: 0,
     step: 0.01,
@@ -3180,7 +3097,7 @@ const crtParams = [
   },
   {
     defaultValue: 1.2,
-    group: "荧光体",
+    group: "荧光",
     key: "brightness",
     label: "亮度",
     max: 100,
@@ -3190,7 +3107,7 @@ const crtParams = [
   },
   {
     defaultValue: 1,
-    group: "荧光体",
+    group: "荧光",
     key: "highlightDrive",
     label: "高光驱动",
     max: 100,
@@ -3200,7 +3117,7 @@ const crtParams = [
   },
   {
     defaultValue: 0.62,
-    group: "荧光体",
+    group: "荧光",
     key: "highlightThreshold",
     label: "高光阈值",
     max: 1,
@@ -3210,9 +3127,9 @@ const crtParams = [
   },
   {
     defaultValue: 0.25,
-    group: "荧光体",
+    group: "荧光",
     key: "shoulder",
-    label: "肩部曲线",
+    label: "高光肩部",
     max: 4,
     min: 0,
     step: 0.01,
@@ -3220,7 +3137,7 @@ const crtParams = [
   },
   {
     defaultValue: 1.15,
-    group: "荧光体",
+    group: "荧光",
     key: "chromaRetention",
     label: "色度保留",
     max: 2,
@@ -3230,7 +3147,7 @@ const crtParams = [
   },
   {
     defaultValue: 0.16,
-    group: "荧光体",
+    group: "荧光",
     key: "shadowLift",
     label: "暗部提升",
     max: 1,
@@ -3240,9 +3157,9 @@ const crtParams = [
   },
   {
     defaultValue: 0.18,
-    group: "荧光体",
+    group: "荧光",
     key: "persistence",
-    label: "余辉",
+    label: "持续度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -3250,7 +3167,7 @@ const crtParams = [
   },
   {
     defaultValue: 0.45,
-    group: "失真",
+    group: "扭曲",
     key: "vignetteIntensity",
     label: "暗角",
     max: 1,
@@ -3260,7 +3177,7 @@ const crtParams = [
   },
   {
     defaultValue: 0.2,
-    group: "噪声",
+    group: "噪点",
     key: "flickerIntensity",
     label: "闪烁",
     max: 0.2,
@@ -3270,7 +3187,7 @@ const crtParams = [
   },
   {
     defaultValue: 0.13,
-    group: "噪声",
+    group: "噪点",
     key: "glitchIntensity",
     label: "故障",
     max: 1,
@@ -3280,7 +3197,7 @@ const crtParams = [
   },
   {
     defaultValue: 5,
-    group: "噪声",
+    group: "噪点",
     key: "glitchSpeed",
     label: "故障速度",
     max: 5,
@@ -3296,7 +3213,7 @@ const crtParams = [
     defaultValue: 0.45,
     group: "信号",
     key: "signalArtifacts",
-    label: "信号干扰",
+    label: "信号杂讯",
     max: 1,
     min: 0,
     step: 0.01,
@@ -3308,14 +3225,14 @@ const crtParams = [
   },
   {
     defaultValue: true,
-    group: "泛光",
+    group: "辉光",
     key: "bloomEnabled",
-    label: "泛光",
+    label: "辉光",
     type: "boolean",
   },
   {
     defaultValue: 1.93,
-    group: "泛光",
+    group: "辉光",
     key: "bloomIntensity",
     label: "强度",
     max: 8,
@@ -3329,7 +3246,7 @@ const crtParams = [
   },
   {
     defaultValue: 0,
-    group: "泛光",
+    group: "辉光",
     key: "bloomThreshold",
     label: "阈值",
     max: 1,
@@ -3343,7 +3260,7 @@ const crtParams = [
   },
   {
     defaultValue: 8,
-    group: "泛光",
+    group: "辉光",
     key: "bloomRadius",
     label: "半径",
     max: 24,
@@ -3357,9 +3274,9 @@ const crtParams = [
   },
   {
     defaultValue: 0.31,
-    group: "泛光",
+    group: "辉光",
     key: "bloomSoftness",
-    label: "柔化",
+    label: "柔和度",
     max: 1,
     min: 0,
     step: 0.01,
@@ -3393,7 +3310,7 @@ const edgeDetectParams = [
   {
     defaultValue: false,
     key: "invert",
-    label: "反转",
+    label: "反相",
     type: "boolean",
   },
   {
@@ -3402,8 +3319,8 @@ const edgeDetectParams = [
     label: "颜色",
     options: [
       { label: "叠加", value: "overlay" },
-      { label: "单色", value: "mono" },
-      { label: "源色", value: "source" },
+      { label: "等宽", value: "mono" },
+      { label: "源", value: "source" },
     ],
     type: "select",
   },
@@ -3439,7 +3356,7 @@ const displacementMapParams = [
     key: "direction",
     label: "方向",
     options: [
-      { label: "双向", value: "both" },
+      { label: "两者", value: "both" },
       { label: "水平", value: "horizontal" },
       { label: "垂直", value: "vertical" },
     ],
@@ -3460,7 +3377,7 @@ const displacementMapParams = [
   {
     defaultValue: 0.5,
     key: "midpoint",
-    label: "中间点",
+    label: "中点",
     max: 1,
     min: 0,
     step: 0.01,
@@ -3493,7 +3410,7 @@ const chromaticAberrationParams = [
   {
     defaultValue: [0.5, 0.5],
     key: "center",
-    label: "中心",
+    label: "居中",
     max: 1,
     min: 0,
     step: 0.01,
@@ -3526,7 +3443,7 @@ const blurParams = [
   {
     defaultValue: 2,
     key: "passes",
-    label: "次数",
+    label: "处理次数",
     max: 8,
     min: 1,
     step: 1,
@@ -3538,7 +3455,7 @@ const sliceParams = [
   {
     defaultValue: 180,
     key: "amount",
-    label: "量",
+    label: "数量",
     max: 480,
     min: 0,
     step: 1,
@@ -3577,7 +3494,7 @@ const sliceParams = [
   {
     defaultValue: 0.18,
     key: "dispersion",
-    label: "弥散",
+    label: "色散",
     max: 0.5,
     min: 0,
     step: 0.01,
@@ -3597,9 +3514,9 @@ const sliceParams = [
     key: "direction",
     label: "方向",
     options: [
-      { label: "向右", value: "right" },
-      { label: "向左", value: "left" },
-      { label: "双向", value: "both" },
+      { label: "右", value: "right" },
+      { label: "左", value: "left" },
+      { label: "两者", value: "both" },
     ],
     type: "select",
   },
@@ -3607,7 +3524,7 @@ const sliceParams = [
 
 const layerDefinitions: Record<LayerType, LayerDefinition> = {
   ascii: {
-    defaultName: "ASCII 字符",
+    defaultName: "ASCII",
     kind: "effect",
     params: asciiParams,
     type: "ascii",
@@ -3619,172 +3536,172 @@ const layerDefinitions: Record<LayerType, LayerDefinition> = {
     type: "bloom",
   },
   "circuit-bent": {
-    defaultName: "电路弯曲",
+    defaultName: "Circuit Bent",
     kind: "effect",
     params: circuitBentParams,
     type: "circuit-bent",
   },
   "directional-blur": {
-    defaultName: "方向模糊",
+    defaultName: "Directional Blur",
     kind: "effect",
     params: directionalBlurParams,
     type: "directional-blur",
   },
   blur: {
-    defaultName: "模糊",
+    defaultName: "Blur",
     kind: "effect",
     params: blurParams,
     type: "blur",
   },
   crt: {
-    defaultName: "CRT 显示器",
+    defaultName: "CRT",
     kind: "effect",
     params: crtParams,
     type: "crt",
   },
   dithering: {
-    defaultName: "抖动",
+    defaultName: "Dithering",
     kind: "effect",
     params: ditheringParams,
     type: "dithering",
   },
   fluid: {
-    defaultName: "流体",
+    defaultName: "Fluid",
     kind: "source",
     params: fluidParams,
     type: "fluid",
   },
   gradient: {
-    defaultName: "渐变",
+    defaultName: "Gradient",
     kind: "source",
     params: gradientParams,
     type: "gradient",
   },
   ink: {
-    defaultName: "墨水",
+    defaultName: "Ink",
     kind: "effect",
     params: inkParams,
     type: "ink",
   },
   text: {
-    defaultName: "文字",
+    defaultName: "Text",
     kind: "source",
     params: textParams,
     type: "text",
   },
   "custom-shader": {
-    defaultName: "自定义着色器",
+    defaultName: "Custom Shader",
     kind: "source",
     params: customShaderParams,
     type: "custom-shader",
   },
   halftone: {
-    defaultName: "半色调",
+    defaultName: "Halftone",
     kind: "effect",
     params: halftoneParams,
     type: "halftone",
   },
   pattern: {
-    defaultName: "图案",
+    defaultName: "Pattern",
     kind: "effect",
     params: patternParams,
     type: "pattern",
   },
   "particle-grid": {
-    defaultName: "粒子网格",
+    defaultName: "Particle Grid",
     kind: "effect",
     params: particleGridParams,
     type: "particle-grid",
   },
   posterize: {
-    defaultName: "色调分离",
+    defaultName: "Posterize",
     kind: "effect",
     params: posterizeParams,
     type: "posterize",
   },
   threshold: {
-    defaultName: "阈值",
+    defaultName: "Threshold",
     kind: "effect",
     params: thresholdParams,
     type: "threshold",
   },
   smear: {
-    defaultName: "渐进模糊",
+    defaultName: "Progressive Blur",
     kind: "effect",
     params: smearParams,
     type: "smear",
   },
   "fluted-glass": {
-    defaultName: "条纹玻璃",
+    defaultName: "Fluted Glass",
     kind: "effect",
     params: flutedGlassParams,
     type: "fluted-glass",
   },
   plotter: {
-    defaultName: "绘图仪",
+    defaultName: "Plotter",
     kind: "effect",
     params: plotterParams,
     type: "plotter",
   },
   image: {
     assetKind: "image",
-    defaultName: "图片",
+    defaultName: "Image",
     kind: "source",
     params: imageParams,
     type: "image",
   },
   live: {
-    defaultName: "实时摄像头",
+    defaultName: "Live Camera",
     kind: "source",
     params: liveParams,
     type: "live",
   },
   model: {
     assetKind: "model",
-    defaultName: "3D 模型",
+    defaultName: "3D Model",
     kind: "model",
     params: modelParams,
     type: "model",
   },
   "pixel-sorting": {
-    defaultName: "像素排序",
+    defaultName: "Pixel Sorting",
     kind: "effect",
     params: pixelSortingParams,
     type: "pixel-sorting",
   },
   pixelation: {
-    defaultName: "像素化",
+    defaultName: "Pixelation",
     kind: "effect",
     params: pixelationParams,
     type: "pixelation",
   },
   slice: {
-    defaultName: "切片",
+    defaultName: "Slice",
     kind: "effect",
     params: sliceParams,
     type: "slice",
   },
   video: {
     assetKind: "video",
-    defaultName: "视频",
+    defaultName: "Video",
     kind: "source",
     params: videoParams,
     type: "video",
   },
   "edge-detect": {
-    defaultName: "边缘检测",
+    defaultName: "Edge Detect",
     kind: "effect",
     params: edgeDetectParams,
     type: "edge-detect",
   },
   "displacement-map": {
-    defaultName: "置换贴图",
+    defaultName: "Displacement Map",
     kind: "effect",
     params: displacementMapParams,
     type: "displacement-map",
   },
   "chromatic-aberration": {
-    defaultName: "色差",
+    defaultName: "Chromatic Aberration",
     kind: "effect",
     params: chromaticAberrationParams,
     type: "chromatic-aberration",

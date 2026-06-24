@@ -16,8 +16,8 @@ import type { CompositionAspect, SceneConfig } from "@/types/editor"
 import { COMPOSITION_ASPECTS, DEFAULT_SCENE_CONFIG } from "@/types/editor"
 
 const ASPECT_LABELS: Partial<Record<string, string>> = {
-  screen: "屏幕",
-  custom: "自定义",
+  screen: "Screen",
+  custom: "Custom",
 }
 
 const aspectOptions = COMPOSITION_ASPECTS.map((aspect) => ({
@@ -87,22 +87,6 @@ export function SceneConfigContent() {
   )
 
   return (
-<<<<<<< HEAD
-    <>
-      <div className="flex flex-col gap-1.5 border-b border-[var(--ds-border-divider)] px-4 pt-[14px] pb-3">
-        <Typography tone="secondary" variant="overline">
-          场景
-        </Typography>
-      </div>
-
-      <div className="flex min-h-0 max-h-[min(62vh,620px)] flex-col gap-0 overflow-y-auto">
-        {/* Composition */}
-        <Section title="画幅">
-          <Row label="比例">
-            <Select
-              onValueChange={(value) =>
-                handleUpdate("compositionAspect", value as CompositionAspect)
-=======
     <div className="flex min-h-0 max-h-[min(62vh,620px)] flex-col gap-0 overflow-x-hidden overflow-y-auto">
       {/* Composition */}
       <Section title="Composition">
@@ -122,7 +106,6 @@ export function SceneConfigContent() {
               min={1}
               onChange={(value) =>
                 handleUpdate("compositionWidth", Math.round(value))
->>>>>>> upstream/main
               }
               parseValue={(value) => {
                 const nextValue = Number.parseInt(value, 10)
@@ -131,50 +114,6 @@ export function SceneConfigContent() {
               step={1}
               value={sceneConfig.compositionWidth}
             />
-<<<<<<< HEAD
-          </Row>
-          {sceneConfig.compositionAspect === "custom" && (
-            <div className="flex items-center justify-end gap-1.5">
-              <NumberInput
-                className={inputClassName}
-                min={1}
-                onChange={(value) =>
-                  handleUpdate("compositionWidth", Math.round(value))
-                }
-                parseValue={(value) => {
-                  const nextValue = Number.parseInt(value, 10)
-                  return Number.isFinite(nextValue) ? nextValue : null
-                }}
-                step={1}
-                value={sceneConfig.compositionWidth}
-              />
-              <Typography tone="muted" variant="monoXs">
-                :
-              </Typography>
-              <NumberInput
-                className={inputClassName}
-                min={1}
-                onChange={(value) =>
-                  handleUpdate("compositionHeight", Math.round(value))
-                }
-                parseValue={(value) => {
-                  const nextValue = Number.parseInt(value, 10)
-                  return Number.isFinite(nextValue) ? nextValue : null
-                }}
-                step={1}
-                value={sceneConfig.compositionHeight}
-              />
-            </div>
-          )}
-        </Section>
-
-        {/* Background */}
-        <Section title="背景">
-          <Row label="颜色">
-            <ColorPicker
-              onValueChange={(value) => handleUpdate("backgroundColor", value)}
-              value={sceneConfig.backgroundColor}
-=======
             <Typography tone="muted" variant="monoXs">
               :
             </Typography>
@@ -190,43 +129,11 @@ export function SceneConfigContent() {
               }}
               step={1}
               value={sceneConfig.compositionHeight}
->>>>>>> upstream/main
             />
           </div>
         )}
       </Section>
 
-<<<<<<< HEAD
-        {/* Color Adjustments */}
-        <Section title="色调调整">
-          <Slider
-            label="亮度"
-            max={100}
-            min={-100}
-            onValueChange={(value) => handleUpdate("brightness", value / 100)}
-            value={sceneConfig.brightness * 100}
-          />
-          <Slider
-            label="对比度"
-            max={100}
-            min={-100}
-            onValueChange={(value) => handleUpdate("contrast", value / 100)}
-            value={sceneConfig.contrast * 100}
-          />
-          <Row label="反转">
-            <Toggle
-              checked={sceneConfig.invert}
-              onCheckedChange={(value) => handleUpdate("invert", value)}
-            />
-          </Row>
-        </Section>
-
-        {/* Channel Mixer */}
-        <Section title="通道混合器">
-          <ChannelCurves
-            curves={channelCurves}
-            onCurveChange={handleCurveChange}
-=======
       {/* Background */}
       <Section title="Background">
         <Row label="Color">
@@ -324,33 +231,10 @@ export function SceneConfigContent() {
           <Toggle
             checked={sceneConfig.invert}
             onCheckedChange={(value) => handleUpdate("invert", value)}
->>>>>>> upstream/main
           />
         </Row>
       </Section>
 
-<<<<<<< HEAD
-        {/* Clamp / Remap */}
-        <Section title="钳制 / 重映射">
-          <Slider
-            label="黑场"
-            max={100}
-            min={0}
-            onValueChange={(v) => handleUpdate("clampMin", v / 100)}
-            value={sceneConfig.clampMin * 100}
-          />
-          <Slider
-            label="白场"
-            max={100}
-            min={0}
-            onValueChange={(v) => handleUpdate("clampMax", v / 100)}
-            value={sceneConfig.clampMax * 100}
-          />
-        </Section>
-
-        {/* Quantize */}
-        <Section title="色调量化">
-=======
       {/* Output Mix */}
       <Section title="Output Mix">
         <ChannelMixerMatrix
@@ -429,9 +313,8 @@ export function SceneConfigContent() {
           />
         </Row>
         {sceneConfig.quantizeEnabled && (
->>>>>>> upstream/main
           <Slider
-            label="色阶数"
+            label="Levels"
             max={256}
             min={2}
             onValueChange={(value) =>
@@ -442,38 +325,6 @@ export function SceneConfigContent() {
         )}
       </Section>
 
-<<<<<<< HEAD
-        {/* Color Map */}
-        <Section title="颜色映射">
-          <Row label="启用">
-            <Toggle
-              checked={sceneConfig.colorMap !== null}
-              onCheckedChange={(enabled) => {
-                if (enabled) {
-                  updateSceneConfig({
-                    colorMap: {
-                      stops: [
-                        { position: 0, color: "#000000" },
-                        { position: 1, color: "#ffffff" },
-                      ],
-                    },
-                  })
-                } else {
-                  updateSceneConfig({ colorMap: null })
-                }
-              }}
-            />
-          </Row>
-          {sceneConfig.colorMap && (
-            <GradientRamp
-              onChange={handleColorMapChange}
-              stops={sceneConfig.colorMap.stops}
-            />
-          )}
-        </Section>
-      </div>
-    </>
-=======
       {/* Color Map */}
       <Section title="Color Map">
         <Row label="Enabled">
@@ -503,6 +354,5 @@ export function SceneConfigContent() {
         )}
       </Section>
     </div>
->>>>>>> upstream/main
   )
 }

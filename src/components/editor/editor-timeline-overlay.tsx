@@ -324,7 +324,7 @@ function TimelineTransport({
     >
       <div className="inline-flex items-center gap-1">
         <IconButton
-          aria-label={isPlaying ? "暂停" : "播放"}
+          aria-label={isPlaying ? "Pause playback" : "Play timeline"}
           className="h-7 w-7"
           onClick={onTogglePlaying}
           uiSound={isPlaying ? "action.pause" : "action.play"}
@@ -337,7 +337,7 @@ function TimelineTransport({
           )}
         </IconButton>
         <IconButton
-          aria-label="停止"
+          aria-label="Stop playback"
           className="h-7 w-7"
           onClick={onStop}
           uiSound="action.stop"
@@ -366,24 +366,7 @@ function TimelineTransport({
 
       <div className="inline-flex items-center gap-1">
         <IconButton
-<<<<<<< HEAD
-          aria-label={loop ? "关闭循环" : "开启循环"}
-          className={cn(
-            "h-7 w-auto gap-1.5 px-[10px]",
-            loop && "bg-white/12 text-[var(--ds-color-text-primary)]"
-          )}
-          onClick={onToggleLoop}
-          variant={loop ? "active" : "default"}
-        >
-          <Typography as="span" tone="secondary" variant="monoSm">
-            循环
-          </Typography>
-        </IconButton>
-        <IconButton
-          aria-label={autoKey ? "关闭自动关键帧" : "开启自动关键帧"}
-=======
           aria-label={autoKey ? "Disable auto-key" : "Enable auto-key"}
->>>>>>> upstream/main
           className={cn(
             "h-7 w-auto gap-1.5 px-[10px]",
             autoKey && "bg-white/12 text-[var(--ds-color-text-primary)]"
@@ -392,11 +375,6 @@ function TimelineTransport({
           uiSound={autoKey ? "action.autoKeyOff" : "action.autoKeyOn"}
           variant={autoKey ? "active" : "default"}
         >
-<<<<<<< HEAD
-          <CircleIcon size={10} weight={autoKey ? "fill" : "regular"} />
-          <Typography as="span" tone="secondary" variant="monoSm">
-            自动 K 帧
-=======
           {autoKey ? (
             <DotFilledIcon height={10} width={10} />
           ) : (
@@ -404,7 +382,6 @@ function TimelineTransport({
           )}
           <Typography as="span" tone="secondary" variant="caption">
             Auto-Key
->>>>>>> upstream/main
           </Typography>
         </IconButton>
       </div>
@@ -415,16 +392,11 @@ function TimelineTransport({
       />
 
       <div className="inline-flex items-center gap-2">
-<<<<<<< HEAD
-        <Typography as="span" tone="secondary" variant="monoSm">
-          时长
-=======
         <Typography as="span" tone="secondary" variant="caption">
           Dur
->>>>>>> upstream/main
         </Typography>
         <NumberInput
-          aria-label="时间轴时长（秒）"
+          aria-label="Timeline duration in seconds"
           size={2}
           className={cn(
             "min-h-7 appearance-none rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] text-center font-[var(--ds-font-mono)] text-[12px] leading-4 text-[var(--ds-color-text-primary)] outline-none transition-[background-color,border-color] duration-160 ease-[var(--ease-out-cubic)] focus:border-[var(--ds-border-hover)]",
@@ -452,7 +424,7 @@ function TimelineTransport({
           tone="secondary"
           variant="caption"
         >
-          秒
+          sec
         </Typography>
       </div>
 
@@ -467,7 +439,7 @@ function TimelineTransport({
         </Typography>
         <IconButton
           aria-label={
-            expanded ? "收起时间轴" : "展开时间轴"
+            expanded ? "Collapse timeline panel" : "Expand timeline panel"
           }
           className="h-7 w-7"
           onClick={onToggleExpanded}

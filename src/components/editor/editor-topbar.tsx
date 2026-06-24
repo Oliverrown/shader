@@ -304,74 +304,6 @@ export function EditorTopBar() {
           top: 16,
         })}
       >
-<<<<<<< HEAD
-        <GlassPanel
-          className="pointer-events-auto flex min-h-11 w-auto items-center justify-between gap-[var(--ds-space-4)] px-[10px] py-2"
-          variant="panel"
-        >
-          <div className="inline-flex items-center gap-1.5">
-            <IconButton
-              aria-label="撤销"
-              className="h-7 w-7 disabled:opacity-45"
-              disabled={!canUndo}
-              onClick={handleUndo}
-              variant="default"
-            >
-              <ArrowCounterClockwiseIcon size={18} weight="bold" />
-            </IconButton>
-            <IconButton
-              aria-label="重做"
-              className="h-7 w-7 disabled:opacity-45"
-              disabled={!canRedo}
-              onClick={handleRedo}
-              variant="default"
-            >
-              <ArrowClockwiseIcon size={18} weight="bold" />
-            </IconButton>
-          </div>
-
-          <div className="inline-flex items-center gap-1.5">
-            <IconButton
-              aria-label="缩小"
-              className="h-7 w-7 disabled:opacity-45"
-              onClick={() => applyZoomStep("out")}
-              variant="default"
-            >
-              <MinusIcon size={18} weight="bold" />
-            </IconButton>
-            <button
-              className="inline-flex h-7 min-w-16 cursor-pointer items-center justify-center rounded-[var(--ds-radius-icon)] border border-[var(--ds-border-divider)] bg-[var(--ds-color-surface-control)] px-[10px] transition-[background-color,border-color,color,transform] duration-160 ease-[var(--ease-out-cubic)] hover:bg-white/8 hover:border-[var(--ds-border-hover)] active:scale-[0.98] max-[899px]:min-w-14"
-              onClick={resetView}
-              type="button"
-            >
-              <Typography as="span" tone="secondary" variant="monoSm">
-                {Math.round(zoom * 100)}%
-              </Typography>
-            </button>
-            <IconButton
-              aria-label="放大"
-              className="h-7 w-7 disabled:opacity-45"
-              onClick={() => applyZoomStep("in")}
-              variant="default"
-            >
-              <PlusIcon size={18} weight="bold" />
-            </IconButton>
-            <span
-              aria-hidden="true"
-              className="block h-5 w-px rounded-full bg-[var(--ds-border-divider)]"
-            />
-            <IconButton
-              aria-label="导出"
-              className="h-7 w-7 disabled:opacity-45"
-              onClick={() => setIsExportDialogOpen(true)}
-              variant="default"
-            >
-              <DownloadSimpleIcon size={16} weight="bold" />
-            </IconButton>
-          </div>
-        </GlassPanel>
-      </div>
-=======
         {({ dragHandleProps }) => (
           <GlassPanel
             className="flex min-h-11 w-auto items-center justify-between gap-[var(--ds-space-4)] px-[10px] py-2"
@@ -541,7 +473,6 @@ export function EditorTopBar() {
           </GlassPanel>
         )}
       </FloatingDesktopPanel>
->>>>>>> upstream/main
 
       {mobileActionsOpen ? (
         <div className="pointer-events-none fixed right-0 bottom-[88px] left-0 z-45 flex justify-center px-3 min-[900px]:hidden">
@@ -551,7 +482,7 @@ export function EditorTopBar() {
           >
             <div className="inline-flex w-full items-center justify-between gap-1.5">
               <IconButton
-                aria-label="撤销"
+                aria-label="Undo"
                 className="h-7 w-7 disabled:opacity-45"
                 disabled={!canUndo}
                 onClick={handleUndo}
@@ -562,7 +493,7 @@ export function EditorTopBar() {
                 <ResetIcon height={18} width={18} />
               </IconButton>
               <IconButton
-                aria-label="重做"
+                aria-label="Redo"
                 className="h-7 w-7 disabled:opacity-45"
                 disabled={!canRedo}
                 onClick={handleRedo}
@@ -575,7 +506,7 @@ export function EditorTopBar() {
 
             <div className="inline-flex w-full items-center justify-between gap-1.5">
               <IconButton
-                aria-label="缩小"
+                aria-label="Zoom out"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => applyZoomStep("out")}
                 variant="default"
@@ -597,7 +528,7 @@ export function EditorTopBar() {
                 </button>
               </HoverTooltip>
               <IconButton
-                aria-label="放大"
+                aria-label="Zoom in"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => applyZoomStep("in")}
                 variant="default"
@@ -609,7 +540,7 @@ export function EditorTopBar() {
                 className="mx-1 block h-5 w-px rounded-full bg-[var(--ds-border-divider)]"
               />
               <IconButton
-                aria-label="导出"
+                aria-label="Export"
                 className="h-7 w-7 disabled:opacity-45"
                 onClick={() => setIsExportDialogOpen(true)}
                 tooltip="Download"

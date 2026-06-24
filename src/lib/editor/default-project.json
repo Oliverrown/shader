@@ -107,13 +107,9 @@
       "name": "文字",
       "opacity": 1,
       "params": {
-<<<<<<< HEAD
         "text": "SuperOPC",
-=======
-        "text": "basement",
         "anchor": "center",
         "offset": [0, 0],
->>>>>>> upstream/main
         "fontSize": 201,
         "fontFamily": "sans",
         "fontWeight": 800,

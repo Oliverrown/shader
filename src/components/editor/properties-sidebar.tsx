@@ -633,21 +633,6 @@ export function PropertiesSidebar() {
             top: 76,
           })}
         >
-<<<<<<< HEAD
-          <div className="flex items-center justify-end border-b border-[var(--ds-border-divider)] px-3 py-1.5">
-            <IconButton
-              aria-label={
-                sidebarView === "scene" ? "图层属性" : "场景设置"
-              }
-              className={cn(
-                "h-7 w-7",
-                sidebarView === "scene" && "bg-white/10"
-              )}
-              onClick={() =>
-                setSidebarView(sidebarView === "scene" ? "properties" : "scene")
-              }
-              variant="default"
-=======
           {({ dragHandleProps, suppressResize: _suppressResize }) => (
             <motion.div
               className="pointer-events-auto overflow-hidden rounded-[var(--ds-radius-panel)] w-[300px]"
@@ -656,7 +641,6 @@ export function PropertiesSidebar() {
                 ? {}
                 : { animate: { height: panelHeight } })}
               transition={heightTransition}
->>>>>>> upstream/main
             >
               <GlassPanel
                 className="flex h-full min-h-0 flex-col gap-0 p-0"

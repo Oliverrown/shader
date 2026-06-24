@@ -71,10 +71,10 @@ import {
 type ExportTab = "image" | "project" | "shader" | "video"
 
 const QUALITY_LABELS: Record<ExportQualityPreset, string> = {
-  draft: "草稿",
-  high: "高",
-  standard: "标准",
-  ultra: "超高",
+  draft: "Draft",
+  high: "High",
+  standard: "Standard",
+  ultra: "Ultra",
 }
 
 const ASPECT_PRESETS: ExportAspectPreset[] = [
@@ -536,11 +536,11 @@ export function EditorExportDialog({
 
       downloadBlob(blob, buildDownloadName("png"))
       setStatusMessage(
-        `PNG 已导出，尺寸 ${imageSize.width}×${imageSize.height}。`
+        `PNG exported at ${imageSize.width}×${imageSize.height}.`
       )
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "图像导出失败。"
+        error instanceof Error ? error.message : "Image export failed."
       )
     } finally {
       setIsWorking(false)
@@ -576,19 +576,19 @@ export function EditorExportDialog({
 
       downloadBlob(blob, buildDownloadName(videoFormat))
       setVideoProgress({
-        label: "导出完成",
+        label: "Export complete",
         value: 1,
       })
       setStatusMessage(
-        `${videoFormat.toUpperCase()} 已导出，尺寸 ${exportSize.width}×${exportSize.height}。`
+        `${videoFormat.toUpperCase()} exported at ${exportSize.width}×${exportSize.height}.`
       )
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         setVideoProgress(null)
-        setStatusMessage("视频导出已取消。")
+        setStatusMessage("Video export cancelled.")
       } else {
         setErrorMessage(
-          error instanceof Error ? error.message : "视频导出失败。"
+          error instanceof Error ? error.message : "Video export failed."
         )
       }
     } finally {
@@ -682,10 +682,10 @@ export function EditorExportDialog({
       })
 
       downloadBlob(blob, buildDownloadName("lab"))
-      setStatusMessage("项目已导出。")
+      setStatusMessage("Shader Lab project exported.")
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "项目导出失败。"
+        error instanceof Error ? error.message : "Project export failed."
       )
     }
   }
@@ -704,13 +704,13 @@ export function EditorExportDialog({
 
       setStatusMessage(
         result.missingAssetCount > 0
-          ? `项目已导入。${result.missingAssetCount} 个媒体图层需重新关联。`
-          : "项目已导入。"
+          ? `Project imported. ${result.missingAssetCount} media layer(s) need relinking.`
+          : "Project imported."
       )
       onOpenChange(false)
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "项目导入失败。"
+        error instanceof Error ? error.message : "Project import failed."
       )
     } finally {
       setIsWorking(false)
@@ -724,7 +724,7 @@ export function EditorExportDialog({
     if (!shaderSnippet) {
       setErrorMessage(
         shaderExportIssues[0]?.message ??
-          "此项目不支持着色器导出。"
+          "Shader export is not available for this project."
       )
       return
     }
@@ -733,12 +733,12 @@ export function EditorExportDialog({
 
     try {
       await copyToClipboard(shaderSnippet)
-      setStatusMessage("着色器代码片段已复制到剪贴板。")
+      setStatusMessage("Shader snippet copied to clipboard.")
     } catch (error) {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "无法复制着色器代码片段。"
+          : "Could not copy shader snippet."
       )
     } finally {
       setIsCopyingShader(false)
@@ -779,7 +779,7 @@ export function EditorExportDialog({
         <div className="fixed inset-0 z-90" role="presentation">
           <motion.button
             animate={{ opacity: 1 }}
-            aria-label="关闭导出对话框"
+            aria-label="Close export dialog"
             className="absolute inset-0 w-full border-0 bg-[rgb(4_5_7_/_0.56)]"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
@@ -823,10 +823,10 @@ export function EditorExportDialog({
               >
                 <div className="flex items-center justify-between border-b border-[var(--ds-border-divider)] px-4 pt-[14px] pb-3">
                   <Typography as="h2" className="leading-5" variant="title">
-                    导出
+                    Export
                   </Typography>
                   <IconButton
-                    aria-label="关闭导出对话框"
+                    aria-label="Close export dialog"
                     className="h-7 w-7"
                     onClick={() => onOpenChange(false)}
                     variant="default"
@@ -837,14 +837,7 @@ export function EditorExportDialog({
 
                 <div className="flex gap-1.5 border-b border-[var(--ds-border-divider)] px-4 py-[10px]">
                   {(["image", "video", "shader", "project"] as const).map(
-                    (tab) => {
-                      const TAB_LABELS: Record<typeof tab, string> = {
-                        image: "图像",
-                        video: "视频",
-                        shader: "着色器",
-                        project: "项目",
-                      }
-                      return (
+                    (tab) => (
                       <button
                         className={cn(
                           "inline-flex min-h-7 cursor-pointer items-center justify-center rounded-[var(--ds-radius-control)] border border-transparent px-[10px] leading-none transition-[background-color,border-color,color] duration-160 ease-[var(--ease-out-cubic)] hover:bg-[var(--ds-color-surface-subtle)] hover:border-[var(--ds-border-subtle)]",
@@ -860,10 +853,10 @@ export function EditorExportDialog({
                           tone={activeTab === tab ? "primary" : "tertiary"}
                           variant="label"
                         >
-                          {TAB_LABELS[tab]}
+                          {tab}
                         </Typography>
                       </button>
-                    )}
+                    )
                   )}
                 </div>
 
@@ -1155,7 +1148,7 @@ function ImageTabContent({
 }) {
   return (
     <section className="flex flex-col gap-[14px]">
-      <FieldLabel label="比例">
+      <FieldLabel label="Aspect">
         <PresetRow>
           {ASPECT_PRESETS.map((preset) => (
             <PillButton
@@ -1168,7 +1161,7 @@ function ImageTabContent({
         </PresetRow>
       </FieldLabel>
 
-      <FieldLabel label="画质">
+      <FieldLabel label="Quality">
         <PresetRow>
           {QUALITY_PRESETS.map((preset) => (
             <PillButton
@@ -1192,14 +1185,9 @@ function ImageTabContent({
       />
 
       <Typography className="leading-[14px]" tone="muted" variant="caption">
-        使用当前播放头所在帧。
+        Uses the current playhead frame.
       </Typography>
 
-<<<<<<< HEAD
-      <Button disabled={isWorking} onClick={() => void onExport()}>
-        <FileArrowDownIcon size={16} weight="bold" />
-        导出 PNG
-=======
       <Button
         disabled={isWorking}
         onClick={() => void onExport()}
@@ -1207,7 +1195,6 @@ function ImageTabContent({
       >
         <DownloadIcon height={16} width={16} />
         Export PNG
->>>>>>> upstream/main
       </Button>
     </section>
   )
@@ -1266,9 +1253,6 @@ function VideoTabContent({
 
   return (
     <section className="flex flex-col gap-[14px]">
-<<<<<<< HEAD
-      <FieldLabel label="格式">
-=======
       {hasFluidLayer ? (
         <div className="flex flex-col gap-3 rounded-[var(--ds-radius-control)] border border-[rgb(255_190_92_/_0.22)] p-3">
           <Typography
@@ -1303,7 +1287,6 @@ function VideoTabContent({
       ) : null}
 
       <FieldLabel label="Format">
->>>>>>> upstream/main
         <PresetRow>
           <PillButton
             active={videoFormat === "webm"}
@@ -1320,7 +1303,7 @@ function VideoTabContent({
         </PresetRow>
       </FieldLabel>
 
-      <FieldLabel label="比例">
+      <FieldLabel label="Aspect">
         <PresetRow>
           {ASPECT_PRESETS.map((preset) => (
             <PillButton
@@ -1333,7 +1316,7 @@ function VideoTabContent({
         </PresetRow>
       </FieldLabel>
 
-      <FieldLabel label="画质">
+      <FieldLabel label="Quality">
         <PresetRow>
           {QUALITY_PRESETS.map((preset) => (
             <PillButton
@@ -1357,7 +1340,7 @@ function VideoTabContent({
       />
 
       <div className="grid gap-[10px] min-[900px]:grid-cols-2">
-        <FieldLabel label="帧率">
+        <FieldLabel label="FPS">
           <PresetRow>
             {VIDEO_FPS_PRESETS.map((fps) => (
               <PillButton
@@ -1370,7 +1353,7 @@ function VideoTabContent({
           </PresetRow>
         </FieldLabel>
 
-        <FieldLabel label="时长">
+        <FieldLabel label="Duration">
           <NumberInput
             disabled={videoDurationReadOnly}
             formatValue={(value) =>
@@ -1408,7 +1391,7 @@ function VideoTabContent({
         ) : (
           <DownloadIcon height={16} width={16} />
         )}
-        {isWorking ? "取消导出" : `导出 ${videoFormat.toUpperCase()}`}
+        {isWorking ? "Cancel Export" : `Export ${videoFormat.toUpperCase()}`}
       </Button>
     </section>
   )
@@ -1435,11 +1418,6 @@ function ProjectTabContent({
 }) {
   return (
     <section className="flex flex-col gap-[14px]">
-<<<<<<< HEAD
-      <Button disabled={isWorking} onClick={() => void onExport()}>
-        <FileArrowDownIcon size={16} weight="bold" />
-        导出 .lab 文件
-=======
       <Button
         disabled={isWorking}
         onClick={() => void onExport()}
@@ -1447,7 +1425,6 @@ function ProjectTabContent({
       >
         <DownloadIcon height={16} width={16} />
         Export .lab file
->>>>>>> upstream/main
       </Button>
 
       <label
@@ -1478,10 +1455,10 @@ function ProjectTabContent({
         <UploadIcon height={20} width={20} />
         <div>
           <Typography className="leading-4" variant="label">
-            导入 .lab 配置文件
+            Import .lab configuration
           </Typography>
           <Typography className="mt-1" tone="tertiary" variant="caption">
-            拖放至此。将替换当前项目。
+            Drag and drop here. This will replace your current setup.
           </Typography>
         </div>
 
@@ -1516,11 +1493,11 @@ function ShaderTabContent({
   return (
     <section className="flex flex-col gap-[14px]">
       <Typography className="leading-[14px]" tone="muted" variant="caption">
-        使用{" "}
+        Install with{" "}
         <code className="rounded-[6px] border border-white/9 bg-white/6 px-[5px] py-px font-[var(--ds-font-mono)] text-[11px]">
           bun add @basementstudio/shader-lab three
         </code>
-        {" "}安装依赖，然后将此组件粘贴到 React 应用中。
+        , then paste this component into your React app.
       </Typography>
 
       {issues.length > 0 ? (
@@ -1536,22 +1513,17 @@ function ShaderTabContent({
         </div>
       ) : null}
 
-      <FieldLabel label="代码片段">
+      <FieldLabel label="Snippet">
         <pre className="m-0 max-h-[280px] overflow-auto rounded-[var(--ds-radius-panel)] border border-[var(--ds-border-divider)] bg-white/4 p-3 font-[var(--ds-font-mono)] text-[11px] leading-[1.55] whitespace-pre-wrap break-words">
           <code>
-            {snippet ?? "// 此项目的着色器导出不可用。"}
+            {snippet ?? "// Shader export is blocked for this project."}
           </code>
         </pre>
       </FieldLabel>
 
       <Button disabled={!canCopy || isCopying} onClick={() => void onCopy()}>
-<<<<<<< HEAD
-        <CopyIcon size={16} weight="bold" />
-        {isCopying ? "复制中..." : "复制片段"}
-=======
         <CopyIcon height={16} width={16} />
         {isCopying ? "Copying..." : "Copy snippet"}
->>>>>>> upstream/main
       </Button>
     </section>
   )

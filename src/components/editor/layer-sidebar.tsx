@@ -127,8 +127,8 @@ type LayerListItemProps = {
 }
 
 const LAYER_ACTION_OPTIONS = [
-  { label: "重置属性", value: "reset" },
-  { label: "删除图层", value: "delete" },
+  { label: "Reset properties", value: "reset" },
+  { label: "Delete layer", value: "delete" },
 ] as const satisfies readonly {
   label: ReactNode
   value: LayerAction
@@ -311,20 +311,6 @@ const LayerListItem = memo(function LayerListItem({
       value={layer}
     >
       <div className="grid min-w-0 grid-cols-[14px_minmax(0,1fr)] items-center gap-[var(--ds-space-2)]">
-<<<<<<< HEAD
-        <button
-          aria-label={`排序 ${layer.name}`}
-          className={cn(
-            "inline-flex h-[14px] w-[14px] touch-none items-center justify-center bg-transparent p-0 text-[var(--ds-color-text-muted)]",
-            !layer.locked && "cursor-grab active:cursor-grabbing",
-            layer.locked && "text-[var(--ds-color-text-disabled)]"
-          )}
-          onPointerDown={handlePointerDown}
-          type="button"
-        >
-          <DotsSixVerticalIcon size={14} weight="bold" />
-        </button>
-=======
         <HoverTooltip content="Reorder" side="right">
           <button
             aria-label={`Reorder ${layer.name}`}
@@ -340,7 +326,6 @@ const LayerListItem = memo(function LayerListItem({
             <DragHandleDots2Icon height={14} width={14} />
           </button>
         </HoverTooltip>
->>>>>>> upstream/main
 
         <button
           className="grid min-w-0 cursor-pointer grid-cols-[28px_minmax(0,1fr)] items-center gap-[var(--ds-space-2)] bg-transparent p-0 text-left text-inherit"
@@ -366,7 +351,7 @@ const LayerListItem = memo(function LayerListItem({
         options={LAYER_ACTION_OPTIONS}
         placeholder={<DotsVerticalIcon height={14} width={14} />}
         popupClassName="min-w-[152px]"
-        triggerAriaLabel={`${layer.name} 的图层操作`}
+        triggerAriaLabel={`Layer actions for ${layer.name}`}
         triggerVariant="icon"
         uiSound="none"
         valueClassName="inline-flex items-center justify-center leading-none text-[var(--ds-color-text-tertiary)] [&_svg]:h-[14px] [&_svg]:w-[14px]"
@@ -374,7 +359,7 @@ const LayerListItem = memo(function LayerListItem({
 
       {hasMissingAsset ? (
         <IconButton
-          aria-label={`重新关联 ${layer.name} 的缺失资产`}
+          aria-label={`Relink missing asset for ${layer.name}`}
           onClick={(event) => {
             event.stopPropagation()
             onRelinkPick(layer)
@@ -386,7 +371,7 @@ const LayerListItem = memo(function LayerListItem({
         </IconButton>
       ) : (
         <IconButton
-          aria-label={layer.visible ? "隐藏图层" : "显示图层"}
+          aria-label={layer.visible ? "Hide layer" : "Show layer"}
           onClick={(event) => {
             event.stopPropagation()
             onSetLayerVisibility(layer.id, !layer.visible)
@@ -404,7 +389,7 @@ const LayerListItem = memo(function LayerListItem({
       )}
 
       <IconButton
-        aria-label={`删除 ${layer.name}`}
+        aria-label={`Delete ${layer.name}`}
         onClick={(event) => {
           event.stopPropagation()
           onLayerAction(layer.id, "delete")
@@ -691,34 +676,8 @@ export function LayerSidebar() {
           !mobilePanelVisible && "translate-y-3 opacity-0"
         )}
       >
-<<<<<<< HEAD
-        <div className="flex min-h-11 items-center justify-between border-[var(--ds-border-divider)] border-b pr-3 pl-[var(--ds-space-4)]">
-          <Typography className="uppercase" tone="secondary" variant="overline">
-            图层
-          </Typography>
-          <div className="inline-flex items-center gap-1.5">
-            <IconButton
-              aria-label="进入沉浸式画布模式"
-              className="pointer-events-auto"
-              onClick={enterImmersiveCanvas}
-              variant="ghost"
-            >
-              <SidebarSimpleIcon size={14} weight="regular" />
-            </IconButton>
-            <LayerPicker
-              className="pointer-events-auto"
-              onSelect={handleAddLayer}
-            />
-          </div>
-        </div>
-
-        <Reorder.Group
-          axis="y"
-          as="ul"
-=======
         <GlassPanel
           data-layer-sidebar-panel="true"
->>>>>>> upstream/main
           className={cn(
             "pointer-events-auto relative flex flex-col gap-[var(--ds-space-1)] p-0 max-h-[min(56vh,420px)] w-full",
             !mobilePanelVisible && "pointer-events-none"
