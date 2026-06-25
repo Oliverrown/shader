@@ -27,6 +27,11 @@ const PRODUCTS = [
     href: "https://athens.superopc.app/",
     name: "Athens",
   },
+  {
+    description: "动效编排，视频导出",
+    href: "https://motion.superopc.app/",
+    name: "Motion",
+  },
 ] as const
 
 const CURRENT_PRODUCT = PRODUCTS[1]
