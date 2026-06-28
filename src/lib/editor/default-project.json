@@ -70,6 +70,45 @@
       "visible": true
     },
     {
+      "assetId": null,
+      "blendMode": "overlay",
+      "compositeMode": "filter",
+      "expanded": true,
+      "hue": 0,
+      "id": "default-fluid-layer",
+      "kind": "source",
+      "locked": false,
+      "maskConfig": {
+        "invert": false,
+        "mode": "multiply",
+        "source": "luminance"
+      },
+      "name": "Fluid",
+      "opacity": 0.5,
+      "params": {
+        "simRes": 192,
+        "dyeRes": 1024,
+        "iterations": 20,
+        "densityDissipation": 4,
+        "velocityDissipation": 0.2,
+        "pressureDissipation": 0,
+        "curlStrength": 30,
+        "radius": 1,
+        "splatForce": 7800,
+        "autoSplats": true,
+        "brightness": 1.6,
+        "colorMode": "monochrome",
+        "monoDark": "#000000",
+        "monoLight": "#FFFFFF",
+        "duotoneDark": "#101010",
+        "duotoneLight": "#f3f3ef"
+      },
+      "runtimeError": null,
+      "saturation": 1,
+      "type": "fluid",
+      "visible": true
+    },
+    {
       "assetId": "default-shader-lab-image",
       "blendMode": "normal",
       "compositeMode": "filter",
@@ -179,7 +218,7 @@
     "quantizeLevels": 256,
     "colorMap": null
   },
-  "selectedLayerId": "default-crt-layer",
+  "selectedLayerId": "default-fluid-layer",
   "timeline": {
     "duration": 8,
     "loop": true,
